@@ -1,4 +1,6 @@
 import axios from "axios";
+import { WALLET_PREFIX } from "../constant";
+const { bech32 } = require('bech32');
 
 /**
  * For making http requests
@@ -50,4 +52,12 @@ export function log(
 export const getOffset = (page = 1, limit = 10) => {
   if (page < 1) page = 1;
   return (page - 1) * limit;
+};
+
+export const getWalletAddressFromNodeAddress=(nodeAddress:String,walletPrefix:String=WALLET_PREFIX):String=>{
+  const decoded = bech32.decode(nodeAddress);
+  const words = decoded.words;
+
+  // Re-encode with wallet prefix
+  return bech32.encode(walletPrefix, words);
 };

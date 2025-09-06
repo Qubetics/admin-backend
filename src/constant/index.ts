@@ -133,6 +133,12 @@ export enum TransactionStatus {
   FAILED = "FAILED",
 }
 
+export const FETCH_METHODS={
+   GET:"GET",
+   POST:"POST",
+   PUT:"PUT",
+   DELETE:"DELETE"
+};
 
 export const HEADERS = {
   DEFAULT: {
@@ -140,3 +146,6 @@ export const HEADERS = {
     Accept: "application/json",
   },
 };
+
+export const UNDEFINED = "undefined";
+export const WALLET_PREFIX="qubetics";

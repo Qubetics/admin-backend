@@ -20,6 +20,8 @@ class Environment implements IEnvironment {
 
   public redisExpiry: number;
 
+  public evmHost: string;
+
 
   /**
    *
@@ -34,6 +36,7 @@ class Environment implements IEnvironment {
     // this.databaseReplicaUrl = <string>process.env.DATABASE_REPLICA_URL;
     this.redisHost = <string>process.env.REDIS_HOST;
     this.redisPort = <string>process.env.REDIS_PORT;
+    this.evmHost = <string>process.env.SWAGGER_HTTP_HOST;
   }
 
   /**
