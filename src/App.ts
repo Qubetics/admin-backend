@@ -48,7 +48,7 @@ export default class App {
    */
   private routes(): void {
     this.express.use(
-      "/admin",
+      "/api/v1",
       // this.limiter,
       registerRoutes(),
     );

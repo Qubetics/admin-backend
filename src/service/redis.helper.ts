@@ -51,9 +51,13 @@ class RedisService {
   }
 
   // set the string data to redis
-  public async setString<T>(key: string, data: T) {
+  public async setString<T>(key: string, data: T, expiryInSeconds?: number) {
     try {
-      const redisSaveRes = await this.client.set(key, JSON.stringify(data));
+      const payload = JSON.stringify(data);
+      if (expiryInSeconds) {
+        return await this.client.set(key, payload, { EX: expiryInSeconds });
+      }
+      return await this.client.set(key, payload);
     } catch (err) {
       logger.error("error while setting the data into redis: ", err);
     }
