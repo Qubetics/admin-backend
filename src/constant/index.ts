@@ -133,11 +133,11 @@ export enum TransactionStatus {
   FAILED = "FAILED",
 }
 
-export const FETCH_METHODS={
-   GET:"GET",
-   POST:"POST",
-   PUT:"PUT",
-   DELETE:"DELETE"
+export const FETCH_METHODS = {
+  POST: "POST",
+  GET: "GET",
+  PATCH: "PATCH",
+  PUT: "PUT",
 };
 
 export const HEADERS = {
