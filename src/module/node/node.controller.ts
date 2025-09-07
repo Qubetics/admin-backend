@@ -18,21 +18,25 @@ class NodeController implements Controller {
         this.router.post("", this.nodeFormRequest);
     }
 
-    private nodeFormRequest = async (res: Response, req: Request) => {
-        const orgName = String(req.body.orgName);
-        const email = String(req.body.email);
-        const nodeAddress = String(req.body.nodeAddress);
-        const choosePlan = String(req.body.choosePlan);
-        const wallet_address = String(req.body.wallet_address);
-        const pubKey = String(req.body.pubKey);
-        const signature = req.body.signature;
+    private nodeFormRequest = async (req: Request,res: Response) => {
+        console.log("🚀 ~ NodeController ~ req:", req.body)
+        console.log("comessssssnode");
+        const orgName = String(req.body?.orgName);
+        const email = String(req.body?.emailAddress);
+        const nodeAddress = String(req.body?.nodeAddress);
+        const choosePlan = req.body?.choosePlan;
+        const wallet_address = String(req.body?.address);
+        const pubKey = String(req.body?.pubKey);
+        const signature = req.body?.signature;
 
+        console.log("🚀 ~ NodeController ~ orgName,email,nodeAddress,choosePlan,wallet_address,pubKey,signature:", orgName,email,nodeAddress,choosePlan,wallet_address,pubKey,signature)
         const result=await nodeService.nodeFormRequest(orgName,email,nodeAddress,choosePlan,wallet_address,pubKey,signature);
 
         if(result.error){
             return setResponse.error(res,result);
         }
         return setResponse.success(res,result);
+
     }
 }
 

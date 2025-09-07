@@ -27,6 +27,7 @@ model NodeRequest {
   location   String
   nodeAddress String  
   plan       String
+  planId     String
   status     Status
   bandwidth  String
   address    String

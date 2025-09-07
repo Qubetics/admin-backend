@@ -34,6 +34,7 @@ export const RATE_LIMITER_MESSAGE = {
 };
 
 export const RES_MSG = {
+  SUCCESS_REQUEST: "successfully request send",
   NOT_FOUND: "data not found",
   FETCH_SUCCESS: "data fetched successfully",
   ACTIVE: "active",
@@ -149,3 +150,11 @@ export const HEADERS = {
 
 export const UNDEFINED = "undefined";
 export const WALLET_PREFIX="qubetics";
+
+export const Message = {
+  nodesave: 'Nodes saved with geo info',
+  invalidurl: 'Invalid URL format',
+  receiveplan: 'Received plans is not an array',
+  plansave: 'Plans saved successfully',
+  NodatFetch: 'Failed to fetch',
+};

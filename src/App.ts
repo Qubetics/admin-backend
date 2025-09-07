@@ -6,6 +6,7 @@ import { rateLimit } from "express-rate-limit";
 import registerRoutes from "./routes";
 import { RATE_LIMITER_MESSAGE } from "./constant";
 import { RedisService } from "./service";
+import prisma from "./lib/db";
 
 export default class App {
   public express: express.Application;
@@ -26,6 +27,7 @@ export default class App {
       },
       legacyHeaders: false,
     });
+    console.log(prisma,"prisma");
   }
 
   public async init(): Promise<void> {
@@ -57,7 +59,12 @@ export default class App {
    * here you can apply your middlewares
    */
   private middleware(): void {
-    this.express.use(cors());
+    this.express.use(cors({
+      origin: "http://localhost:5173",  // allow Vite frontend
+      credentials: true,                 // allow cookies/authorization headers
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }));
     // support application/json type post data
     // support application/x-www-form-urlencoded post data
     // Helmet can help protect your app from some well-known web vulnerabilities by setting HTTP headers appropriately.

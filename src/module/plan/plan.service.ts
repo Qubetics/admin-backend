@@ -10,18 +10,18 @@ class PlanService {
     try {
       const page = data.page;
       const limit = data.limit;
-      const redisKey = `plans:page:${page}:limit:${limit}`;
+      // const redisKey = `plans:page:${page}:limit:${limit}`;
 
-      const cached = await RedisService.getString(redisKey);
-      if (cached) {
-        return {
-          error: false,
-          message: RES_MSG.FETCH_SUCCESS,
-          data: cached,
-        };
-      }
+      // const cached = await RedisService.getString(redisKey);
+      // if (cached) {
+      //   return {
+      //     error: false,
+      //     message: RES_MSG.FETCH_SUCCESS,
+      //     data: cached,
+      //   };
+      // }
 
-      const plansUrl = `${environment.evmHost}qubetics/plan/v3/plans`;
+      const plansUrl = `${environment.evmHost}qubetics/plan/v3/plans?pagination.offset=${page}&pagination.limit=${limit}`;
       const planResponse = await fetchRequest(plansUrl, FETCH_METHODS.GET);
 
       if (!planResponse || !planResponse.data?.plans) {
@@ -29,23 +29,24 @@ class PlanService {
       }
 
       const plans = planResponse.data.plans;
-      const totalPages = Math.ceil(plans.length / limit);
+      // const totalPages = Math.ceil(plans.length / limit);
 
-      for (let i = 1; i <= totalPages; i++) {
-        const start = (i - 1) * limit;
-        const end = start + limit;
-        const chunk = plans.slice(start, end);
+      // for (let i = 1; i <= totalPages; i++) {
+      //   const start = (i - 1) * limit;
+      //   const end = start + limit;
+      //   const chunk = plans.slice(start, end);
   
-        const key = `plans:page:${i}:limit:${limit}`;
-        await RedisService.setString(key, chunk, 3600);
-        console.log(`Stored ${key} with ${chunk.length} items`);
-      }
+      //   const key = `plans:page:${i}:limit:${limit}`;
+      //   await RedisService.setString(key, chunk, 3600);
+      //   console.log(`Stored ${key} with ${chunk.length} items`);
+      // }
   
-      const freshPage = await RedisService.getString(redisKey);
+      // const freshPage = await RedisService.getString(redisKey);
       return {
         error: false,
         message: RES_MSG.FETCH_SUCCESS,
-        data: freshPage ? freshPage : [],
+        data: plans ? plans : [],
+        total: plans ? plans.length : 0
       };
       
     } catch (err) {
