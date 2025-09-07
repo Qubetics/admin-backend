@@ -6,6 +6,7 @@ import { rateLimit } from "express-rate-limit";
 import registerRoutes from "./routes";
 import { RATE_LIMITER_MESSAGE } from "./constant";
 import { RedisService } from "./service";
+import cookieParser from'cookie-parser';
 
 export default class App {
   public express: express.Application;
@@ -48,7 +49,7 @@ export default class App {
    */
   private routes(): void {
     this.express.use(
-      "/admin",
+      "/api/v1",
       // this.limiter,
       registerRoutes(),
     );
@@ -59,6 +60,7 @@ export default class App {
    */
   private middleware(): void {
     this.express.use(cors());
+    this.express.use(cookieParser());
     // support application/json type post data
     // support application/x-www-form-urlencoded post data
     // Helmet can help protect your app from some well-known web vulnerabilities by setting HTTP headers appropriately.

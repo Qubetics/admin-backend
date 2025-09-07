@@ -8,3 +8,52 @@ datasource db {
 }
 
 
+model User {
+  id         String   @id @default(uuid())
+  address    String   @unique
+  role       Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  nodeRequests NodeRequest[]
+  activities   Activity[]
+}
+
+model NodeRequest {
+  id         String   @id @default(uuid())
+  orgName    String?  
+  email      String? 
+  location   String
+  nodeAddress String  
+  plan       String
+  status     Status
+  bandwidth  String
+  address    String
+  remoteUrl  String   
+  actionBy   String?  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  requestFor String   
+
+  // Relations
+  user User @relation(fields: [address], references: [address])
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  address   String
+  createdAt DateTime @default(now())
+  type      String
+  action    String
+  role      String
+
+  // Relations
+  user User @relation(fields: [id], references: [id])
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
