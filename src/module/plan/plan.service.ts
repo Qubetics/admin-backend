@@ -21,14 +21,17 @@ class PlanService {
       //   };
       // }
 
-      const plansUrl = `${environment.evmHost}qubetics/plan/v3/plans?pagination.offset=${page}&pagination.limit=${limit}`;
+      const plansUrl = `${environment.evmHost}qubetics/plan/v3/plans`;
+      console.log("🚀 ~ PlanService ~ getAllPlans ~ plansUrl:", plansUrl);
       const planResponse = await fetchRequest(plansUrl, FETCH_METHODS.GET);
+      console.log("🚀 ~ PlanService ~ getAllPlans ~ planResponse:", planResponse)
 
       if (!planResponse || !planResponse.data?.plans) {
         return { error: true, message: RES_MSG.ERROR };
       }
 
       const plans = planResponse.data.plans;
+      console.log("🚀 ~ PlanService ~ getAllPlans ~ plans:", plans)
       // const totalPages = Math.ceil(plans.length / limit);
 
       // for (let i = 1; i <= totalPages; i++) {

@@ -5,6 +5,8 @@ import { arrayify } from "@ethersproject/bytes";
 import { serializeSignDoc } from "@cosmjs/amino";
 import { signatureToPubkey } from "@hanchon/signature-to-pubkey";
 const { bech32 } = require('bech32');
+import CryptoJS from "crypto-js";
+import redisHelper from "../service/redis.helper";
 
 /**
  * For making http requests
@@ -16,7 +18,7 @@ const { bech32 } = require('bech32');
 export async function fetchRequest(
   url: string,
   method: string,
-  data: any = null,
+  data: any = null
 ) {
   try {
     const result = await axios({
@@ -48,11 +50,24 @@ export function log(
   msg: string,
   msgColor: string,
   data: any,
-  dataColor: string,
+  dataColor: string
 ) {
   console.log(`${msgColor}${msg}${dataColor}${data}\x1b[0m`);
 }
 
+
+export const getOffset = (page = 1, limit = 10) => {
+  if (page < 1) page = 1;
+  return (page - 1) * limit;
+};
+
+export const getWalletAddressFromNodeAddress = (nodeAddress: String, walletPrefix: String = WALLET_PREFIX): String => {
+  const decoded = bech32.decode(nodeAddress);
+  const words = decoded.words;
+
+  // Re-encode with wallet prefix
+  return bech32.encode(walletPrefix, words);
+};
 function messageToAminoTransaction(signer: any, data: any) {
   return {
     chain_id: "",
@@ -75,18 +90,7 @@ function messageToAminoTransaction(signer: any, data: any) {
   };
 }
 
-export const getOffset = (page = 1, limit = 10) => {
-  if (page < 1) page = 1;
-  return (page - 1) * limit;
-};
-
-export const getWalletAddressFromNodeAddress = (nodeAddress: String, walletPrefix: String = WALLET_PREFIX): String => {
-  const decoded = bech32.decode(nodeAddress);
-  const words = decoded.words;
-
-  // Re-encode with wallet prefix
-  return bech32.encode(walletPrefix, words);
-};
+// signMessage=address hi hai
 
 export const verifyKeplrSignature = (
   address: any,
@@ -122,13 +126,37 @@ export const verifyKeplrSignature = (
   }
 };
 
+export const decryptData = (ciphertext: string) => {
+  const bytes = CryptoJS.AES.decrypt(ciphertext, environment.secretKey);
+  const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+  return JSON.parse(decryptedData);
+};
+
+export const encryptData = (data:any) => {
+  return CryptoJS.AES.encrypt(JSON.stringify(data), environment.secretKey).toString();
+};
+
+/**
+ * Check if token is expired
+ * @param {string} token - The token to check.
+ * @returns {boolean}
+ */
+export const isTokenExpired=async (token:string)=> {
+  const value = await redisHelper.getString(token);
+
+  return value ;
+};
+
 export const extractIP = (url: string): string => {
   console.log("🚀 ~ extractIP ~ url:", url)
   try {
     const withoutProtocol = url.replace(/^https?:\/\//, '');
+    console.log("🚀 ~ extractIP ~ withoutProtocol:", withoutProtocol)
     const hostname = withoutProtocol.split(':')[0];
+    console.log("🚀 ~ extractIP ~ hostname:", hostname)
     return hostname;
   } catch (err) {
+    console.log("🚀 ~ extractIP ~ err:", err)
     console.log(`${Message.invalidurl}: ${url}`);;
     return '';
   }

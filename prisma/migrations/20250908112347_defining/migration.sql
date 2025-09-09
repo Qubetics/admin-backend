@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "analytics"."Status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 
+-- CreateEnum
+CREATE TYPE "analytics"."NodeStatus" AS ENUM ('ACTIVE', 'INACTIVE');
+
 -- CreateTable
 CREATE TABLE "analytics"."User" (
     "id" TEXT NOT NULL,
@@ -20,11 +23,14 @@ CREATE TABLE "analytics"."NodeRequest" (
     "location" TEXT NOT NULL,
     "nodeAddress" TEXT NOT NULL,
     "plan" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
     "status" "analytics"."Status" NOT NULL,
+    "nodeStatus" "analytics"."NodeStatus" NOT NULL,
     "bandwidth" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "remoteUrl" TEXT NOT NULL,
-    "actionBy" TEXT,
+    "provAddress" TEXT NOT NULL,
+    "action" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "requestFor" TEXT NOT NULL,

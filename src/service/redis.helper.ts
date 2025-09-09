@@ -18,11 +18,11 @@ class RedisService {
   public async startRedis() {
     try {
       this.client = createClient({
-        url: `redis://${environment.redisHost}:${environment.redisPort}`,
+        url: `redis://${environment.redisHost}:${environment.redisPort}/0`,
       });
 
       await this.client.connect();
-      this.client.select(1);
+      await this.client.select(1);
       log("Redis connected ", COLORS.yellow, true, COLORS.green);
 
       this.client.on("connect", () => {
@@ -53,11 +53,9 @@ class RedisService {
   // set the string data to redis
   public async setString<T>(key: string, data: T, expiryInSeconds?: number) {
     try {
-      const payload = JSON.stringify(data);
-      if (expiryInSeconds) {
-        return await this.client.set(key, payload, { EX: expiryInSeconds });
-      }
-      return await this.client.set(key, payload);
+       await this.client.set(key, JSON.stringify(data),{
+        EX: environment.redisExpiry
+      });
     } catch (err) {
       logger.error("error while setting the data into redis: ", err);
     }
@@ -73,5 +71,30 @@ class RedisService {
       return [];
     }
   }
+
+  public updateRedisTime = async (
+    token: string,
+  ): Promise<boolean | null> => {
+    try {
+      const result = await this.client.expire(token, environment.redisExpiry);
+      return result;
+    } catch (error) {
+      console.log("error ", error);
+  
+      return null;
+    }
+  };
+
+  public deleteRedisKey = async (
+    key: string
+  ): Promise<boolean | null> => {
+    try {
+      const result = await this.client.del(key); // Delete the key
+      return result > 0; // Returns true if a key was deleted
+    } catch (error) {
+      console.error("Error deleting Redis key:", error);
+      return null;
+    }
+  };
 }
 export default RedisService.getInstance();

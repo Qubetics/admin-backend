@@ -34,39 +34,23 @@ export const RATE_LIMITER_MESSAGE = {
 };
 
 export const RES_MSG = {
+  NODE_REQUESTLIST: "successfully fetched the node request list",
   SUCCESS_REQUEST: "successfully request send",
   NOT_FOUND: "data not found",
   FETCH_SUCCESS: "data fetched successfully",
+  USER_REGISTER_SUCCESS :"User registered successfully",
+  LOGIN_FAILED : "Failed to login",
+  LOGOUT_SUCCESS: "Logged out successfully",
+  EMAIL_SENT_SUCCESS: "Email sent successfully",
   ACTIVE: "active",
   INACTIVE: "inactive",
-  YES: "yes",
-  NO: "no",
-  VETO: "veto",
-  ABSTAIN: "abstain",
-  DEACTIVATING: "deactivating",
-  BOND_STATUS_BONDED: "BOND_STATUS_BONDED",
-  BOND_STATUS_UNBONDED: "BOND_STATUS_UNBONDED",
-  BOND_STATUS_UNBONDING: "BOND_STATUS_UNBONDING",
-  ERROR_FETCH_LATEST_BLOCK: "error while fetching latest block",
   ERROR: "Oops! Something went wrong. Please try again.",
   SERVER_ERROR: "internal server error",
-  TRANSACTION_FETCH_SUCCESS: "transaction fetched successfully",
-  PROPOSAL_FETCH_SUCCESS: "proposal fetched successfully",
-  TRANSACTION_NOT_FOUND: "transaction not found",
-  PROPOSAL_NOT_FOUND: "proposal not found",
-  NOT_VALID_QUERY: "invalid block number",
-  BLOCK_TRANSACTION_FETCH: "block transactions fetched successfully",
-  ACCOUNT_HISTORY_SUCCESS: "account history fetched successfully",
-  TRANSACTION_HISTORY_SUCCESS: "transaction history fetched successfully",
-  TRANSACTION_FAILED: "transaction failed",
-  TRANSACTION_CREATE_SUCCESS: "transaction created successfully",
   SUCCESS: "success",
-  CONTRACT_NOT_FOUND: "contract not found",
-  CONTRACT: "contract fetched successfully",
-  CONTRACT_TX: "conract transaction fetched successfully",
   CONTRACT_TX_NOT_FOUND: "data not found",
   INVALID_ADDRESS: "invalid address",
   INVALID_MESSAGE: "this message type data not found ",
+  UNAUTHORIZED:"invalid user"
 };
 
 
@@ -98,36 +82,6 @@ export const CONST_NAME = {
 export const ASC = "asc";
 export const DESC = "desc";
 
-export const REDIS_KEY = {
-  TOKEN_PRICE: "TOKEN_PRICE",
-  PENDING_TX: "PENDING_TRANSACTION",
-  TPS_GRAPH: "TPS_GRAPH_PAYLOAD",
-  TOKEN_GRAPH: "TOKEN_GRAPH_PAYLOAD",
-  ACCOUNT_GRAPH: "ACCOUNT_GRAPH_PAYLOAD",
-  COIN_TRANSFER_GRAPH: "COIN_TRANSFER_GRAPH_PAYLOAD",
-  CONTRACT_DEPLOY_GRAPH: "CONTRACT_DEPLOY_GRAPH_PAYLOAD",
-  CIRCULATING_SUPPLY: "CIRCULATING_SUPPLY",
-  MARKET_CAP: "MARKET_CAP",
-  TOTAL_BLOCKS: "TOTAL_BLOCKS",
-  TOTAL_TX: "TOTAL_TX",
-  TOTAL_TOKENS: "TOTAL_TOKENS",
-  TOTAL_ACCOUNTS: "TOTAL_ACCOUNTS",
-  TOTAL_TOKEN_PRICE: "TOTAL_TOKEN_PRICE",
-  TOTAL_COIN_TRANSFER_TX: "TOTAL_COIN_TRANSFER_TX",
-  TOTAL_CONTRACT_DEPLOYED_TX: "TOTAL_CONTRACT_DEPLOYED_TX",
-  TOTAL_CONTRACT_LOGS: "TOTAL_CONTRACT_LOGS",
-  VALIDATOR_DATA: "VALIDATOR_DATA",
-  TOTAL_REWARDS: "TOTAL_REWARDS",
-  USER_BALANCE: "USER_BALANCE",
-  INFLATION_APY: "INFALTION_AND_APY",
-  NATIVE_BLOCKS_COUNT: "NATIVE_BLOCKS_COUNT",
-  NATIVE_SESSIONS_COUNT: "SESSION_COUNT",
-  NATIVE_TRANSACTIONS_COUNT: "NATIVE_TRANSACTIONS_COUNT",
-  DASHBOARD_DATA: "DASHBOARD_DATA",
-  COIN_PRICE: "COIN_PRICE",
-  LATEST_BLOCK: "LATEST_BLOCK",
-};
-
 export enum TransactionStatus {
   PENDING = "PENDING",
   SUCCESS = "SUCCESS",
@@ -149,12 +103,20 @@ export const HEADERS = {
 };
 
 export const UNDEFINED = "undefined";
+export const LINK= "Link";
+export const PENDING = "PENDING";
 export const WALLET_PREFIX="qubetics";
+export const API_BASE_URL = 'API_BASE_URL is not defined in environment variables'
+export const CRON_WORKER = 'Running Node Worker cron job'
 
 export const Message = {
   nodesave: 'Nodes saved with geo info',
   invalidurl: 'Invalid URL format',
   receiveplan: 'Received plans is not an array',
   plansave: 'Plans saved successfully',
-  NodatFetch: 'Failed to fetch',
+  nodeFail: 'Failed to fetch',
+};
+
+export const COOKIE_NAMES = {
+  SESSION_ID: "session_id", // Cookie for Redis-backed sessions
 };
