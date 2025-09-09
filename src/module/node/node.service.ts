@@ -7,11 +7,12 @@ import prisma from '../../lib/db';
 import { verifyKeplrSignature } from "../../Utility/common";
 import geoip from 'geoip-lite';
 import countries from 'i18n-iso-countries';
+import { Status } from '../../interfaces';
 
 class NodeService {
     constructor() { }
 
-    public nodeFormRequest = async (orgName: string, email: string, nodeAddress: string, choosePlan: any, address: string, pubKey: string, signature: any,request:string) => {
+    public nodeFormRequest = async (orgName: string, email: string, nodeAddress: string, choosePlan: any, address: string, pubKey: string, signature: any, request: string) => {
         console.log("🚀 ~ NodeService ~ choosePlan:", choosePlan)
         try {
             // function is verify the address
@@ -71,7 +72,7 @@ class NodeService {
             const geo = geoip.lookup(ip);
             console.log("🚀 ~ NodeService ~ geo:", geo)
             if (!geo) {
-                console.log("iske andar",geo);
+                console.log("iske andar", geo);
                 return {
                     error: true,
                     message: RES_MSG.ERROR,
@@ -110,7 +111,7 @@ class NodeService {
             console.error('PlanService.getAllPlans error:', err);
             return { error: true, message: RES_MSG.ERROR };
         }
-    }
+    };
 
     public getAllNodeRequestList = async (page: number, limit: number) => {
         try {
@@ -131,7 +132,7 @@ class NodeService {
             });
 
             return {
-                error:false,
+                error: false,
                 data: response,
                 message: RES_MSG.NODE_REQUESTLIST
             }
@@ -139,63 +140,93 @@ class NodeService {
             console.error('PlanService.getAllPlans error:', error);
             return { error: true, message: RES_MSG.ERROR };
         }
-    }
+    };
 
     public getAllNodeForAddress = async (
         providerAddress: string,
         page: number,
         limit: number,
         status?: string
-      ) => {
+    ) => {
         try {
-          if (!providerAddress || providerAddress === UNDEFINED) {
-            return {
-              error: true,
-              message: RES_MSG.ERROR,
-            };
-          }
-    
-          const skip = (page - 1) * limit;
-    
-          // Build query conditions
-          const where: any = { provAddress: providerAddress };
-          if (status) {
-            where.status = status;
-          }
-    
-          // Fetch data + count in parallel
-          const [data, total] = await Promise.all([
-            prisma.nodeRequest.findMany({
-              where,
-              skip,
-              take: limit,
-              orderBy: { createdAt: "desc" },
-              select: {
-                orgName: true,
-                nodeAddress: true,
-                status: true,
-                requestFor: true,
-              },
-            }),
-            prisma.nodeRequest.count({ where }),
-          ]);
-    
-          return {
-            error: false,
-            message: RES_MSG.SUCCESS,
-            data: {
-                response:data,
-                total:total
+            if (!providerAddress || providerAddress === UNDEFINED) {
+                return {
+                    error: true,
+                    message: RES_MSG.ERROR,
+                };
             }
-          };
+
+            const skip = (page - 1) * limit;
+
+            // Build query conditions
+            const where: any = { provAddress: providerAddress };
+            if (status) {
+                where.status = status;
+            }
+
+            // Fetch data + count in parallel
+            const [data, total] = await Promise.all([
+                prisma.nodeRequest.findMany({
+                    where,
+                    skip,
+                    take: limit,
+                    orderBy: { createdAt: "desc" },
+                    select: {
+                        orgName: true,
+                        nodeAddress: true,
+                        status: true,
+                        requestFor: true,
+                    },
+                }),
+                prisma.nodeRequest.count({ where }),
+            ]);
+
+            return {
+                error: false,
+                message: RES_MSG.SUCCESS,
+                data: {
+                    response: data,
+                    total: total
+                }
+            };
         } catch (error) {
-          console.error("NodeService.getAllNodeForAddress error:", error);
-          return {
-            error: true,
-            message: RES_MSG.ERROR,
-          };
+            console.error("NodeService.getAllNodeForAddress error:", error);
+            return {
+                error: true,
+                message: RES_MSG.ERROR,
+            };
         }
-      };
+    };
+
+    public updateNodeStatus = async (
+        nodeAddress: string,
+        status: Status
+    ) => {
+        try {
+            if (nodeAddress == UNDEFINED || status == "undefined") {
+                return {
+                    error: true,
+                    message: RES_MSG.ERROR,
+                };
+            }
+
+            const updatedNode = await prisma.nodeRequest.update({
+                where: { nodeAddress },
+                data: { status },
+            });
+
+            return {
+                error: false,
+                message: RES_MSG.SUCCESS,
+            };
+
+        } catch (error) {
+            return {
+                error: true,
+                message: RES_MSG.ERROR,
+            };
+        }
+    };
 
 }
 

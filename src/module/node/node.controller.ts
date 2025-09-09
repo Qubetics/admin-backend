@@ -2,7 +2,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import * as Helpers from "../../service/index";
-import { Controller } from "../../interfaces/index";
+import { Controller, Status } from "../../interfaces/index";
 import nodeService from "./node.service";
 import { UNDEFINED } from "../../constant";
 
@@ -17,8 +17,9 @@ class NodeController implements Controller {
 
     private initializeRoutes() {
         this.router.post("", this.nodeFormRequest);
-        this.router.get("",this.getAllNodeRequestList);
-        this.router.get("/prov/:address",this.getAllNodeForAddress);
+        this.router.get("", this.getAllNodeRequestList);
+        this.router.get("/prov/:address", this.getAllNodeForAddress);
+        this.router.get("/action", this.updateNodeStatus);
     }
 
     private nodeFormRequest = async (req: Request, res: Response) => {
@@ -33,7 +34,7 @@ class NodeController implements Controller {
         const signature = req.body?.signature;
 
         console.log("🚀 ~ NodeController ~ orgName,email,nodeAddress,choosePlan,wallet_address,pubKey,signature:", orgName, email, nodeAddress, choosePlan, wallet_address, pubKey, signature)
-        const result = await nodeService.nodeFormRequest(orgName, email, nodeAddress, choosePlan, wallet_address, pubKey, signature,request);
+        const result = await nodeService.nodeFormRequest(orgName, email, nodeAddress, choosePlan, wallet_address, pubKey, signature, request);
 
         if (result.error) {
             return setResponse.error(res, result);
@@ -45,7 +46,7 @@ class NodeController implements Controller {
     private getAllNodeRequestList = async (req: Request, res: Response) => {
         const page = Number(req.query?.page) || 1;
         const limit = Number(req.query?.limit) || 10;
-        const result=await nodeService.getAllNodeRequestList(page,limit);
+        const result = await nodeService.getAllNodeRequestList(page, limit);
 
         if (result.error) {
             return setResponse.error(res, result);
@@ -53,18 +54,41 @@ class NodeController implements Controller {
         return setResponse.success(res, result);
     };
 
-    private getAllNodeForAddress = async(req: Request, res: Response) => {
-        const providerAddress=String(req.params?.address);
-        const page=Number(req.query?.page) || 1;
+    private getAllNodeForAddress = async (req: Request, res: Response) => {
+        const providerAddress = String(req.params?.address);
+        const page = Number(req.query?.page) || 1;
         const limit = Number(req.query?.limit) || 10;
         const status = String(req.query?.status) || UNDEFINED;
-        const result=await nodeService.getAllNodeForAddress(providerAddress,page,limit,status);
+        const result = await nodeService.getAllNodeForAddress(providerAddress, page, limit, status);
 
         if (result.error) {
             return setResponse.error(res, result);
         }
         return setResponse.success(res, result);
     };
+
+    private updateNodeStatus = async (req: Request, res: Response) => {
+        const nodeAddress = String(req.query?.address);
+        const rawStatus = req.query?.status;
+        const allowedStatuses: Status[] = ["PENDING", "APPROVED", "REJECTED"];
+      
+        const status =
+          typeof rawStatus === "string" && allowedStatuses.includes(rawStatus as Status)
+            ? (rawStatus as Status)
+            : undefined;
+      
+        if (!status) {
+          return setResponse.error(res, {
+            error: true,
+            message: "Invalid status value. Allowed: PENDING, APPROVED, REJECTED",
+          });
+        }
+        const result = await nodeService.updateNodeStatus(nodeAddress, status);
+        if (result.error) {
+            return setResponse.error(res, result);
+        }
+        return setResponse.success(res, result);
+    }
 }
 
 export default NodeController;

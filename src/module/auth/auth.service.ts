@@ -1,12 +1,12 @@
 import { encryptData, verifyKeplrSignature } from "../../Utility/common";
-import { COOKIE_NAMES,  RES_MSG } from "../../constant";
+import { COOKIE_NAMES, RES_MSG } from "../../constant";
 import { IESResponse } from "../../interfaces";
 import prisma from "../../lib/db";
 import redisHelper from "../../service/redis.helper";
 import { Request, Response } from "express";
 
 class AuthService {
-  constructor() {}
+  constructor() { }
 
   async addUser(value: any): Promise<IESResponse> {
     const { address } = value;
@@ -51,10 +51,12 @@ class AuthService {
       const user: any = await prisma.user.findUnique({
         where: { address },
       });
-      // if (!user.role) throw new Error(RES_MSG.LOGIN_FAILED);
+      if (!user.role) {
+        return { error: true, message: RES_MSG.ERROR };
+      }
       const userDetail = {
         address,
-        role: user.role,
+        role: user?.role,
       };
 
       const encryptedData = encryptData(userDetail);
@@ -83,18 +85,18 @@ class AuthService {
   async logout(req: Request, res: Response): Promise<IESResponse> {
     try {
 
-      const sessionId = String(req?.cookies?.session_id); 
-  
-       // Delete session from Redis
+      const sessionId = String(req?.cookies?.session_id);
+
+      // Delete session from Redis
       await redisHelper.deleteRedisKey(sessionId);
-  
+
       // Clear cookie
       res.clearCookie(COOKIE_NAMES.SESSION_ID, {
         httpOnly: true,
         secure: true,
         sameSite: "none",
       });
-  
+
       return {
         error: false,
         message: RES_MSG.LOGOUT_SUCCESS,
