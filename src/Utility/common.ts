@@ -1,4 +1,10 @@
 import axios from "axios";
+import sha3 from "js-sha3";
+import { arrayify } from "@ethersproject/bytes";
+import { serializeSignDoc } from "@cosmjs/amino";
+import { signatureToPubkey } from "@hanchon/signature-to-pubkey";
+import CryptoJS from "crypto-js";
+import redisHelper from "../service/redis.helper";
 
 /**
  * For making http requests
@@ -10,7 +16,7 @@ import axios from "axios";
 export async function fetchRequest(
   url: string,
   method: string,
-  data: any = null,
+  data: any = null
 ) {
   try {
     const result = await axios({
@@ -42,7 +48,7 @@ export function log(
   msg: string,
   msgColor: string,
   data: any,
-  dataColor: string,
+  dataColor: string
 ) {
   console.log(`${msgColor}${msg}${dataColor}${data}\x1b[0m`);
 }
@@ -51,3 +57,81 @@ export const getOffset = (page = 1, limit = 10) => {
   if (page < 1) page = 1;
   return (page - 1) * limit;
 };
+
+function messageToAminoTransaction(signer: any, data: any) {
+  return {
+    chain_id: "",
+    account_number: "0",
+    sequence: "0",
+    fee: {
+      gas: "0",
+      amount: [],
+    },
+    msgs: [
+      {
+        type: "sign/MsgSignData",
+        value: {
+          signer,
+          data,
+        },
+      },
+    ],
+    memo: "",
+  };
+}
+
+// signMessage=address hi hai
+
+export const verifyKeplrSignature = (
+  address: any,
+  signature: any,
+  pubKey: any,
+  signMessage: any
+) => {
+  try {
+    // Encode the message into amino format
+    const aminoEncoded = messageToAminoTransaction(
+      address,
+      Buffer.from(signMessage).toString("base64")
+    );
+    const serialized = serializeSignDoc(aminoEncoded);
+
+    // Hash the amino message that was signed
+    const hashed = sha3.keccak_256(arrayify(serialized));
+
+    // Compare signature
+    const signatureToCompare = `0x${Buffer.from(signature, "base64").toString(
+      "hex"
+    )}`;
+
+    const pubkeyComputed = signatureToPubkey(
+      signatureToCompare,
+      Buffer.from(hashed, "hex")
+    );
+    console.log("🚀 ~ computePubKey ~ pubkeyComputed:", pubkeyComputed);
+    return { verify: pubKey == pubkeyComputed };
+  } catch (err) {
+    console.error("err", err);
+  }
+};
+
+export const decryptData = (ciphertext: string) => {
+  const bytes = CryptoJS.AES.decrypt(ciphertext, environment.secretKey);
+  const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+  return JSON.parse(decryptedData);
+};
+
+export const encryptData = (data:any) => {
+  return CryptoJS.AES.encrypt(JSON.stringify(data), environment.secretKey).toString();
+};
+
+/**
+ * Check if token is expired
+ * @param {string} token - The token to check.
+ * @returns {boolean}
+ */
+export const isTokenExpired=async (token:string)=> {
+  const value = await redisHelper.getString(token);
+
+  return value ;
+}
