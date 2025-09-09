@@ -131,9 +131,14 @@ class NodeService {
                 }
             });
 
+            const total=await prisma.nodeRequest.count();
+
             return {
                 error: false,
-                data: response,
+                data: {
+                    nodeList: response,
+                    count: total
+                },
                 message: RES_MSG.NODE_REQUESTLIST
             }
         } catch (error) {

@@ -66,7 +66,7 @@ export default class App {
       origin: "http://localhost:5173",  // allow Vite frontend
       credentials: true,                 // allow cookies/authorization headers
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      // allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: ["Content-Type", "Authorization"],
     }));
     this.express.use(cookieParser());
     // support application/json type post data

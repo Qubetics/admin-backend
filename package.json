@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "nodemon ./src/server.ts",
     "start": "ts-node ./src/server.ts",
-    "build": "tsc -p . && cp .env ./build/.env && cp .env.local ./build/.env.local",
+    "build": "tsc -p .",
+    "start:prod": "node dist/server.js",
     "generate": "npm -s run generate:prisma && npm -s run generate:nexus",
     "generate:prisma": "prisma generate",
     "generate:nexus": "ts-node --transpile-only src/schema",
@@ -38,7 +39,7 @@
     "cors": "^2.8.5",
     "cron": "^2.4.4",
     "crypto-js": "^4.2.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.0",
     "geoip-lite": "^1.4.10",
