@@ -1,8 +1,10 @@
 import axios from "axios";
+import { Message, WALLET_PREFIX } from "../constant";
 import sha3 from "js-sha3";
 import { arrayify } from "@ethersproject/bytes";
 import { serializeSignDoc } from "@cosmjs/amino";
 import { signatureToPubkey } from "@hanchon/signature-to-pubkey";
+const { bech32 } = require('bech32');
 import CryptoJS from "crypto-js";
 import redisHelper from "../service/redis.helper";
 
@@ -53,11 +55,19 @@ export function log(
   console.log(`${msgColor}${msg}${dataColor}${data}\x1b[0m`);
 }
 
+
 export const getOffset = (page = 1, limit = 10) => {
   if (page < 1) page = 1;
   return (page - 1) * limit;
 };
 
+export const getWalletAddressFromNodeAddress = (nodeAddress: String, walletPrefix: String = WALLET_PREFIX): String => {
+  const decoded = bech32.decode(nodeAddress);
+  const words = decoded.words;
+
+  // Re-encode with wallet prefix
+  return bech32.encode(walletPrefix, words);
+};
 function messageToAminoTransaction(signer: any, data: any) {
   return {
     chain_id: "",
@@ -87,7 +97,7 @@ export const verifyKeplrSignature = (
   signature: any,
   pubKey: any,
   signMessage: any
-) => {
+): { verify: boolean } => {
   try {
     // Encode the message into amino format
     const aminoEncoded = messageToAminoTransaction(
@@ -108,10 +118,10 @@ export const verifyKeplrSignature = (
       signatureToCompare,
       Buffer.from(hashed, "hex")
     );
-    console.log("🚀 ~ computePubKey ~ pubkeyComputed:", pubkeyComputed);
-    return { verify: pubKey == pubkeyComputed };
+    return { verify: pubKey === pubkeyComputed };
   } catch (err) {
     console.error("err", err);
+    return {verify:false};
   }
 };
 
@@ -134,4 +144,15 @@ export const isTokenExpired=async (token:string)=> {
   const value = await redisHelper.getString(token);
 
   return value ;
-}
+};
+
+export const extractIP = (url: string): string => {
+  try {
+    const withoutProtocol = url.replace(/^https?:\/\//, '');
+    const hostname = withoutProtocol.split(':')[0];
+    return hostname;
+  } catch (err) {
+    console.log(`${Message.invalidurl}: ${url}`);;
+    return '';
+  }
+};

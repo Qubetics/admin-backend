@@ -34,6 +34,8 @@ export const RATE_LIMITER_MESSAGE = {
 };
 
 export const RES_MSG = {
+  NODE_REQUESTLIST: "successfully fetched the node request list",
+  SUCCESS_REQUEST: "successfully request send",
   NOT_FOUND: "data not found",
   FETCH_SUCCESS: "data fetched successfully",
   USER_REGISTER_SUCCESS :"User registered successfully",
@@ -86,6 +88,12 @@ export enum TransactionStatus {
   FAILED = "FAILED",
 }
 
+export const FETCH_METHODS = {
+  POST: "POST",
+  GET: "GET",
+  PATCH: "PATCH",
+  PUT: "PUT",
+};
 
 export const HEADERS = {
   DEFAULT: {
@@ -94,6 +102,22 @@ export const HEADERS = {
   },
 };
 
+export const UNDEFINED = "undefined";
+export const LINK= "Link";
+export const PENDING = "PENDING";
+export const ACTIVE = "ACTIVE";
+export const INACTIVE = "INACTIVE";
+export const WALLET_PREFIX="qubetics";
+export const API_BASE_URL = 'API_BASE_URL is not defined in environment variables'
+export const CRON_WORKER = 'Running Node Worker cron job'
+
+export const Message = {
+  nodesave: 'Nodes saved with geo info',
+  invalidurl: 'Invalid URL format',
+  receiveplan: 'Received plans is not an array',
+  plansave: 'Plans saved successfully',
+  nodeFail: 'Failed to fetch',
+};
 
 export const COOKIE_NAMES = {
   SESSION_ID: "session_id", // Cookie for Redis-backed sessions

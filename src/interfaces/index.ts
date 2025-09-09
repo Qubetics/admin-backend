@@ -11,3 +11,5 @@ export interface IESResponse {
 export interface Controller {
   router: Router;
 }
+
+export type Status = "PENDING" | "APPROVED" | "REJECTED" | "undefined";

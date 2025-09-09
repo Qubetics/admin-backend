@@ -20,6 +20,8 @@ class Environment implements IEnvironment {
 
   public redisExpiry: number;
 
+  public evmHost: string;
+
   public secretKey: string;
 
   public sendgrid_key:string;
@@ -39,6 +41,7 @@ class Environment implements IEnvironment {
     // this.databaseReplicaUrl = <string>process.env.DATABASE_REPLICA_URL;
     this.redisHost = <string>process.env.REDIS_HOST;
     this.redisPort = <string>process.env.REDIS_PORT;
+    this.evmHost = <string>process.env.SWAGGER_HTTP_HOST;
     this.secretKey = <string>process.env.SECRET_KEY;
     this.redisExpiry = <number>Number(process.env.REDIS_EXPIRY);
     this.sendgrid_key = <string>process.env.SENDGRID_API_KEY;

@@ -6,7 +6,9 @@ import { rateLimit } from "express-rate-limit";
 import registerRoutes from "./routes";
 import { RATE_LIMITER_MESSAGE } from "./constant";
 import { RedisService } from "./service";
+import prisma from "./lib/db";
 import cookieParser from'cookie-parser';
+import worker from "./worker";
 
 export default class App {
   public express: express.Application;
@@ -27,6 +29,7 @@ export default class App {
       },
       legacyHeaders: false,
     });
+    this.StartWorker();
   }
 
   public async init(): Promise<void> {
@@ -54,7 +57,6 @@ export default class App {
       registerRoutes(),
     );
   }
-
   /**
    * here you can apply your middlewares
    */
@@ -73,6 +75,10 @@ export default class App {
 
     this.express.use(express.json({ limit: "100mb" }));
     this.express.use(express.urlencoded({ limit: "100mb", extended: true }));
+  }
+
+  private StartWorker() {
+      worker.startNodeWorker();
   }
 
 }

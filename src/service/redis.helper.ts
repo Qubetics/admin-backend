@@ -51,7 +51,7 @@ class RedisService {
   }
 
   // set the string data to redis
-  public async setString<T>(key: string, data: T) {
+  public async setString<T>(key: string, data: T, expiryInSeconds?: number) {
     try {
        await this.client.set(key, JSON.stringify(data),{
         EX: environment.redisExpiry

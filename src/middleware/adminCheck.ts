@@ -14,7 +14,7 @@ export const adminCheck = async (
 ) => {
   try {
     // fetch the admin address from contract
-    const token = String(req.cookies.session_id);
+    const token = String(req.cookies?.session_id);
     const value = await redisHelper.getString(token);
 
     // check for token

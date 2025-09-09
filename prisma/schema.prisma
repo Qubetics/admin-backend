@@ -25,13 +25,16 @@ model NodeRequest {
   orgName    String?  
   email      String? 
   location   String
-  nodeAddress String  
+  nodeAddress String  @unique
   plan       String
+  planId     String
   status     Status
+  nodeStatus NodeStatus
   bandwidth  String
   address    String
-  remoteUrl  String   
-  actionBy   String?  
+  remoteUrl  String 
+  provAddress String  
+  action   Boolean  
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   requestFor String   
@@ -64,4 +67,9 @@ enum Status {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum NodeStatus {
+  active
+  inactive
 }
