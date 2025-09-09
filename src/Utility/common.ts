@@ -118,7 +118,6 @@ export const verifyKeplrSignature = (
       signatureToCompare,
       Buffer.from(hashed, "hex")
     );
-    console.log("🚀 ~ computePubKey ~ pubkeyComputed:", pubkeyComputed);
     return { verify: pubKey === pubkeyComputed };
   } catch (err) {
     console.error("err", err);
@@ -148,15 +147,11 @@ export const isTokenExpired=async (token:string)=> {
 };
 
 export const extractIP = (url: string): string => {
-  console.log("🚀 ~ extractIP ~ url:", url)
   try {
     const withoutProtocol = url.replace(/^https?:\/\//, '');
-    console.log("🚀 ~ extractIP ~ withoutProtocol:", withoutProtocol)
     const hostname = withoutProtocol.split(':')[0];
-    console.log("🚀 ~ extractIP ~ hostname:", hostname)
     return hostname;
   } catch (err) {
-    console.log("🚀 ~ extractIP ~ err:", err)
     console.log(`${Message.invalidurl}: ${url}`);;
     return '';
   }

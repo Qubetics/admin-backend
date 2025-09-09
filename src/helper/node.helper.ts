@@ -11,7 +11,6 @@ const saveNodes = async (nodeData: any[]) => {
             })
         );
 
-        console.log("Nodes saved/updated successfully");
         return await Promise.allSettled(tasks);
     } catch (err) {
         console.log(err,`error in the saving the node data`);

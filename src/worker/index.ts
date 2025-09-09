@@ -6,11 +6,9 @@ import saveNodes from '../helper/node.helper';
 class Worker {
     public async startNodeWorker(): Promise<void> {
         try {
-            console.log("start");
             cron.schedule('*/5 * * * *', async () => {
                 console.log(CRON_WORKER);
                 const results = await this.fetchAndSave(`${environment.evmHost}/qubetics/node/v3/nodes`, saveNodes);
-                console.log("🚀 ~ Worker ~ startNodeWorker ~ results:", results);
 
                 //@ts-ignore
                 results.forEach((result: any, index: number) => {
@@ -37,7 +35,6 @@ class Worker {
         const response = await axios.get(url);
 
         const data = response.data?.nodes;
-        console.log("🚀 ~ Worker ~ fetchAndSave ~ data:", data)
         if (!data) {
             throw new Error(`${Message.nodeFail} Response data missing`);
         }

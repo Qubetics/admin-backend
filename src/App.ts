@@ -30,7 +30,6 @@ export default class App {
       legacyHeaders: false,
     });
     this.StartWorker();
-    // console.log(prisma,"prisma");
   }
 
   public async init(): Promise<void> {
@@ -62,12 +61,7 @@ export default class App {
    * here you can apply your middlewares
    */
   private middleware(): void {
-    this.express.use(cors({
-      origin: "http://localhost:5173",  // allow Vite frontend
-      credentials: true,                 // allow cookies/authorization headers
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-    }));
+    this.express.use(cors());
     this.express.use(cookieParser());
     // support application/json type post data
     // support application/x-www-form-urlencoded post data

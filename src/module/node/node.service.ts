@@ -13,7 +13,6 @@ class NodeService {
     constructor() { }
 
     public nodeFormRequest = async (orgName: string, email: string, nodeAddress: string, choosePlan: any, address: string, pubKey: string, signature: any, request: string) => {
-        console.log("🚀 ~ NodeService ~ choosePlan:", choosePlan)
         try {
             // function is verify the address
             const isSignatureValid = verifyKeplrSignature(
@@ -22,7 +21,6 @@ class NodeService {
                 pubKey,
                 address
             );
-            console.log("🚀 ~ NodeService ~ isSignatureValid:", isSignatureValid)
 
             if (!isSignatureValid.verify) {
                 return {
@@ -34,7 +32,6 @@ class NodeService {
             // I have to check the nodeAddress is valid node address or not
             const nodeUrl = `${environment?.evmHost}qubetics/node/v3/nodes/${nodeAddress}`;
             const nodeResponse = await fetchRequest(nodeUrl, FETCH_METHODS.GET);
-            console.log("🚀 ~ NodeService ~ nodeResponse:", nodeResponse)
 
             if (nodeResponse?.error === true || nodeResponse?.data?.code === 3 || nodeResponse?.data?.node?.status === "inactive") {
                 return {
@@ -44,11 +41,9 @@ class NodeService {
             }
 
             const node = nodeResponse?.data?.node;
-            console.log("🚀 ~ NodeService ~ node:", node)
 
             // I have to check the wallet Address is related to the nodeAddress or not
             const calculatedWalletAddress = getWalletAddressFromNodeAddress(nodeAddress);
-            console.log("🚀 ~ NodeService ~ calculatedWalletAddress:", calculatedWalletAddress)
             if (calculatedWalletAddress != address) {
                 return {
                     error: true,
@@ -70,16 +65,13 @@ class NodeService {
 
             const ip = extractIP(node?.remote_url);
             const geo = geoip.lookup(ip);
-            console.log("🚀 ~ NodeService ~ geo:", geo)
             if (!geo) {
-                console.log("iske andar", geo);
                 return {
                     error: true,
                     message: RES_MSG.ERROR,
                 };
             }
             const countryName = countries.getName(geo.country, 'en');
-            // console.log("🚀 ~ NodeService ~ `${choosePlan?.prices[0]?.quote_value} TICS/month`,:", `${choosePlan?.prices[0]?.quote_value} TICS/month`, "backchodi", choosePlan?.id,)
 
             const nodeRequest = await prisma.nodeRequest.create({
                 data: {
@@ -99,7 +91,6 @@ class NodeService {
                     action: false
                 },
             });
-            console.log("🚀 ~ NodeService ~ nodeRequest:", nodeRequest)
 
 
             return {
@@ -142,7 +133,6 @@ class NodeService {
                 message: RES_MSG.NODE_REQUESTLIST
             }
         } catch (error) {
-            console.error('PlanService.getAllPlans error:', error);
             return { error: true, message: RES_MSG.ERROR };
         }
     };
