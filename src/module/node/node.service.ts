@@ -178,7 +178,7 @@ class NodeService {
 
             // Build query conditions
             const where: any = { provAddress: providerAddress };
-            if (status) {
+            if (status!= UNDEFINED) {
                 where.status = status;
             }
 

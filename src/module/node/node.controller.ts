@@ -5,7 +5,7 @@ import * as Helpers from "../../service/index";
 import { Controller, Status } from "../../interfaces/index";
 import nodeService from "./node.service";
 import { UNDEFINED } from "../../constant";
-import { adminCheck } from "../../middleware/adminCheck";
+// import { adminCheck } from "../../middleware/adminCheck";
 
 const setResponse = Helpers.ResponseHelper;
 
@@ -18,9 +18,9 @@ class NodeController implements Controller {
 
     private initializeRoutes() {
         this.router.post("", this.nodeFormRequest);
-        this.router.get("", adminCheck, this.getAllNodeRequestList);
-        this.router.get("/prov", adminCheck, this.getAllNodeForAddress);
-        this.router.get("/action", adminCheck, this.updateNodeStatus);
+        this.router.get("", this.getAllNodeRequestList);
+        this.router.get("/prov", this.getAllNodeForAddress);
+        this.router.get("/action", this.updateNodeStatus);
     }
 
     private nodeFormRequest = async (req: Request, res: Response) => {
@@ -54,7 +54,8 @@ class NodeController implements Controller {
     };
 
     private getAllNodeForAddress = async (req: any, res: Response) => {
-        const providerAddress = String(req.user?.providerAddress);
+        // const providerAddress = String(req.user?.providerAddress);
+        const providerAddress = String(req.query?.address);
         const page = Number(req.query?.page) || 1;
         const limit = Number(req.query?.limit) || 10;
         const status = String(req.query?.status) || UNDEFINED;
