@@ -7,7 +7,7 @@ import registerRoutes from "./routes";
 import { RATE_LIMITER_MESSAGE } from "./constant";
 import { RedisService } from "./service";
 import prisma from "./lib/db";
-import cookieParser from'cookie-parser';
+import cookieParser from 'cookie-parser';
 import worker from "./worker";
 
 export default class App {
@@ -61,7 +61,11 @@ export default class App {
    * here you can apply your middlewares
    */
   private middleware(): void {
-    this.express.use(cors());
+    this.express.use(cors({
+      origin: "*", // allow any origin
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }));
     this.express.use(cookieParser());
     // support application/json type post data
     // support application/x-www-form-urlencoded post data
@@ -78,7 +82,7 @@ export default class App {
   }
 
   private StartWorker() {
-      worker.startNodeWorker();
+    worker.startNodeWorker();
   }
 
 }

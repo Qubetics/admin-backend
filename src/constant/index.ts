@@ -34,6 +34,7 @@ export const RATE_LIMITER_MESSAGE = {
 };
 
 export const RES_MSG = {
+  NODE_REQUEST_ACTION_DONE_NO_EMAIL:"successfully action done but no email Address to send the email",
   NODE_REQUESTLIST: "successfully fetched the node request list",
   SUCCESS_REQUEST: "successfully request send",
   NOT_FOUND: "data not found",
