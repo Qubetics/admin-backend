@@ -8,13 +8,15 @@
     "dev": "nodemon ./src/server.ts",
     "start": "ts-node ./src/server.ts",
     "build": "tsc -p .",
+    "build:prod": "tsc -p .",
     "start:prod": "node dist/server.js",
     "generate": "npm -s run generate:prisma && npm -s run generate:nexus",
     "generate:prisma": "prisma generate",
     "generate:nexus": "ts-node --transpile-only src/schema",
     "migrate:create": "prisma migrate dev --create-only",
     "migrate:dev": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "start:production": "NODE_ENV=production node build/src/server.js"
   },
   "author": "admin",
   "license": "",
