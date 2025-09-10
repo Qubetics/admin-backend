@@ -12,6 +12,6 @@ RUN npm run generate:prisma
 
 RUN apk del .build-deps
 RUN npm run build
-USER node
+# USER node
 EXPOSE 7400 
 CMD ["npm", "run", "dev"]
