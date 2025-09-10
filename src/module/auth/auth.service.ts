@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { encryptData, verifyKeplrSignature } from "../../Utility/common";
 import { COOKIE_NAMES, RES_MSG } from "../../constant";
 import { IESResponse } from "../../interfaces";
@@ -6,8 +7,6 @@ import redisHelper from "../../service/redis.helper";
 import { Request, Response } from "express";
 
 class AuthService {
-  constructor() { }
-
   async addUser(value: any): Promise<IESResponse> {
     const { address } = value;
     try {
@@ -60,14 +59,15 @@ class AuthService {
       };
 
       const encryptedData = encryptData(userDetail);
-      response.cookie(COOKIE_NAMES.SESSION_ID, encryptedData, {
+      const uuid = randomUUID();
+      response.cookie(COOKIE_NAMES.SESSION_ID, uuid, {
         httpOnly: true,
         secure: true,
         sameSite: "none",
         // maxAge: environment.redisExpiry,
       });
 
-      await redisHelper.setString(encryptedData, userDetail);
+      await redisHelper.setString(uuid, encryptedData);
 
       return {
         error: false,
@@ -84,7 +84,6 @@ class AuthService {
   }
   async logout(req: Request, res: Response): Promise<IESResponse> {
     try {
-
       const sessionId = String(req?.cookies?.session_id);
 
       // Delete session from Redis
