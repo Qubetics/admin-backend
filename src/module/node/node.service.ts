@@ -131,6 +131,9 @@ class NodeService {
             const response = await prisma.nodeRequest.findMany({
                 skip,
                 take: limit,
+                where:{
+                  status:PENDING,
+                },
                 select: {
                     orgName: true,
                     email: true,

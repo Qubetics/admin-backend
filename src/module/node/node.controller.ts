@@ -42,7 +42,7 @@ class NodeController implements Controller {
 
     };
 
-    private getAllNodeRequestList = async (req: Request, res: Response) => {
+    private getAllNodeRequestList = async (req: any, res: Response) => {
         const page = Number(req.query?.page) || 1;
         const limit = Number(req.query?.limit) || 10;
         const result = await nodeService.getAllNodeRequestList(page, limit);
@@ -53,8 +53,8 @@ class NodeController implements Controller {
         return setResponse.success(res, result);
     };
 
-    private getAllNodeForAddress = async (req: Request, res: Response) => {
-        const providerAddress = String(req.body?.address);
+    private getAllNodeForAddress = async (req: any, res: Response) => {
+        const providerAddress = String(req.user?.providerAddress);
         const page = Number(req.query?.page) || 1;
         const limit = Number(req.query?.limit) || 10;
         const status = String(req.query?.status) || UNDEFINED;
@@ -66,7 +66,7 @@ class NodeController implements Controller {
         return setResponse.success(res, result);
     };
 
-    private updateNodeStatus = async (req: Request, res: Response) => {
+    private updateNodeStatus = async (req: any, res: Response) => {
         const nodeAddress = String(req.query?.address);
         const rawStatus = req.query?.status;
         const allowedStatuses: Status[] = ["PENDING", "APPROVED", "REJECTED"];
