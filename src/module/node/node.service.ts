@@ -74,24 +74,43 @@ class NodeService {
             }
             const countryName = countries.getName(geo.country, 'en');
 
-            const nodeRequest = await prisma.nodeRequest.create({
-                data: {
-                    orgName,
-                    email,
-                    nodeAddress,
-                    plan: choosePlan.plan,
-                    planId: choosePlan?.planId,
-                    provAddress: choosePlan?.provAddress,
-                    status: PENDING,
-                    nodeStatus: node?.status || "inactive",
-                    bandwidth: choosePlan?.bandwidth, // TODO: replace with real bandwidth
-                    address, // FK to user
-                    remoteUrl: node?.remote_url,
-                    requestFor: request, // custom tag
-                    location: countryName || geo.country,
-                    action: false
+            const nodeRequest = await prisma.nodeRequest.upsert({
+                where: {
+                  nodeAddress: nodeAddress, // make sure nodeAddress is UNIQUE in your schema
                 },
-            });
+                update: {
+                  orgName,
+                  email,
+                  plan: choosePlan.plan,
+                  planId: choosePlan?.planId,
+                  provAddress: choosePlan?.provAddress,
+                  status: PENDING,
+                  nodeStatus: node?.status || "inactive",
+                  bandwidth: choosePlan?.bandwidth,
+                  address,
+                  remoteUrl: node?.remote_url,
+                  requestFor: request,
+                  location: countryName || geo.country,
+                  action: false,
+                },
+                create: {
+                  orgName,
+                  email,
+                  nodeAddress,
+                  plan: choosePlan.plan,
+                  planId: choosePlan?.planId,
+                  provAddress: choosePlan?.provAddress,
+                  status: PENDING,
+                  nodeStatus: node?.status || "inactive",
+                  bandwidth: choosePlan?.bandwidth,
+                  address,
+                  remoteUrl: node?.remote_url,
+                  requestFor: request,
+                  location: countryName || geo.country,
+                  action: false,
+                },
+              });
+              
 
 
             return {
