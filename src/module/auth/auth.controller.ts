@@ -42,7 +42,7 @@ class AuthController implements Controller {
     return setResponse.success(response, user);
   };
 
-  private logout = async (request: Request, response: Response) => {
+  private logout = async (request: any, response: Response) => {
     const user = await AuthService.logout(request,response);
     if (user.error) {
       return setResponse.error(response, user);

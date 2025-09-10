@@ -65,7 +65,7 @@ export default class App {
       cors({
         origin: [
           "https://dvpn-user.qubetics.work",
-          "http://dvpn-admin.qubetics.work",
+          "https://dvpn-admin.qubetics.work",
         ], 
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
