@@ -8,6 +8,7 @@ import { verifyKeplrSignature } from "../../Utility/common";
 import geoip from 'geoip-lite';
 import countries from 'i18n-iso-countries';
 import { Status } from '../../interfaces';
+import mailService from '../mail/mail.service';
 
 class NodeService {
     constructor() { }
@@ -122,7 +123,7 @@ class NodeService {
                 }
             });
 
-            const total=await prisma.nodeRequest.count();
+            const total = await prisma.nodeRequest.count();
 
             return {
                 error: false,
@@ -208,7 +209,28 @@ class NodeService {
             const updatedNode = await prisma.nodeRequest.update({
                 where: { nodeAddress },
                 data: { status },
+                select: {
+                    email: true,
+                    nodeAddress: true
+                }
             });
+
+            console.log(updatedNode, "updatedNode");
+
+            let isApproved: boolean = false;
+            if (status === "APPROVED") {
+                isApproved = true;
+            }
+
+            if(!updatedNode.email){
+                return {
+                    error: false,
+                    message: RES_MSG.NODE_REQUEST_ACTION_DONE_NO_EMAIL,
+                };
+            }
+
+            await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress,isApproved);
+
 
             return {
                 error: false,

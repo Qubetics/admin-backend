@@ -5,9 +5,8 @@ import sgMail from '@sendgrid/mail';
 sgMail.setApiKey(environment.sendgrid_key);
 class MailService{
     
-     sendApprovalMail= async (email:string,nodeName:string, isApproved:boolean)=> {
+   public sendApprovalMail= async (email:string,nodeName:string, isApproved:boolean)=> {
         try{
-
             const subject = isApproved
             ? `Node ${nodeName} Approved`
             : `Node ${nodeName} Rejected`;
