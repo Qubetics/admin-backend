@@ -61,11 +61,17 @@ export default class App {
    * here you can apply your middlewares
    */
   private middleware(): void {
-    this.express.use(cors({
-      origin: "*", // allow any origin
-      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-    }));
+    this.express.use(
+      cors({
+        origin: [
+          "https://dvpn-user.qubetics.work",
+          "http://dvpn-admin.qubetics.work",
+        ], 
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true, // add this if you need cookies / auth headers
+      })
+    );
     this.express.use(cookieParser());
     // support application/json type post data
     // support application/x-www-form-urlencoded post data
