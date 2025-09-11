@@ -63,10 +63,7 @@ export default class App {
   private middleware(): void {
     this.express.use(
       cors({
-        origin: [
-          "https://dvpn-user.qubetics.work",
-          "https://dvpn-admin.qubetics.work",
-        ], 
+        origin:'*', 
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true, // add this if you need cookies / auth headers
