@@ -5,7 +5,7 @@ import { IESResponse } from "../../interfaces";
 import prisma from "../../lib/db";
 import redisHelper from "../../service/redis.helper";
 import { Request, Response } from "express";
-const checkCookieVariable = process.env.NODE_ENV == "production" ?true:false;
+const checkCookieVariable = process.env.NODE_ENV == "production" ?false:true;
 
 class AuthService {
   async addUser(value: any): Promise<IESResponse> {
