@@ -5,6 +5,7 @@ import { IESResponse } from "../../interfaces";
 import prisma from "../../lib/db";
 import redisHelper from "../../service/redis.helper";
 import { Request, Response } from "express";
+const checkCookieVariable = process.env.NODE_ENV == "production" ?true:false;
 
 class AuthService {
   async addUser(value: any): Promise<IESResponse> {
@@ -61,9 +62,9 @@ class AuthService {
       const encryptedData = encryptData(userDetail);
       const uuid = randomUUID();
       response.cookie(COOKIE_NAMES.SESSION_ID, uuid, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        httpOnly: checkCookieVariable,
+        secure: checkCookieVariable,
+        sameSite: checkCookieVariable ? "none" : 'lax',
         // maxAge: environment.redisExpiry,
       });
 
@@ -82,7 +83,7 @@ class AuthService {
       return { error: true, message: RES_MSG.ERROR };
     }
   }
-  async logout(req: Request, res: Response): Promise<IESResponse> {
+  async logout(req: any, res: Response): Promise<IESResponse> {
     try {
       const sessionId = String(req?.cookies?.session_id);
 
@@ -91,9 +92,9 @@ class AuthService {
 
       // Clear cookie
       res.clearCookie(COOKIE_NAMES.SESSION_ID, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        httpOnly: checkCookieVariable,
+        secure: checkCookieVariable,
+        sameSite: checkCookieVariable ? "none" : 'lax',
       });
 
       return {
