@@ -1,7 +1,7 @@
 import { RES_MSG } from '../../constant';
-import { fetchRequest } from '../../Utility/common';
+import { fetchRequest, getOffset } from '../../Utility/common';
 import { FETCH_METHODS } from '../../constant';
-import { RedisService } from '../../service';
+// import { RedisService } from '../../service';
 
 class PlanService {
   constructor() {}
@@ -10,6 +10,7 @@ class PlanService {
     try {
       const page = data.page;
       const limit = data.limit;
+      const offset = getOffset(page, limit);
       // const redisKey = `plans:page:${page}:limit:${limit}`;
 
       // const cached = await RedisService.getString(redisKey);
@@ -21,7 +22,7 @@ class PlanService {
       //   };
       // }
 
-      const plansUrl = `${environment.evmHost}qubetics/plan/v3/plans`;
+      const plansUrl = `${environment.evmHost}qubetics/plan/v3/plans?pagination.offset=${offset}&pagination.limit=${limit}&pagination.reverse=${data.reverse}&pagination.count_total=true`;
       const planResponse = await fetchRequest(plansUrl, FETCH_METHODS.GET);
 
       if (!planResponse || !planResponse.data?.plans) {
@@ -46,7 +47,7 @@ class PlanService {
         error: false,
         message: RES_MSG.FETCH_SUCCESS,
         data: plans ? plans : [],
-        total: plans ? plans.length : 0
+        total: planResponse.data.pagination
       };
       
     } catch (err) {

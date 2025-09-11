@@ -21,6 +21,7 @@ class PlanController implements Controller {
     const data = {
       page: !request.query?.page ? 1 : Number(request.query?.page),
       limit: !request.query?.limit ? 10 : Number(request.query?.limit),
+      reverse: request.query?.reverse === "true",
     };
 
     const res = await planService.getAllPlans(data);
