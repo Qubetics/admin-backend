@@ -8,7 +8,7 @@ import prisma from "../lib/db";
 
 const setResponse = Helpers.ResponseHelper;
 export const adminCheck = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
@@ -34,8 +34,9 @@ export const adminCheck = async (
 
       // updating the token time for session login
       await redisHelper.updateRedisTime(token);
-      (req as any).user.providerAddress=user.address;
-      (req as any).user.role=user.role;
+      (req as any).user = (req as any).user || {};
+      (req as any).user.providerAddress = user.address;
+      (req as any).user.role = user.role;      
       next();
     } else {
       return setResponse.error(res, {

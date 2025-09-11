@@ -34,6 +34,8 @@ export const RATE_LIMITER_MESSAGE = {
 };
 
 export const RES_MSG = {
+  UNABLE_TO_SEND_EMAIL: "mot able to send the email",
+  NODE_REQUEST_IS_STILL:"node request is still alive",
   NODE_REQUEST_ACTION_DONE_NO_EMAIL:"successfully action done but no email Address to send the email",
   NODE_REQUESTLIST: "successfully fetched the node request list",
   SUCCESS_REQUEST: "successfully request send",
@@ -106,8 +108,8 @@ export const HEADERS = {
 export const UNDEFINED = "undefined";
 export const LINK= "Link";
 export const PENDING = "PENDING";
-export const ACTIVE = "ACTIVE";
-export const INACTIVE = "INACTIVE";
+export const ACTIVE = "active";
+export const INACTIVE = "inactive";
 export const WALLET_PREFIX="qubetics";
 export const API_BASE_URL = 'API_BASE_URL is not defined in environment variables'
 export const CRON_WORKER = 'Running Node Worker cron job'

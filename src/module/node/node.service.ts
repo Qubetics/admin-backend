@@ -1,4 +1,4 @@
-import { LINK, PENDING, RES_MSG, UNDEFINED } from '../../constant';
+import { ACTIVE, INACTIVE, LINK, PENDING, RES_MSG, UNDEFINED } from '../../constant';
 import { extractIP, fetchRequest, getWalletAddressFromNodeAddress } from '../../Utility/common';
 import { FETCH_METHODS } from '../../constant';
 import { RedisService } from '../../service';
@@ -43,6 +43,21 @@ class NodeService {
 
             const node = nodeResponse?.data?.node;
 
+            const existing = await prisma.nodeRequest.findFirst({
+                where: {
+                  nodeAddress,
+                  status: { in: ["PENDING", "APPROVED"] }, // adjust if your statuses are uppercase
+                },
+              });
+              
+              // 2. If such a record exists, handle it (e.g., throw an error or return early)
+              if (existing) {
+                return {
+                    error: true,
+                    message: RES_MSG.NODE_REQUEST_IS_STILL
+                }
+              }
+
             // I have to check the wallet Address is related to the nodeAddress or not
             const calculatedWalletAddress = getWalletAddressFromNodeAddress(nodeAddress);
             if (calculatedWalletAddress != address) {
@@ -76,41 +91,41 @@ class NodeService {
 
             const nodeRequest = await prisma.nodeRequest.upsert({
                 where: {
-                  nodeAddress: nodeAddress, // make sure nodeAddress is UNIQUE in your schema
+                    nodeAddress: nodeAddress, // make sure nodeAddress is UNIQUE in your schema
                 },
                 update: {
-                  orgName,
-                  email,
-                  plan: choosePlan.plan,
-                  planId: choosePlan?.planId,
-                  provAddress: choosePlan?.provAddress,
-                  status: PENDING,
-                  nodeStatus: node?.status || "inactive",
-                  bandwidth: choosePlan?.bandwidth,
-                  address,
-                  remoteUrl: node?.remote_url,
-                  requestFor: request,
-                  location: countryName || geo.country,
-                  action: false,
+                    orgName,
+                    email,
+                    plan: choosePlan.plan,
+                    planId: choosePlan?.planId,
+                    provAddress: choosePlan?.provAddress,
+                    status: PENDING,
+                    nodeStatus: node?.status || "inactive",
+                    bandwidth: choosePlan?.bandwidth,
+                    address,
+                    remoteUrl: node?.remote_url,
+                    requestFor: request,
+                    location: countryName || geo.country,
+                    action: false,
                 },
                 create: {
-                  orgName,
-                  email,
-                  nodeAddress,
-                  plan: choosePlan.plan,
-                  planId: choosePlan?.planId,
-                  provAddress: choosePlan?.provAddress,
-                  status: PENDING,
-                  nodeStatus: node?.status || "inactive",
-                  bandwidth: choosePlan?.bandwidth,
-                  address,
-                  remoteUrl: node?.remote_url,
-                  requestFor: request,
-                  location: countryName || geo.country,
-                  action: false,
+                    orgName,
+                    email,
+                    nodeAddress,
+                    plan: choosePlan.plan,
+                    planId: choosePlan?.planId,
+                    provAddress: choosePlan?.provAddress,
+                    status: PENDING,
+                    nodeStatus: node?.status || "inactive",
+                    bandwidth: choosePlan?.bandwidth,
+                    address,
+                    remoteUrl: node?.remote_url,
+                    requestFor: request,
+                    location: countryName || geo.country,
+                    action: false,
                 },
-              });
-              
+            });
+
 
 
             return {
@@ -131,8 +146,8 @@ class NodeService {
             const response = await prisma.nodeRequest.findMany({
                 skip,
                 take: limit,
-                where:{
-                  status:PENDING,
+                where: {
+                    status: PENDING,
                 },
                 select: {
                     orgName: true,
@@ -176,10 +191,14 @@ class NodeService {
 
             const skip = (page - 1) * limit;
 
+            if (status !== ACTIVE && status !== INACTIVE) {
+                status = UNDEFINED;
+            }
+
             // Build query conditions
             const where: any = { provAddress: providerAddress };
-            if (status!= UNDEFINED) {
-                where.status = status;
+            if (status != UNDEFINED) {
+                where.nodeStatus = status;
             }
 
             // Fetch data + count in parallel
@@ -192,7 +211,7 @@ class NodeService {
                     select: {
                         orgName: true,
                         nodeAddress: true,
-                        status: true,
+                        nodeStatus: true,
                         requestFor: true,
                     },
                 }),
@@ -244,15 +263,19 @@ class NodeService {
                 isApproved = true;
             }
 
-            if(!updatedNode.email){
+            if (!updatedNode.email) {
                 return {
                     error: false,
                     message: RES_MSG.NODE_REQUEST_ACTION_DONE_NO_EMAIL,
                 };
             }
 
-            await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress,isApproved);
+            const response =  await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
 
+            return {
+                error:false,
+                message: RES_MSG.UNABLE_TO_SEND_EMAIL,
+            }
 
             return {
                 error: false,
