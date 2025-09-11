@@ -35,14 +35,15 @@ export const RATE_LIMITER_MESSAGE = {
 
 export const RES_MSG = {
   UNABLE_TO_SEND_EMAIL: "mot able to send the email",
-  NODE_REQUEST_IS_STILL:"node request is still alive",
-  NODE_REQUEST_ACTION_DONE_NO_EMAIL:"successfully action done but no email Address to send the email",
+  NODE_REQUEST_IS_STILL: "node request is still alive",
+  NODE_REQUEST_ACTION_DONE_NO_EMAIL:
+    "successfully action done but no email Address to send the email",
   NODE_REQUESTLIST: "successfully fetched the node request list",
   SUCCESS_REQUEST: "successfully request send",
   NOT_FOUND: "data not found",
   FETCH_SUCCESS: "data fetched successfully",
-  USER_REGISTER_SUCCESS :"User registered successfully",
-  LOGIN_FAILED : "Failed to login",
+  USER_REGISTER_SUCCESS: "User registered successfully",
+  LOGIN_FAILED: "Failed to login",
   LOGOUT_SUCCESS: "Logged out successfully",
   EMAIL_SENT_SUCCESS: "Email sent successfully",
   ACTIVE: "active",
@@ -53,9 +54,8 @@ export const RES_MSG = {
   CONTRACT_TX_NOT_FOUND: "data not found",
   INVALID_ADDRESS: "invalid address",
   INVALID_MESSAGE: "this message type data not found ",
-  UNAUTHORIZED:"invalid user"
+  UNAUTHORIZED: "invalid user",
 };
-
 
 export const CONST_NAME = {
   TOTAL_NODE: "total_node_res",
@@ -106,22 +106,238 @@ export const HEADERS = {
 };
 
 export const UNDEFINED = "undefined";
-export const LINK= "Link";
+export const LINK = "Link";
 export const PENDING = "PENDING";
 export const ACTIVE = "active";
 export const INACTIVE = "inactive";
-export const WALLET_PREFIX="qubetics";
-export const API_BASE_URL = 'API_BASE_URL is not defined in environment variables'
-export const CRON_WORKER = 'Running Node Worker cron job'
+export const WALLET_PREFIX = "qubetics";
+export const API_BASE_URL =
+  "API_BASE_URL is not defined in environment variables";
+export const CRON_WORKER = "Running Node Worker cron job";
 
 export const Message = {
-  nodesave: 'Nodes saved with geo info',
-  invalidurl: 'Invalid URL format',
-  receiveplan: 'Received plans is not an array',
-  plansave: 'Plans saved successfully',
-  nodeFail: 'Failed to fetch',
+  nodesave: "Nodes saved with geo info",
+  invalidurl: "Invalid URL format",
+  receiveplan: "Received plans is not an array",
+  plansave: "Plans saved successfully",
+  nodeFail: "Failed to fetch",
 };
 
 export const COOKIE_NAMES = {
   SESSION_ID: "session_id", // Cookie for Redis-backed sessions
 };
+
+// emailTemplate.js
+export const approveTemplate = () => `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body
+    style="
+      background-color: #0e0e0e;
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    "
+  >
+    <div
+      style="
+        background-color: #000;
+        max-width: 642px;
+        text-align: center;
+        margin: 10px auto;
+      "
+    >
+      <div style="padding: 50px 54px 0px 54px">
+        <div style="text-align: center">
+        <div style="font-size: 16px; margin-top: 40px; color: #a0a0a0">
+          <p
+            style="
+              font-weight: 400;
+              font-size: 20px;
+              color: #ffffff;
+              margin-top: 40px;
+            "
+          >
+            Hello,
+          </p>
+          <div style="font-weight: 400; font-size: 16px">
+            We’re excited to let you know that your
+            <span style="font-weight: 700; color: #ffffff">Qubetics Node</span>
+            as a Service has been registered successfully!
+            <p>
+              Your node is now part of the Qubetics dVPN ecosystem, contributing
+              bandwidth and strengthening the decentralized network. With your
+              node live, you are helping power a faster, more secure, and
+              censorship-free internet for users worldwide.
+            </p>
+            <span style="font-weight: 700; color: #ffffff"
+              >What happens next?</span
+            >
+            <ul style="text-align: left">
+              <li>Your node will soon be visible in the Qubetics network.</li>
+              <li>
+                You can track its performance, bandwidth usage, and rewards
+                directly from your dashboard.
+              </li>
+              <li>
+                Our team may reach out if any additional information or
+                verification is required.
+              </li>
+            </ul>
+            <span style="font-weight: 700; color: #ffffff">Need Support?</span>
+            <p>
+              For node management guidance, visit our [documentation link] or
+              contact us at [support email]. Thank you for helping Qubetics
+              build a secure, private, and user-powered decentralized internet.
+            </p>
+            <p>Best regards,</p>
+            <span style="font-weight: 700; color: #ffffff"
+              >The Qubetics Team</span
+            >
+          </div>
+        </div>
+        <div
+          style="
+            padding: 20px;
+            background: #121212;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            margin-top: 40px;
+          "
+        >
+          © 2025 All Rights Reserved QUBETICS.
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>`;
+
+export const rejectedTemplate = () => `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body
+    style="
+      background-color: #0e0e0e;
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    "
+  >
+
+
+    <div
+    style="
+      background-color: #000;
+      max-width: 642px;
+      text-align: center;
+      margin: 10px auto;
+    "
+  >
+    <div style="padding: 50px 54px 0px 54px">
+      <div style="font-size: 16px; margin-top: 40px; color: #a0a0a0">
+        <p
+          style="
+            font-weight: 400;
+            font-size: 20px;
+            color: #ffffff;
+            margin-top: 40px;
+          "
+        >
+          Hello
+        </p>
+        <div style="font-weight: 400; font-size: 16px">
+          Thank you for applying to register your
+          <span style="font-weight: 700; color: #ffffff">Qubetics Node</span>
+          as a Service. After reviewing your submission, we regret to inform
+          you that your registration request has been rejected.
+          <span style="font-weight: 700; color: #ffffff"
+            >This may have happened due to one of the following reasons:</span
+          >
+          <ul style="text-align: left">
+            <li>
+              Incomplete or incorrect information provided during
+              registration.
+            </li>
+            <li>
+              Node address or wallet details did not match the deployment
+              script.
+            </li>
+            <li>Selected plan or bandwidth allocation was invalid.</li>
+            <li>Additional verification is required to proceed.</li>
+          </ul>
+
+          <span style="font-weight: 700; color: #ffffff"
+            >What you can do next:
+          </span>
+          <ul style="text-align: left">
+            <li>
+              Review your submitted details and ensure all fields are correct.
+            </li>
+            <li>
+              Re-run the deployment script if necessary to generate a valid
+              node address.
+            </li>
+            <li>
+              Resubmit your registration form with accurate information.
+            </li>
+            <li>
+              If you believe this rejection was an error, please reach out to
+              our team for support.
+            </li>
+          </ul>
+          <span style="font-weight: 700; color: #ffffff"
+            >Need Assistance?</span
+          >
+          <p>
+            For guidance, see our docs: [Insert Gitbook/Docs Link]. For help, contact [Insert Support Email]. Thank you for supporting Qubetics dVPN — together, we’re building a secure and decentralized internet.
+          </p>
+          <p>Best regards,</p>
+          <span style="font-weight: 700; color: #ffffff"
+            >The Qubetics Team</span
+          >
+        </div>
+      </div>
+      <div
+        style="
+          padding: 20px;
+          background: #121212;
+          font-size: 14px;
+          font-weight: 500;
+          color: #ffffff;
+          margin-top: 40px;
+        "
+      >
+        © 2025 All Rights Reserved QUBETICS.
+      </div>
+    </div>
+  </div>
+
+  </body>
+</html>
+`;
