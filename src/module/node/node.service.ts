@@ -1,4 +1,4 @@
-import { ACTIVE, INACTIVE, LINK, PENDING, RES_MSG, UNDEFINED } from '../../constant';
+import { ACTIVE, INACTIVE, LINK, PENDING, RES_MSG, UNDEFINED, UNLINK } from '../../constant';
 import { extractIP, fetchRequest, getWalletAddressFromNodeAddress } from '../../Utility/common';
 import { FETCH_METHODS } from '../../constant';
 import { RedisService } from '../../service';
@@ -46,7 +46,7 @@ class NodeService {
             const existing = await prisma.nodeRequest.findFirst({
                 where: {
                   nodeAddress,
-                  status: { in: ["PENDING", "APPROVED"] }, // adjust if your statuses are uppercase
+                  status: { in: ["PENDING"] }, // adjust if your statuses are uppercase
                 },
               });
               
@@ -74,6 +74,24 @@ class NodeService {
                 return {
                     error: true,
                     message: RES_MSG.ERROR,
+                };
+            }
+
+            if ((!choosePlan || Object.keys(choosePlan).length === 0) && request === UNLINK) {
+                const existingNode = await prisma.nodeRequest.findUnique({
+                  where: { nodeAddress },
+                  select: { plan: true, planId: true, provAddress: true, bandwidth: true },
+                });
+          
+                if (!existingNode) {
+                  return { error: true, message: RES_MSG.ERROR };
+                }
+          
+                choosePlan = {
+                    plan: existingNode.plan,
+                    planId: existingNode.planId,
+                    provAddress: existingNode.provAddress,
+                    bandwidth: existingNode.bandwidth,
                 };
             }
 
@@ -213,6 +231,7 @@ class NodeService {
                         nodeAddress: true,
                         nodeStatus: true,
                         requestFor: true,
+                        status: true,
                     },
                 }),
                 prisma.nodeRequest.count({ where }),
@@ -258,10 +277,7 @@ class NodeService {
 
             console.log(updatedNode, "updatedNode");
 
-            let isApproved: boolean = false;
-            if (status === "APPROVED") {
-                isApproved = true;
-            }
+            const isApproved: boolean = status === "APPROVED";
 
             if (!updatedNode.email) {
                 return {
@@ -272,10 +288,12 @@ class NodeService {
 
             const response =  await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
 
+            if(response.error){
             return {
                 error:false,
                 message: RES_MSG.UNABLE_TO_SEND_EMAIL,
             }
+        }
 
             return {
                 error: false,
