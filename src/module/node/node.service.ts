@@ -277,10 +277,6 @@ class NodeService {
                 message: RES_MSG.UNABLE_TO_SEND_EMAIL,
             }
 
-            return {
-                error: false,
-                message: RES_MSG.SUCCESS,
-            };
 
         } catch (error) {
             return {
