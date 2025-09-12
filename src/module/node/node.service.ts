@@ -46,7 +46,7 @@ class NodeService {
             const existing = await prisma.nodeRequest.findFirst({
                 where: {
                   nodeAddress,
-                  status: { in: ["PENDING", "APPROVED"] }, // adjust if your statuses are uppercase
+                  status: { in: ["PENDING"] }, // adjust if your statuses are uppercase
                 },
               });
               
