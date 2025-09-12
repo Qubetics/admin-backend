@@ -295,10 +295,6 @@ class NodeService {
             }
         }
 
-            return {
-                error: false,
-                message: RES_MSG.SUCCESS,
-            };
 
         } catch (error) {
             return {

@@ -1,4 +1,4 @@
-import { RES_MSG, approveTemplate } from "../../constant";
+import { RES_MSG, approveTemplate, rejectedTemplate } from "../../constant";
 import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(environment.sendgrid_key);
@@ -18,7 +18,7 @@ class MailService {
         from: environment.service_email,
         subject,
         // text: message,
-        html: isApproved ?approveTemplate(): approveTemplate(),
+        html: isApproved ?approveTemplate(): rejectedTemplate(),
       };
 
       await sgMail.send(msg);
