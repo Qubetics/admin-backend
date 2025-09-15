@@ -26,7 +26,7 @@ class NodeService {
             if (!isSignatureValid.verify) {
                 return {
                     error: true,
-                    message: RES_MSG.ERROR,
+                    message: RES_MSG.NOT_VERIFY,
                 };
             }
 
@@ -37,7 +37,7 @@ class NodeService {
             if (nodeResponse?.error === true || nodeResponse?.data?.code === 3 || nodeResponse?.data?.node?.status === "inactive") {
                 return {
                     error: true,
-                    message: RES_MSG.ERROR,
+                    message: RES_MSG.NOT_PRESENT_ON_CHAIN,
                 };
             }
 
@@ -45,25 +45,25 @@ class NodeService {
 
             const existing = await prisma.nodeRequest.findFirst({
                 where: {
-                  nodeAddress,
-                  status: { in: ["PENDING"] }, // adjust if your statuses are uppercase
+                    nodeAddress,
+                    status: { in: ["PENDING"] }, // adjust if your statuses are uppercase
                 },
-              });
-              
-              // 2. If such a record exists, handle it (e.g., throw an error or return early)
-              if (existing) {
+            });
+
+            // 2. If such a record exists, handle it (e.g., throw an error or return early)
+            if (existing) {
                 return {
                     error: true,
                     message: RES_MSG.NODE_REQUEST_IS_STILL
                 }
-              }
+            }
 
             // I have to check the wallet Address is related to the nodeAddress or not
             const calculatedWalletAddress = getWalletAddressFromNodeAddress(nodeAddress);
             if (calculatedWalletAddress != address) {
                 return {
                     error: true,
-                    message: RES_MSG.ERROR,
+                    message: RES_MSG.NOT_LINKED,
                 };
             }
 
@@ -73,20 +73,20 @@ class NodeService {
             if (responseFromUser.error === true) {
                 return {
                     error: true,
-                    message: RES_MSG.ERROR,
+                    message: RES_MSG.UNABLE_TO_SAVE_THE_USER,
                 };
             }
 
             if ((!choosePlan || Object.keys(choosePlan).length === 0) && request === UNLINK) {
                 const existingNode = await prisma.nodeRequest.findUnique({
-                  where: { nodeAddress },
-                  select: { plan: true, planId: true, provAddress: true, bandwidth: true },
+                    where: { nodeAddress },
+                    select: { plan: true, planId: true, provAddress: true, bandwidth: true },
                 });
-          
+
                 if (!existingNode) {
-                  return { error: true, message: RES_MSG.ERROR };
+                    return { error: true, message: RES_MSG.NODE_IS_NOT_LINK };
                 }
-          
+
                 choosePlan = {
                     plan: existingNode.plan,
                     planId: existingNode.planId,
@@ -102,7 +102,7 @@ class NodeService {
             if (!geo) {
                 return {
                     error: true,
-                    message: RES_MSG.ERROR,
+                    message: RES_MSG.UNABLE_TO_FIND_LOC,
                 };
             }
             const countryName = countries.getName(geo.country, 'en');
@@ -197,13 +197,14 @@ class NodeService {
         providerAddress: string,
         page: number,
         limit: number,
-        status?: string
+        status?: string,
+        reqStatus?: string
     ) => {
         try {
             if (!providerAddress || providerAddress === UNDEFINED) {
                 return {
                     error: true,
-                    message: RES_MSG.ERROR,
+                    message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT,
                 };
             }
 
@@ -219,6 +220,27 @@ class NodeService {
                 where.nodeStatus = status;
             }
 
+            if(reqStatus!=UNDEFINED){
+                where.status=reqStatus;
+            }
+
+            const selectFields: any = {
+                orgName: true,
+                nodeAddress: true,
+                requestFor: true,
+                status: true,
+              };
+          
+              // Only include nodeStatus if no status filter is applied
+              if (status === UNDEFINED) {
+                selectFields.nodeStatus = true;
+              }
+              
+              if(reqStatus === UNDEFINED){
+                selectFields.status=true;
+
+              }
+
             // Fetch data + count in parallel
             const [data, total] = await Promise.all([
                 prisma.nodeRequest.findMany({
@@ -226,13 +248,7 @@ class NodeService {
                     skip,
                     take: limit,
                     orderBy: { createdAt: "desc" },
-                    select: {
-                        orgName: true,
-                        nodeAddress: true,
-                        nodeStatus: true,
-                        requestFor: true,
-                        status: true,
-                    },
+                    select: selectFields
                 }),
                 prisma.nodeRequest.count({ where }),
             ]);
@@ -262,7 +278,7 @@ class NodeService {
             if (nodeAddress == UNDEFINED || status == "undefined") {
                 return {
                     error: true,
-                    message: RES_MSG.ERROR,
+                    message: RES_MSG.NODE_ADRES_IS_NOT_PRESENT,
                 };
             }
 
@@ -286,17 +302,20 @@ class NodeService {
                 };
             }
 
-            const response =  await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
+            const response = await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
 
-            if(response.error){
-            return {
-                error:false,
-                message: RES_MSG.UNABLE_TO_SEND_EMAIL,
+            if (response.error) {
+                return {
+                    error: false,
+                    message: RES_MSG.UNABLE_TO_SEND_EMAIL,
+                };
+
             }
-        }
-
-
-        } catch (error) {
+            return {
+                error: false,
+                message: RES_MSG.SUCCESS
+            };
+        } catch (error: any) {
             return {
                 error: true,
                 message: RES_MSG.ERROR,

@@ -34,7 +34,15 @@ export const RATE_LIMITER_MESSAGE = {
 };
 
 export const RES_MSG = {
+  NOT_VERIFY: "Unable to verify the wallet address.",
+  NOT_PRESENT_ON_CHAIN: "Node address is not present on the chain",
+  NOT_LINKED:"Node is not linked to this wallet address",
+  UNABLE_TO_SAVE_THE_USER:"Unable to save user details.",
   UNABLE_TO_SEND_EMAIL: "mot able to send the email",
+  NODE_IS_NOT_LINK:"node is not linked",
+  UNABLE_TO_FIND_LOC:"unable to find the location",
+  PROVIDER_ADDRESS_IS_PRESENT:"provider address is not present",
+  NODE_ADRES_IS_NOT_PRESENT:"node address is not present",
   NODE_REQUEST_IS_STILL: "node request is still alive",
   NODE_REQUEST_ACTION_DONE_NO_EMAIL:
     "successfully action done but no email Address to send the email",
