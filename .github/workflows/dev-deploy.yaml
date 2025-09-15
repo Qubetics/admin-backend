@@ -1,4 +1,4 @@
-name: "[dev] Deploy Admin-Backend"
+name: "[dev] Deploy admin-backend"
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  deploy_qubetics_indexer:
+  deploy_admin_backend:
     uses: ./.github/workflows/admin-backend-service.yaml
     with:
       SWR_ORGANIZATION: dev-qubetics
