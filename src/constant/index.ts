@@ -34,6 +34,7 @@ export const RATE_LIMITER_MESSAGE = {
 };
 
 export const RES_MSG = {
+  WALLET_ADDRESS_IS_NOT_PRESENT: "wallet address is not present",
   NOT_VERIFY: "Unable to verify the wallet address.",
   NOT_PRESENT_ON_CHAIN: "Node address is not present on the chain",
   NOT_LINKED:"Node is not linked to this wallet address",

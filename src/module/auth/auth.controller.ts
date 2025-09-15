@@ -18,7 +18,7 @@ class AuthController implements Controller {
     this.router
       .post("/login",this.loginUser)
       .post("/register",this.addUser)
-      .get("/logout",adminCheck,this.logout)
+      .get("/logout",this.logout)
   }
 
   private addUser = async (request: Request, response: Response) => {

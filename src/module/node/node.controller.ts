@@ -21,6 +21,8 @@ class NodeController implements Controller {
         this.router.get("", this.getAllNodeRequestList);
         this.router.get("/prov", this.getAllNodeForAddress);
         this.router.get("/action", this.updateNodeStatus);
+        this.router.get("/count",this.getAllCountForAddress);
+        this.router.get("/status",this.getNodeRequestStatus);
     }
 
     private nodeFormRequest = async (req: Request, res: Response) => {
@@ -60,7 +62,7 @@ class NodeController implements Controller {
         const limit = Number(req.query?.limit) || 10;
         const status = String(req.query?.status) || UNDEFINED;
         const reqStatus = String(req.query?.nodeStatus) || UNDEFINED;
-        const result = await nodeService.getAllNodeForAddress(providerAddress, page, limit, status,reqStatus);
+        const result = await nodeService.getAllNodeForAddress(providerAddress, page, limit, status, reqStatus);
 
         if (result.error) {
             return setResponse.error(res, result);
@@ -89,7 +91,25 @@ class NodeController implements Controller {
             return setResponse.error(res, result);
         }
         return setResponse.success(res, result);
-    }
+    };
+
+    private getAllCountForAddress = async (req: any, res: Response) => {
+        const providerAddress = String(req.query?.address);
+        const result = await nodeService.getAllCountForAddress(providerAddress);
+        if (result.error) {
+            return setResponse.error(res, result);
+        }
+        return setResponse.success(res, result);
+    };
+
+    private getNodeRequestStatus = async (req:any,res:Response) => {
+       const walletAddress=String(req.query?.wallet_address);
+       const result = await nodeService.getNodeRequestStatus(walletAddress);
+       if (result.error) {
+           return setResponse.error(res, result);
+       }
+       return setResponse.success(res, result);
+    };
 }
 
 export default NodeController;
