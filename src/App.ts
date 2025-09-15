@@ -64,8 +64,8 @@ export default class App {
     this.express.use(
       cors({
         origin: [
-          "https://dvpn-user.qubetics.work",
-          "https://dvpn-admin.qubetics.work",
+          "https://dvpn-node-operator.qubetics.work",
+          "https://dvpn-provider.qubetics.work"
         ], 
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],

@@ -59,7 +59,8 @@ class NodeController implements Controller {
         const page = Number(req.query?.page) || 1;
         const limit = Number(req.query?.limit) || 10;
         const status = String(req.query?.status) || UNDEFINED;
-        const result = await nodeService.getAllNodeForAddress(providerAddress, page, limit, status);
+        const reqStatus = String(req.query?.nodeStatus) || UNDEFINED;
+        const result = await nodeService.getAllNodeForAddress(providerAddress, page, limit, status,reqStatus);
 
         if (result.error) {
             return setResponse.error(res, result);
