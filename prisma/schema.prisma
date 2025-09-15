@@ -7,13 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id         String   @id @default(uuid())
-  address    String   @unique
-  role       Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid())
+  address   String   @unique
+  role      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   nodeRequests NodeRequest[]
@@ -21,43 +20,43 @@ model User {
 }
 
 model NodeRequest {
-  id         String   @id @default(uuid())
-  orgName    String?  
-  email      String? 
-  location   String
-  nodeAddress String  @unique
-  plan       String
-  planId     String
-  status     Status
-  nodeStatus NodeStatus
-  bandwidth  String
-  address    String
-  remoteUrl  String 
-  provAddress String  
-  action   Boolean  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  requestFor String   
+  id          String     @id @default(uuid())
+  orgName     String?
+  email       String?
+  location    String
+  nodeAddress String     @unique
+  plan        String
+  planId      String
+  status      Status
+  nodeStatus  NodeStatus
+  bandwidth   String
+  address     String     @unique
+  remoteUrl   String
+  provAddress String
+  action      Boolean
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  requestFor  String
 
   // Relations
   user User @relation(fields: [address], references: [address])
 }
 
 model Activity {
-  id        String   @id @default(uuid())
-  address   String
-  type      String
-  action    String
-  role      String
-  topic     String
-  data      Json  
-  targetUid    String?  
-  userIp       String
-  country      String?
-  countryCode  String?
-  userAgent    String  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(uuid())
+  address     String
+  type        String
+  action      String
+  role        String
+  topic       String
+  data        Json
+  targetUid   String?
+  userIp      String
+  country     String?
+  countryCode String?
+  userAgent   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   user User @relation(fields: [id], references: [id])

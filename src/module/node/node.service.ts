@@ -175,6 +175,8 @@ class NodeService {
                     bandwidth: true,
                     plan: true,
                     location: true,
+                    planId: true,
+                    provAddress: true,
                 }
             });
 
@@ -316,6 +318,84 @@ class NodeService {
                 message: RES_MSG.SUCCESS
             };
         } catch (error: any) {
+            return {
+                error: true,
+                message: RES_MSG.ERROR,
+            };
+        }
+    };
+
+    public getAllCountForAddress = async (
+        providerAddress: string,
+    ) => {
+        try {
+            if (!providerAddress || providerAddress === UNDEFINED) {
+                return {
+                    error: true,
+                    message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT,
+                };
+            }
+
+            // Fetch data + count in parallel
+            const [total,active,inactive] = await Promise.all([
+                prisma.nodeRequest.count({ where:{provAddress: providerAddress} }),
+                prisma.nodeRequest.count({
+                    where: { provAddress: providerAddress, nodeStatus: ACTIVE },
+                }),
+                prisma.nodeRequest.count({
+                    where: { provAddress: providerAddress, nodeStatus: INACTIVE },
+                }),
+            ]);
+
+            return {
+                error: false,
+                message: RES_MSG.SUCCESS,
+                data: {
+                    totalCount: total,
+                    activeCount: active,
+                    inactiveCount: inactive
+                }
+            };
+        } catch (error) {
+            console.error("NodeService.getAllNodeForAddress error:", error);
+            return {
+                error: true,
+                message: RES_MSG.ERROR,
+            };
+        }
+    };
+
+    public getNodeRequestStatus = async (
+        walletAddress: string,
+    ) => {
+        try {
+            if (!walletAddress || walletAddress === UNDEFINED) {
+                return {
+                    error: true,
+                    message: RES_MSG.WALLET_ADDRESS_IS_NOT_PRESENT,
+                };
+            }
+
+            // Fetch data + count in parallel
+            const node = await prisma.nodeRequest.findUnique({
+                where: { address:walletAddress },
+                select: { status: true },
+              });
+          
+              if (!node) {
+                return {
+                  error: true,
+                  message: "Address is not present",
+                };
+              }
+          
+              return {
+                error: false,
+                message: RES_MSG.SUCCESS,
+                data: { status: node.status },
+              };
+        } catch (error) {
+            console.error("NodeService.getNodeRequestStatus error:", error);
             return {
                 error: true,
                 message: RES_MSG.ERROR,
