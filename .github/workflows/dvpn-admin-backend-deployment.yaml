@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy_admin_backend:
-    uses: ./.github/workflows/admin-backend-service.yaml
+    uses: ./.github/workflows/dvpn-admin-backend-service.yaml
     with:
       SWR_ORGANIZATION: dev-qubetics
       ARGOCD_BRANCH: dev
