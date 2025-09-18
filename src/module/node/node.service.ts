@@ -67,6 +67,13 @@ class NodeService {
                 };
             }
 
+            if (orgName === UNDEFINED) {
+                orgName = "";
+            }
+            if (email === UNDEFINED) {
+                email = "";
+            }
+
             // here parallel I am saving the userData to the user table.
             const responseFromUser = await AuthService.addUser({ address });
 
@@ -80,7 +87,7 @@ class NodeService {
             if ((!choosePlan || Object.keys(choosePlan).length === 0) && request === UNLINK) {
                 const existingNode = await prisma.nodeRequest.findUnique({
                     where: { nodeAddress },
-                    select: { plan: true, planId: true, provAddress: true, bandwidth: true },
+                    select: { plan: true, planId: true, provAddress: true, bandwidth: true, hours: true },
                 });
 
                 if (!existingNode) {
@@ -92,6 +99,7 @@ class NodeService {
                     planId: existingNode.planId,
                     provAddress: existingNode.provAddress,
                     bandwidth: existingNode.bandwidth,
+                    hours: existingNode.hours
                 };
             }
 
@@ -123,6 +131,7 @@ class NodeService {
                     address,
                     remoteUrl: node?.remote_url,
                     requestFor: request,
+                    hours: choosePlan?.hours,
                     location: countryName || geo.country,
                     action: false,
                 },
@@ -139,6 +148,7 @@ class NodeService {
                     address,
                     remoteUrl: node?.remote_url,
                     requestFor: request,
+                    hours: choosePlan?.hours,
                     location: countryName || geo.country,
                     action: false,
                 },
@@ -157,16 +167,19 @@ class NodeService {
         }
     };
 
-    public getAllNodeRequestList = async (page: number, limit: number) => {
+    public getAllNodeRequestList = async (page: number, limit: number, reqStatus: string) => {
         try {
+            const where: any = { status: PENDING };
+            if (reqStatus === LINK || reqStatus === UNLINK) {
+                where.requestFor = reqStatus;
+            }
+
             const skip = (page - 1) * limit;
 
             const response = await prisma.nodeRequest.findMany({
                 skip,
                 take: limit,
-                where: {
-                    status: PENDING,
-                },
+                where,
                 select: {
                     orgName: true,
                     email: true,
@@ -177,6 +190,7 @@ class NodeService {
                     location: true,
                     planId: true,
                     provAddress: true,
+                    hours: true,
                 }
             });
 
@@ -222,8 +236,8 @@ class NodeService {
                 where.nodeStatus = status;
             }
 
-            if(reqStatus!=UNDEFINED){
-                where.status=reqStatus;
+            if (reqStatus != UNDEFINED) {
+                where.status = reqStatus;
             }
 
             const selectFields: any = {
@@ -231,17 +245,17 @@ class NodeService {
                 nodeAddress: true,
                 requestFor: true,
                 status: true,
-              };
-          
-              // Only include nodeStatus if no status filter is applied
-              if (status === UNDEFINED) {
-                selectFields.nodeStatus = true;
-              }
-              
-              if(reqStatus === UNDEFINED){
-                selectFields.status=true;
+            };
 
-              }
+            // Only include nodeStatus if no status filter is applied
+            if (status === UNDEFINED) {
+                selectFields.nodeStatus = true;
+            }
+
+            if (reqStatus === UNDEFINED) {
+                selectFields.status = true;
+
+            }
 
             // Fetch data + count in parallel
             const [data, total] = await Promise.all([
@@ -337,8 +351,8 @@ class NodeService {
             }
 
             // Fetch data + count in parallel
-            const [total,active,inactive] = await Promise.all([
-                prisma.nodeRequest.count({ where:{provAddress: providerAddress} }),
+            const [total, active, inactive] = await Promise.all([
+                prisma.nodeRequest.count({ where: { provAddress: providerAddress } }),
                 prisma.nodeRequest.count({
                     where: { provAddress: providerAddress, nodeStatus: ACTIVE },
                 }),
@@ -378,24 +392,62 @@ class NodeService {
 
             // Fetch data + count in parallel
             const node = await prisma.nodeRequest.findUnique({
-                where: { address:walletAddress },
-                select: { status: true },
-              });
-          
-              if (!node) {
+                where: { address: walletAddress },
+                select: { status: true, requestFor: true },
+            });
+
+            if (!node) {
                 return {
-                  error: true,
-                  message: "Address is not present",
+                    error: true,
+                    message: RES_MSG.WALLET_ADDRESS,
                 };
-              }
-          
-              return {
+            }
+
+            return {
                 error: false,
                 message: RES_MSG.SUCCESS,
-                data: { status: node.status },
-              };
+                data: { requestFor: node.requestFor, status: node.status },
+            };
         } catch (error) {
             console.error("NodeService.getNodeRequestStatus error:", error);
+            return {
+                error: true,
+                message: RES_MSG.ERROR,
+            };
+        }
+    };
+
+    public getNodeRequestCount = async (providerAddress: string) => {
+        try {
+            if (!providerAddress || providerAddress === UNDEFINED) {
+                return {
+                    error: true,
+                    message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT,
+                };
+            }
+
+            // Fetch data + count in parallel
+            const [totalCount, linkCount, UnlinkCount] = await Promise.all([
+                prisma.nodeRequest.count({ where: { provAddress: providerAddress, status: PENDING } }),
+                prisma.nodeRequest.count({
+                    where: { provAddress: providerAddress, status: PENDING, requestFor: LINK },
+                }),
+                prisma.nodeRequest.count({
+                    where: { provAddress: providerAddress, status: PENDING, requestFor: UNLINK },
+                }),
+            ]);
+
+            return {
+                error: false,
+                message: RES_MSG.SUCCESS,
+                data: {
+                    totalCount: totalCount,
+                    linkCount: linkCount,
+                    UnlinkCount: UnlinkCount
+                }
+            };
+        } catch (error) {
+            console.error("NodeService.getAllNodeForAddress error:", error);
             return {
                 error: true,
                 message: RES_MSG.ERROR,

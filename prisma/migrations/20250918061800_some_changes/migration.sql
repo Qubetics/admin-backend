@@ -34,6 +34,7 @@ CREATE TABLE "analytics"."NodeRequest" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "requestFor" TEXT NOT NULL,
+    "hours" TEXT NOT NULL,
 
     CONSTRAINT "NodeRequest_pkey" PRIMARY KEY ("id")
 );
