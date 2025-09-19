@@ -35,17 +35,17 @@ export const RATE_LIMITER_MESSAGE = {
 
 export const RES_MSG = {
   WALLET_ADDRESS:"Address is not present",
-  WALLET_ADDRESS_IS_NOT_PRESENT: "wallet address is not present",
+  WALLET_ADDRESS_IS_NOT_PRESENT: "Wallet address is not present",
   NOT_VERIFY: "Unable to verify the wallet address.",
   NOT_PRESENT_ON_CHAIN: "Node address is not present on the chain",
   NOT_LINKED:"Node is not linked to this wallet address",
   UNABLE_TO_SAVE_THE_USER:"Unable to save user details.",
-  UNABLE_TO_SEND_EMAIL: "mot able to send the email",
-  NODE_IS_NOT_LINK:"node is not linked",
-  UNABLE_TO_FIND_LOC:"unable to find the location",
-  PROVIDER_ADDRESS_IS_PRESENT:"provider address is not present",
-  NODE_ADRES_IS_NOT_PRESENT:"node address is not present",
-  NODE_REQUEST_IS_STILL: "node request is still alive",
+  UNABLE_TO_SEND_EMAIL: "Not able to send the email",
+  NODE_IS_NOT_LINK:"Node is not linked",
+  UNABLE_TO_FIND_LOC:"Unable to find the location",
+  PROVIDER_ADDRESS_IS_PRESENT:"Provider address is not present",
+  NODE_ADRES_IS_NOT_PRESENT:"Node address is not present",
+  NODE_REQUEST_IS_STILL: "Node request is still alive",
   NODE_REQUEST_ACTION_DONE_NO_EMAIL:
     "successfully action done but no email Address to send the email",
   NODE_REQUESTLIST: "successfully fetched the node request list",
@@ -326,7 +326,7 @@ export const rejectedTemplate = () => `<!DOCTYPE html>
             >Need Assistance?</span
           >
           <p>
-            For guidance, see our docs: [Insert Gitbook/Docs Link]. For help, contact [Insert Support Email]. Thank you for supporting Qubetics dVPN — together, we’re building a secure and decentralized internet.
+            For guidance, see our docs: https://qubetics.gitbook.io/qubetics-docs. For help, contact: no-reply@qubetics.work . Thank you for supporting Qubetics dVPN — together, we’re building a secure and decentralized internet.
           </p>
           <p>Best regards,</p>
           <span style="font-weight: 700; color: #ffffff"
