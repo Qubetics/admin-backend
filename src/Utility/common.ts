@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Message, WALLET_PREFIX } from "../constant";
+import { LINK, Message, PENDING, REJECTED, RES_MSG, WALLET_PREFIX, UNLINK, APPROVED } from "../constant";
 import sha3 from "js-sha3";
 import { arrayify } from "@ethersproject/bytes";
 import { serializeSignDoc } from "@cosmjs/amino";
@@ -121,7 +121,7 @@ export const verifyKeplrSignature = (
     return { verify: pubKey === pubkeyComputed };
   } catch (err) {
     console.error("err", err);
-    return {verify:false};
+    return { verify: false };
   }
 };
 
@@ -131,7 +131,7 @@ export const decryptData = (ciphertext: string) => {
   return JSON.parse(decryptedData);
 };
 
-export const encryptData = (data:any) => {
+export const encryptData = (data: any) => {
   return CryptoJS.AES.encrypt(JSON.stringify(data), environment.secretKey).toString();
 };
 
@@ -140,10 +140,10 @@ export const encryptData = (data:any) => {
  * @param {string} token - The token to check.
  * @returns {boolean}
  */
-export const isTokenExpired=async (token:string)=> {
+export const isTokenExpired = async (token: string) => {
   const value = await redisHelper.getString(token);
 
-  return value ;
+  return value;
 };
 
 export const extractIP = (url: string): string => {
@@ -156,3 +156,50 @@ export const extractIP = (url: string): string => {
     return '';
   }
 };
+
+export const canSubmitNodeRequest = async (
+  status: string,
+  requestFor: string,
+  currentRequest: string
+): Promise<{ ok: boolean; message?: string }> => {
+
+  if (status === PENDING) {
+    return { ok: false, message: RES_MSG.NODE_REQUEST_IS_STILL };
+  }
+
+  if (currentRequest === LINK) {
+    if (requestFor === LINK && status === REJECTED) {
+      return { ok: true };
+    }
+    if (requestFor === UNLINK && status === APPROVED) {
+      return { ok: true };
+    }
+    return { ok: false, message: RES_MSG.NODE_IS_LINK };
+  }
+
+  if (currentRequest === UNLINK) {
+    if (requestFor === UNLINK && status === REJECTED) {
+      return { ok: true };
+    }
+    if (requestFor === LINK && status === APPROVED) {
+      return { ok: true };
+    }
+    return { ok: false, message: RES_MSG.NODE_IS_NOT_LINK };
+  }
+
+  return { ok: false, message: RES_MSG.INVALID_REQUEST };
+};
+
+export const convertNodeToWallet = (address: any, walletPrefix: any) => {
+  if (!address) {
+    return "";
+  }
+  // Decode node address
+  const decoded = bech32.decode(address);
+  const words = decoded.words;
+
+  // Re-encode with wallet prefix
+  return bech32.encode(walletPrefix, words);
+};
+
+

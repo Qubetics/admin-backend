@@ -10,15 +10,15 @@ class MailService {
   ) => {
     try {
       const subject = isApproved
-        ? ` Your Qubetics Node ${nodeName} as a Service Registration is Successful!`
-        : `Qubetics Node ${nodeName} Registration Update – Action Required`;
+        ? ` Your Qubetics Node Operator Registration is Successful!`
+        : `Qubetics Node Registration Update - Action Required`;
 
       const msg = {
         to: email,
         from: environment.service_email,
         subject,
         // text: message,
-        html: isApproved ?approveTemplate(): rejectedTemplate(),
+        html: isApproved ? approveTemplate(): rejectedTemplate(),
       };
 
       await sgMail.send(msg);
