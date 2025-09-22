@@ -1,5 +1,5 @@
 import { ACTIVE, INACTIVE, LINK, PENDING, RES_MSG, UNDEFINED, UNLINK } from '../../constant';
-import { extractIP, fetchRequest, getWalletAddressFromNodeAddress } from '../../Utility/common';
+import { extractIP, fetchRequest, getWalletAddressFromNodeAddress, canSubmitNodeRequest } from '../../Utility/common';
 import { FETCH_METHODS } from '../../constant';
 import { RedisService } from '../../service';
 import AuthService from '../auth/auth.service';
@@ -44,17 +44,17 @@ class NodeService {
             const node = nodeResponse?.data?.node;
 
             const existing = await prisma.nodeRequest.findFirst({
-                where: {
-                    nodeAddress,
-                    status: { in: ["PENDING"] }, // adjust if your statuses are uppercase
-                },
+                where: { nodeAddress },
+                orderBy: { createdAt: "desc" },
+                select: { status: true, requestFor: true },
             });
 
-            // 2. If such a record exists, handle it (e.g., throw an error or return early)
+            // If there’s no previous record, allow proceeding
             if (existing) {
-                return {
-                    error: true,
-                    message: RES_MSG.NODE_REQUEST_IS_STILL
+                const result = await canSubmitNodeRequest(existing?.status, existing?.requestFor, request);
+
+                if (!result.ok) {
+                    return { error: true, message: result.message };
                 }
             }
 
@@ -167,13 +167,17 @@ class NodeService {
         }
     };
 
-    public getAllNodeRequestList = async (page: number, limit: number, reqStatus: string) => {
+    public getAllNodeRequestList = async (page: number, limit: number, reqStatus: string, providerAddress: string) => {
         try {
             const where: any = { status: PENDING };
             if (reqStatus === LINK || reqStatus === UNLINK) {
                 where.requestFor = reqStatus;
             }
-
+            
+            if(providerAddress!=UNDEFINED){
+                where.provAddress= providerAddress;
+            }
+            
             const skip = (page - 1) * limit;
 
             const response = await prisma.nodeRequest.findMany({

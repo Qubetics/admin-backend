@@ -42,6 +42,7 @@ export const RES_MSG = {
   UNABLE_TO_SAVE_THE_USER:"Unable to save user details.",
   UNABLE_TO_SEND_EMAIL: "Not able to send the email",
   NODE_IS_NOT_LINK:"Node is not linked",
+  NODE_IS_LINK:"This node is already linked and cannot be linked again",
   UNABLE_TO_FIND_LOC:"Unable to find the location",
   PROVIDER_ADDRESS_IS_PRESENT:"Provider address is not present",
   NODE_ADRES_IS_NOT_PRESENT:"Node address is not present",
@@ -65,6 +66,7 @@ export const RES_MSG = {
   INVALID_ADDRESS: "invalid address",
   INVALID_MESSAGE: "this message type data not found ",
   UNAUTHORIZED: "invalid user",
+  INVALID_REQUEST:"invalid request type"
 };
 
 export const CONST_NAME = {
@@ -115,10 +117,13 @@ export const HEADERS = {
   },
 };
 
+export const provWalletPrefix = "qubeticsprov";
 export const UNDEFINED = "undefined";
 export const LINK = "Link";
 export const UNLINK = "Unlink";
 export const PENDING = "PENDING";
+export const APPROVED = "APPROVED";
+export const REJECTED = "REJECTED";
 export const ACTIVE = "active";
 export const INACTIVE = "inactive";
 export const WALLET_PREFIX = "qubetics";

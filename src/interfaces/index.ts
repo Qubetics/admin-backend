@@ -13,3 +13,5 @@ export interface Controller {
 }
 
 export type Status = "PENDING" | "APPROVED" | "REJECTED" | "undefined";
+
+export type RequestType = "Link" | "Unlink";

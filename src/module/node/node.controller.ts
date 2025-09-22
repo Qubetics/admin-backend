@@ -4,8 +4,9 @@ import { Request, Response } from "express";
 import * as Helpers from "../../service/index";
 import { Controller, Status } from "../../interfaces/index";
 import nodeService from "./node.service";
-import { UNDEFINED } from "../../constant";
-// import { adminCheck } from "../../middleware/adminCheck";
+import { convertNodeToWallet } from "../../Utility/common"
+import { provWalletPrefix, UNDEFINED } from "../../constant";
+import { adminCheck } from "../../middleware/adminCheck";
 
 const setResponse = Helpers.ResponseHelper;
 
@@ -18,11 +19,11 @@ class NodeController implements Controller {
 
     private initializeRoutes() {
         this.router.post("", this.nodeFormRequest);
-        this.router.get("", this.getAllNodeRequestList);
-        this.router.get("/prov", this.getAllNodeForAddress);
-        this.router.get("/action", this.updateNodeStatus);
-        this.router.get("/count", this.getAllCountForAddress);
-        this.router.get("/request-count", this.getNodeRequestCount);
+        this.router.get("", adminCheck, this.getAllNodeRequestList);
+        this.router.get("/prov", adminCheck, this.getAllNodeForAddress);
+        this.router.get("/action", adminCheck, this.updateNodeStatus);
+        this.router.get("/count", adminCheck, this.getAllCountForAddress);
+        this.router.get("/request-count", adminCheck, this.getNodeRequestCount);
         this.router.get("/status", this.getNodeRequestStatus);
     }
 
@@ -49,7 +50,9 @@ class NodeController implements Controller {
         const page = Number(req.query?.page) || 1;
         const limit = Number(req.query?.limit) || 10;
         const reqStatus = String(req.query?.status) || UNDEFINED;
-        const result = await nodeService.getAllNodeRequestList(page, limit, reqStatus);
+        const walletAddress = String(req.user?.address);
+        const providerAddress = String(convertNodeToWallet(walletAddress, provWalletPrefix));
+        const result = await nodeService.getAllNodeRequestList(page, limit, reqStatus, providerAddress);
 
         if (result.error) {
             return setResponse.error(res, result);
@@ -58,8 +61,8 @@ class NodeController implements Controller {
     };
 
     private getAllNodeForAddress = async (req: any, res: Response) => {
-        // const providerAddress = String(req.user?.providerAddress);
-        const providerAddress = String(req.query?.address);
+        const walletAddress = String(req.user?.address);
+        const providerAddress = String(convertNodeToWallet(walletAddress, provWalletPrefix));
         const page = Number(req.query?.page) || 1;
         const limit = Number(req.query?.limit) || 10;
         const status = String(req.query?.status) || UNDEFINED;
@@ -96,7 +99,8 @@ class NodeController implements Controller {
     };
 
     private getAllCountForAddress = async (req: any, res: Response) => {
-        const providerAddress = String(req.query?.address);
+        const walletAddress = String(req.user?.address);
+        const providerAddress = String(convertNodeToWallet(walletAddress, provWalletPrefix));
         const result = await nodeService.getAllCountForAddress(providerAddress);
         if (result.error) {
             return setResponse.error(res, result);
@@ -114,8 +118,9 @@ class NodeController implements Controller {
     };
 
     private getNodeRequestCount = async (req: any, res: Response) => {
-        const provAddress = String(req.query?.address);
-        const result = await nodeService.getNodeRequestCount(provAddress);
+        const walletAddress = String(req.user?.address);
+        const providerAddress = String(convertNodeToWallet(walletAddress, provWalletPrefix));
+        const result = await nodeService.getNodeRequestCount(providerAddress);
         if (result.error) {
             return setResponse.error(res, result);
         }

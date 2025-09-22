@@ -35,7 +35,7 @@ export const adminCheck = async (
       // updating the token time for session login
       await redisHelper.updateRedisTime(token);
       (req as any).user = (req as any).user || {};
-      (req as any).user.providerAddress = user.address;
+      (req as any).user.address = user.address;
       (req as any).user.role = user.role;      
       next();
     } else {
