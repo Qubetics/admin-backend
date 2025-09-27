@@ -1,4 +1,4 @@
-name: '[testnet] Deploy admin backend'
+name: '[testnet] Deploy dvpn admin backend'
 
 on: 
   push:
