@@ -214,8 +214,8 @@ export const approveTemplate = () => `<!DOCTYPE html>
             </ul>
             <span style="font-weight: 700; color: #ffffff">Need Support?</span>
             <p>
-              For node management guidance, visit our [documentation link] or
-              contact us at [support email]. Thank you for helping Qubetics
+              For node management guidance, visit our ${environment.gitbook_url} or
+              contact us at ${environment.service_email}. Thank you for helping Qubetics
               build a secure, private, and user-powered decentralized internet.
             </p>
             <p>Best regards,</p>
@@ -331,7 +331,7 @@ export const rejectedTemplate = () => `<!DOCTYPE html>
             >Need Assistance?</span
           >
           <p>
-            For guidance, see our docs: https://qubetics.gitbook.io/qubetics-docs. For help, contact: no-reply@qubetics.work . Thank you for supporting Qubetics dVPN — together, we’re building a secure and decentralized internet.
+            For guidance, see our docs: ${environment.gitbook_url}. For help, contact: ${environment.service_email}. Thank you for supporting Qubetics dVPN — together, we’re building a secure and decentralized internet.
           </p>
           <p>Best regards,</p>
           <span style="font-weight: 700; color: #ffffff"

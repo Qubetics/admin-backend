@@ -24,9 +24,11 @@ class Environment implements IEnvironment {
 
   public secretKey: string;
 
-  public sendgrid_key:string;
-  
-  public service_email:string;
+  public sendgrid_key: string;
+
+  public service_email: string;
+
+  public gitbook_url: string;
 
   /**
    *
@@ -46,6 +48,7 @@ class Environment implements IEnvironment {
     this.redisExpiry = <number>Number(process.env.REDIS_EXPIRY);
     this.sendgrid_key = <string>process.env.SENDGRID_API_KEY;
     this.service_email = <string>process.env.MAILING_SERVICE_EMAIL;
+    this.gitbook_url = <string>process.env.GITBOOK_URL;
 
   }
 
