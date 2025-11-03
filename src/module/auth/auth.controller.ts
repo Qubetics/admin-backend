@@ -16,15 +16,13 @@ class AuthController implements Controller {
 
   private initializeRoutes() {
     this.router
-      .post("/login",this.loginUser)
-      .post("/register",this.addUser)
-      .get("/logout",adminCheck,this.logout)
+      .post("/login", this.loginUser)
+      .post("/register", this.addUser)
+      .get("/logout", adminCheck, this.logout);
   }
 
   private addUser = async (request: Request, response: Response) => {
-    const user = await AuthService.addUser(
-      request.body as any,
-    );
+    const user = await AuthService.addAdmin(request.body as any, response);
     if (user.error) {
       return setResponse.error(response, user);
     }
@@ -32,10 +30,7 @@ class AuthController implements Controller {
   };
 
   private loginUser = async (request: Request, response: Response) => {
-    const user = await AuthService.loginUser(
-      request.body as any,
-      response
-    );
+    const user = await AuthService.loginUser(request.body as any, response);
     if (user.error) {
       return setResponse.error(response, user);
     }
@@ -43,13 +38,12 @@ class AuthController implements Controller {
   };
 
   private logout = async (request: any, response: Response) => {
-    const user = await AuthService.logout(request,response);
+    const user = await AuthService.logout(request, response);
     if (user.error) {
       return setResponse.error(response, user);
     }
     return setResponse.success(response, user);
   };
-
 }
 
 export default AuthController;

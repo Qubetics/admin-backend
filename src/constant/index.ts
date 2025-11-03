@@ -66,7 +66,9 @@ export const RES_MSG = {
   INVALID_ADDRESS: "invalid address",
   INVALID_MESSAGE: "this message type data not found ",
   UNAUTHORIZED: "invalid user",
-  INVALID_REQUEST:"invalid request type"
+  INVALID_HASH:"Invalid Transaction hash",
+  INVALID_REQUEST:"invalid request type",
+  NOT_ADMIN: 'Access denied: user is not an admin'
 };
 
 export const CONST_NAME = {
@@ -129,7 +131,7 @@ export const INACTIVE = "inactive";
 export const WALLET_PREFIX = "qubetics";
 export const API_BASE_URL =
   "API_BASE_URL is not defined in environment variables";
-export const CRON_WORKER = "Running Node Worker cron job";
+export const CRON_WORKER ={NODE: "Running Node Worker cron job",PROVIDER: "Running Provider Worker cron job"}
 
 export const Message = {
   nodesave: "Nodes saved with geo info",
@@ -142,6 +144,10 @@ export const Message = {
 export const COOKIE_NAMES = {
   SESSION_ID: "session_id", // Cookie for Redis-backed sessions
 };
+
+export const CHAIN_METHOD={
+  PROVIDER_STATUS:"/qubetics.provider.v3.MsgUpdateProviderStatusRequest"
+}
 
 // emailTemplate.js
 export const approveTemplate = () => `<!DOCTYPE html>
