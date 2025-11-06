@@ -34,18 +34,18 @@ export const RATE_LIMITER_MESSAGE = {
 };
 
 export const RES_MSG = {
-  WALLET_ADDRESS:"Address is not present",
+  WALLET_ADDRESS: "Address is not present",
   WALLET_ADDRESS_IS_NOT_PRESENT: "Wallet address is not present",
   NOT_VERIFY: "Unable to verify the wallet address.",
   NOT_PRESENT_ON_CHAIN: "Node address is not present on the chain",
-  NOT_LINKED:"Node is not linked to this wallet address",
-  UNABLE_TO_SAVE_THE_USER:"Unable to save user details.",
+  NOT_LINKED: "Node is not linked to this wallet address",
+  UNABLE_TO_SAVE_THE_USER: "Unable to save user details.",
   UNABLE_TO_SEND_EMAIL: "Not able to send the email",
-  NODE_IS_NOT_LINK:"Node is not linked",
-  NODE_IS_LINK:"This node is already linked and cannot be linked again",
-  UNABLE_TO_FIND_LOC:"Unable to find the location",
-  PROVIDER_ADDRESS_IS_PRESENT:"Provider address is not present",
-  NODE_ADRES_IS_NOT_PRESENT:"Node address is not present",
+  NODE_IS_NOT_LINK: "Node is not linked",
+  NODE_IS_LINK: "This node is already linked and cannot be linked again",
+  UNABLE_TO_FIND_LOC: "Unable to find the location",
+  PROVIDER_ADDRESS_IS_PRESENT: "Provider address is not present",
+  NODE_ADRES_IS_NOT_PRESENT: "Node address is not present",
   NODE_REQUEST_IS_STILL: "Node request is still alive",
   NODE_REQUEST_ACTION_DONE_NO_EMAIL:
     "successfully action done but no email Address to send the email",
@@ -66,9 +66,9 @@ export const RES_MSG = {
   INVALID_ADDRESS: "invalid address",
   INVALID_MESSAGE: "this message type data not found ",
   UNAUTHORIZED: "invalid user",
-  INVALID_HASH:"Invalid Transaction hash",
-  INVALID_REQUEST:"invalid request type",
-  NOT_ADMIN: 'Access denied: user is not an admin'
+  INVALID_HASH: "Invalid Transaction hash",
+  INVALID_REQUEST: "invalid request type",
+  NOT_ADMIN: "Access denied: user is not an admin",
 };
 
 export const CONST_NAME = {
@@ -118,6 +118,12 @@ export const HEADERS = {
     Accept: "application/json",
   },
 };
+export const REQUEST_STATUS: any = {
+  UNSPECIFIED: "UNSPECIFIED",
+  REJECTED: "REJECTED",
+  PENDING: "PENDING",
+  APPROVED: "APPROVED",
+};
 
 export const provWalletPrefix = "qubeticsprov";
 export const UNDEFINED = "undefined";
@@ -131,7 +137,10 @@ export const INACTIVE = "inactive";
 export const WALLET_PREFIX = "qubetics";
 export const API_BASE_URL =
   "API_BASE_URL is not defined in environment variables";
-export const CRON_WORKER ={NODE: "Running Node Worker cron job",PROVIDER: "Running Provider Worker cron job"}
+export const CRON_WORKER = {
+  NODE: "Running Node Worker cron job",
+  PROVIDER: "Running Provider Worker cron job",
+};
 
 export const Message = {
   nodesave: "Nodes saved with geo info",
@@ -145,9 +154,9 @@ export const COOKIE_NAMES = {
   SESSION_ID: "session_id", // Cookie for Redis-backed sessions
 };
 
-export const CHAIN_METHOD={
-  PROVIDER_STATUS:"/qubetics.provider.v3.MsgUpdateProviderStatusRequest"
-}
+export const CHAIN_METHOD = {
+  PROVIDER_STATUS: "/qubetics.provider.v3.MsgUpdateProviderStatusRequest",
+};
 
 // emailTemplate.js
 export const approveTemplate = () => `<!DOCTYPE html>
