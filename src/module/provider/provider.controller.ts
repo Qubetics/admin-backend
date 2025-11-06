@@ -14,8 +14,8 @@ class ProviderController implements Controller {
   }
 
   private initializeRoutes() {
-    this.router
-      .get("", this.getAllProvider)
+    this.router.get("", this.getAllProvider);
+    this.router.get("/detail/:address", this.getProviderDetails);
   }
 
   private getAllProvider = async (request: Request, response: Response) => {
@@ -26,6 +26,16 @@ class ProviderController implements Controller {
     return setResponse.success(response, user);
   };
 
+  private getProviderDetails = async (request: Request, response: Response) => {
+    const { address } = request.params;
+    const { page, limit } = request.query;
+
+    const user = await providerService.getProviderDetails(address as string, page as string, limit as string);
+    if (user.error) {
+      return setResponse.error(response, user);
+    }
+    return setResponse.success(response, user);
+  };
 }
 
 export default ProviderController;
