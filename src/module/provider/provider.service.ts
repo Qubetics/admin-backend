@@ -22,26 +22,29 @@ class ProviderService {
       }
 
       const allProviders = response?.data?.providers || [];
-
       const activeProviders = allProviders.filter((provider: any) => provider.status?.toLowerCase() === "active");
 
-      const nodeCounts = await prisma.$queryRaw<{ provAddress: string; count: bigint }[]>`
-        SELECT "provAddress", COUNT(*)::bigint as count
-        FROM "NodeRequest"
-        WHERE "nodeStatus" = 'active'
-        GROUP BY "provAddress";
-      `;
+      let updatedProviders = activeProviders;
 
-      const countMap: Record<string, number> = {};
-      nodeCounts.forEach((row) => {
-        countMap[row.provAddress] = Number(row.count);
-      });
+      if (page && limit) {
+        const nodeCounts = await prisma.$queryRaw<{ provAddress: string; count: bigint }[]>`
+          SELECT "provAddress", COUNT(*)::bigint as count
+          FROM "NodeRequest"
+          WHERE "nodeStatus" = 'active'
+          GROUP BY "provAddress";
+        `;
 
-      const updatedProviders = activeProviders.map((provider: any) => ({
-        ...provider,
-        walletAddress: getWalletAddressFromNodeAddress(provider.address),
-        nodeCount: countMap[provider.address] || 0,
-      }));
+        const countMap: Record<string, number> = {};
+        nodeCounts.forEach((row) => {
+          countMap[row.provAddress] = Number(row.count);
+        });
+
+        updatedProviders = activeProviders.map((provider: any) => ({
+          ...provider,
+          walletAddress: getWalletAddressFromNodeAddress(provider.address),
+          nodeCount: countMap[provider.address] || 0,
+        }));
+      }
 
       return {
         error: false,

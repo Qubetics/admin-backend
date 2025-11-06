@@ -65,6 +65,7 @@ export default class App {
         origin: [
           "https://dvpn-node-operator.qubetics.work",
           "https://dvpn-provider.qubetics.work",
+          "http://localhost:5173",
         ],
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
