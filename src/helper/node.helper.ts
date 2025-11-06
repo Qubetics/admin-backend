@@ -1,3 +1,5 @@
+import { convertNodeToWallet } from "../Utility/common";
+import { WALLET_PREFIX } from "../constant";
 import prisma from "../lib/db";
 
 export const saveNodes = async (nodeData: any[]) => {
@@ -23,10 +25,10 @@ export const saveProvider = async (providers: any[]) => {
   try {
     const tasks: any = providers.map((provider: any) =>
       prisma.user.upsert({
-        where: { address: provider.address },
+        where: { address: convertNodeToWallet(provider.address,WALLET_PREFIX) },
         update: {}, // do nothing if exists
         create: {
-          address: provider.address,
+          address: convertNodeToWallet(provider.address,WALLET_PREFIX),
           name: provider.name,
           email: provider.identity,
           url: provider.website,
@@ -37,30 +39,6 @@ export const saveProvider = async (providers: any[]) => {
     );
 
     return await Promise.allSettled(tasks);
-  } catch (err) {
-    console.log(err, `error in the saving the node data`);
-    return err;
-  }
-};
-
-export const saveNodeRequest = async (node: any[]) => {
-  if (!node?.length) return;
-  try {
-    // const tasks: any = node.map((provider: any) =>
-    //   prisma.user.upsert({
-    //     where: { address: provider.address },
-    //     update: {}, // do nothing if exists
-    //     create: {
-    //       address: provider.address,
-    //       name: provider.name,
-    //       email: provider.identity,
-    //       url: provider.website,
-    //       description: provider.description,
-    //       role: 1,
-    //     },
-    //   })
-    // );
-    // return await Promise.allSettled(tasks);
   } catch (err) {
     console.log(err, `error in the saving the node data`);
     return err;

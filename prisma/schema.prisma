@@ -71,6 +71,7 @@ enum Status {
   PENDING
   APPROVED
   REJECTED
+  UNSPECIFIED
 }
 
 enum NodeStatus {
