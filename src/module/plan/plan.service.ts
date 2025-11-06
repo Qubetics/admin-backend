@@ -1,5 +1,5 @@
-import { RES_MSG } from '../../constant';
-import { fetchRequest, getOffset } from '../../Utility/common';
+import { RES_MSG, provWalletPrefix } from '../../constant';
+import { convertNodeToWallet, fetchRequest, getOffset } from '../../Utility/common';
 import { FETCH_METHODS } from '../../constant';
 // import { RedisService } from '../../service';
 
@@ -11,6 +11,7 @@ class PlanService {
       const page = data.page;
       const limit = data.limit;
       const offset = getOffset(page, limit);
+      const providerAddress = String(convertNodeToWallet(data.address, provWalletPrefix));
       // const redisKey = `plans:page:${page}:limit:${limit}`;
 
       // const cached = await RedisService.getString(redisKey);
@@ -22,7 +23,7 @@ class PlanService {
       //   };
       // }
 
-      const plansUrl = `${environment.evmHost}qubetics/plan/v3/plans?pagination.offset=${offset}&pagination.limit=${limit}&pagination.reverse=${data.reverse}&pagination.count_total=true`;
+      const plansUrl = `${environment.evmHost}/qubetics/plan/v3/providers/${providerAddress}/plans?pagination.offset=${offset}&pagination.limit=${limit}&pagination.reverse=${data.reverse}&pagination.count_total=true`;
       const planResponse = await fetchRequest(plansUrl, FETCH_METHODS.GET);
 
       if (!planResponse || !planResponse.data?.plans) {

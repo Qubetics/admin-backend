@@ -1,10 +1,22 @@
 import axios from "axios";
-import { LINK, Message, PENDING, REJECTED, RES_MSG, WALLET_PREFIX, UNLINK, APPROVED } from "../constant";
+import {
+  LINK,
+  Message,
+  PENDING,
+  REJECTED,
+  RES_MSG,
+  WALLET_PREFIX,
+  UNLINK,
+  APPROVED,
+  FETCH_METHODS,
+  provWalletPrefix,
+  CHAIN_METHOD,
+} from "../constant";
 import sha3 from "js-sha3";
 import { arrayify } from "@ethersproject/bytes";
 import { serializeSignDoc } from "@cosmjs/amino";
 import { signatureToPubkey } from "@hanchon/signature-to-pubkey";
-const { bech32 } = require('bech32');
+const { bech32 } = require("bech32");
 import CryptoJS from "crypto-js";
 import redisHelper from "../service/redis.helper";
 
@@ -55,13 +67,15 @@ export function log(
   console.log(`${msgColor}${msg}${dataColor}${data}\x1b[0m`);
 }
 
-
 export const getOffset = (page = 1, limit = 10) => {
   if (page < 1) page = 1;
   return (page - 1) * limit;
 };
 
-export const getWalletAddressFromNodeAddress = (nodeAddress: String, walletPrefix: String = WALLET_PREFIX): String => {
+export const getWalletAddressFromNodeAddress = (
+  nodeAddress: String,
+  walletPrefix: String = WALLET_PREFIX
+): String => {
   const decoded = bech32.decode(nodeAddress);
   const words = decoded.words;
 
@@ -132,7 +146,10 @@ export const decryptData = (ciphertext: string) => {
 };
 
 export const encryptData = (data: any) => {
-  return CryptoJS.AES.encrypt(JSON.stringify(data), environment.secretKey).toString();
+  return CryptoJS.AES.encrypt(
+    JSON.stringify(data),
+    environment.secretKey
+  ).toString();
 };
 
 /**
@@ -148,12 +165,12 @@ export const isTokenExpired = async (token: string) => {
 
 export const extractIP = (url: string): string => {
   try {
-    const withoutProtocol = url.replace(/^https?:\/\//, '');
-    const hostname = withoutProtocol.split(':')[0];
+    const withoutProtocol = url.replace(/^https?:\/\//, "");
+    const hostname = withoutProtocol.split(":")[0];
     return hostname;
   } catch (err) {
-    console.log(`${Message.invalidurl}: ${url}`);;
-    return '';
+    console.log(`${Message.invalidurl}: ${url}`);
+    return "";
   }
 };
 
@@ -162,7 +179,6 @@ export const canSubmitNodeRequest = async (
   requestFor: string,
   currentRequest: string
 ): Promise<{ ok: boolean; message?: string }> => {
-
   if (status === PENDING) {
     return { ok: false, message: RES_MSG.NODE_REQUEST_IS_STILL };
   }
@@ -202,4 +218,32 @@ export const convertNodeToWallet = (address: any, walletPrefix: any) => {
   return bech32.encode(walletPrefix, words);
 };
 
+export const isValidProviderStatusTx = async (
+  txHash: string,
+  address: string
+): Promise<boolean> => {
+  try {
+    const link = `${environment.evmHost}/cosmos/tx/v1beta1/txs/${txHash}`;
+    const response = await fetchRequest(link, FETCH_METHODS.GET);
 
+    // If invalid or error in response
+    if (response?.error) throw new Error(RES_MSG.INVALID_HASH);
+
+    const msg = response?.data?.tx?.body?.messages?.[0];
+    if (!msg) throw new Error(RES_MSG.INVALID_HASH);
+
+    const providerAddress = String(
+      convertNodeToWallet(address, provWalletPrefix)
+    );
+
+    const isValid =
+      msg["@type"] === CHAIN_METHOD.PROVIDER_STATUS &&
+      msg.status === "active" &&
+      msg.from === providerAddress;
+
+    return isValid;
+  } catch (err) {
+    console.error("Validation error:", err);
+    return false;
+  }
+};

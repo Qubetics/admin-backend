@@ -6,8 +6,7 @@ import { rateLimit } from "express-rate-limit";
 import registerRoutes from "./routes";
 import { RATE_LIMITER_MESSAGE } from "./constant";
 import { RedisService } from "./service";
-import prisma from "./lib/db";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import worker from "./worker";
 
 export default class App {
@@ -54,7 +53,7 @@ export default class App {
     this.express.use(
       "/api/v1",
       // this.limiter,
-      registerRoutes(),
+      registerRoutes()
     );
   }
   /**
@@ -65,8 +64,8 @@ export default class App {
       cors({
         origin: [
           "https://dvpn-node-operator.qubetics.work",
-          "https://dvpn-provider.qubetics.work"
-        ], 
+          "https://dvpn-provider.qubetics.work",
+        ],
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true, // add this if you need cookies / auth headers
@@ -80,7 +79,7 @@ export default class App {
       helmet({
         contentSecurityPolicy: false,
         crossOriginEmbedderPolicy: false,
-      }),
+      })
     );
 
     this.express.use(express.json({ limit: "100mb" }));
@@ -89,6 +88,7 @@ export default class App {
 
   private StartWorker() {
     worker.startNodeWorker();
+    worker.startProviderWorker();
+    worker.nodeRequestWorker();
   }
-
 }
