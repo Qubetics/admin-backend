@@ -22,9 +22,9 @@ class ProviderService {
       }
 
       const allProviders = response?.data?.providers || [];
-      const activeProviders = allProviders.filter((provider: any) => provider.status?.toLowerCase() === "active");
+      // const activeProviders = allProviders.filter((provider: any) => provider.status?.toLowerCase() === "active");
 
-      let updatedProviders = activeProviders;
+      let updatedProviders = allProviders;
 
       if (page && limit) {
         const nodeCounts = await prisma.$queryRaw<{ provAddress: string; count: bigint }[]>`
@@ -39,7 +39,7 @@ class ProviderService {
           countMap[row.provAddress] = Number(row.count);
         });
 
-        updatedProviders = activeProviders.map((provider: any) => ({
+        updatedProviders = allProviders.map((provider: any) => ({
           ...provider,
           walletAddress: getWalletAddressFromNodeAddress(provider.address),
           nodeCount: countMap[provider.address] || 0,
