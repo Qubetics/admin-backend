@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import {
   CRON_WORKER,
+  LINK,
   Message,
   REQUEST_STATUS,
   WALLET_PREFIX,
@@ -97,9 +98,9 @@ class Worker {
               bandwidth: val?.plan?.gigabytes,
               location: countryName || geo.country || "",
               plan: val?.plan?.prices[0]?.quote_value,
-              status: REQUEST_STATUS.UNSPECIFIED,
+              status: REQUEST_STATUS.APPROVED,
               action: false,
-              requestFor: REQUEST_STATUS.UNSPECIFIED,
+              requestFor:LINK,
               address,
             },
           });
