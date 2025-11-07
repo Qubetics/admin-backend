@@ -83,7 +83,7 @@ class ProviderService {
         }[]
       >`
         SELECT 
-          "orgName", 
+          "nodeAddress", 
           "location", 
           "nodeStatus",
           "remoteUrl"
