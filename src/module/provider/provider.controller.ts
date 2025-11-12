@@ -15,6 +15,7 @@ class ProviderController implements Controller {
 
   private initializeRoutes() {
     this.router.get("", this.getAllProvider);
+    this.router.get("/active-plans", this.getActivePlanProviders);
     this.router.get("/detail/:address", this.getProviderDetails);
   }
 
@@ -30,7 +31,22 @@ class ProviderController implements Controller {
     const { address } = request.params;
     const { page, limit } = request.query;
 
-    const user = await providerService.getProviderDetails(address as string, page as string, limit as string);
+    const user = await providerService.getProviderDetails(
+      address as string,
+      page as string,
+      limit as string
+    );
+    if (user.error) {
+      return setResponse.error(response, user);
+    }
+    return setResponse.success(response, user);
+  };
+
+  private getActivePlanProviders = async (
+    request: Request,
+    response: Response
+  ) => {
+    const user = await providerService.getActivePlanProviders();
     if (user.error) {
       return setResponse.error(response, user);
     }
