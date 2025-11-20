@@ -1,5 +1,22 @@
-import { ACTIVE, INACTIVE, LINK, PENDING, RES_MSG, UNDEFINED, UNLINK } from "../../constant";
-import { extractIP, fetchRequest, getWalletAddressFromNodeAddress, canSubmitNodeRequest } from "../../Utility/common";
+import {
+  ACTIVE,
+  APPROVED,
+  INACTIVE,
+  LINK,
+  PENDING,
+  REJECTED,
+  RES_MSG,
+  UNDEFINED,
+  UNLINK,
+  WALLET_PREFIX,
+} from "../../constant";
+import {
+  extractIP,
+  fetchRequest,
+  getWalletAddressFromNodeAddress,
+  canSubmitNodeRequest,
+  convertNodeToWallet,
+} from "../../Utility/common";
 import { FETCH_METHODS } from "../../constant";
 import { RedisService } from "../../service";
 import AuthService from "../auth/auth.service";
@@ -34,7 +51,6 @@ class NodeService {
         };
       }
 
-      // I have to check the nodeAddress is valid node address or not
       const nodeUrl = `${environment?.evmHost}qubetics/node/v3/nodes/${nodeAddress}`;
       const nodeResponse = await fetchRequest(nodeUrl, FETCH_METHODS.GET);
 
@@ -82,8 +98,10 @@ class NodeService {
         email = "";
       }
 
-      // here parallel I am saving the userData to the user table.
-      const responseFromUser = await AuthService.addUser({ address });
+      const responseFromUser: any = await AuthService.addUser({
+        address,
+        provider: choosePlan?.provAddress,
+      });
 
       if (responseFromUser.error === true) {
         return {
@@ -95,7 +113,13 @@ class NodeService {
       if ((!choosePlan || Object.keys(choosePlan).length === 0) && request === UNLINK) {
         const existingNode = await prisma.nodeRequest.findUnique({
           where: { nodeAddress },
-          select: { plan: true, planId: true, provAddress: true, bandwidth: true, hours: true },
+          select: {
+            plan: true,
+            planId: true,
+            provAddress: true,
+            bandwidth: true,
+            hours: true,
+          },
         });
 
         if (!existingNode) {
@@ -111,8 +135,6 @@ class NodeService {
         };
       }
 
-      // I want to save the data in the node table
-
       const ip = extractIP(node?.remote_url);
       const geo = geoip.lookup(ip);
       if (!geo) {
@@ -123,7 +145,18 @@ class NodeService {
       }
       const countryName = countries.getName(geo.country, "en");
 
-      const nodeRequest = await prisma.nodeRequest.upsert({
+      await prisma.activity.create({
+        data: {
+          type: request,
+          action: PENDING,
+          role: responseFromUser?.data?.user?.role,
+          metaData: choosePlan,
+          userId: responseFromUser?.data?.user?.id,
+          targetUid: responseFromUser?.data?.provider?.id ?? "",
+        },
+      });
+
+      await prisma.nodeRequest.upsert({
         where: {
           nodeAddress: nodeAddress, // make sure nodeAddress is UNIQUE in your schema
         },
@@ -183,7 +216,6 @@ class NodeService {
         where.provAddress = providerAddress;
       }
 
-      console.log("[DEBUG] Testing Log providerAddress===========================>", providerAddress);
       const skip = (page - 1) * limit;
 
       const response = await prisma.nodeRequest.findMany({
@@ -295,7 +327,7 @@ class NodeService {
     }
   };
 
-  public updateNodeStatus = async (nodeAddress: string, status: Status) => {
+  public updateNodeStatus = async (nodeAddress: string, provAddress: any, status: Status) => {
     try {
       if (nodeAddress == UNDEFINED || status == "undefined") {
         return {
@@ -307,10 +339,10 @@ class NodeService {
       const updatedNode = await prisma.nodeRequest.update({
         where: { nodeAddress },
         data: { status },
-        select: {
-          email: true,
-          nodeAddress: true,
-        },
+        // select: {
+        //   email: true,
+        //   nodeAddress: true,
+        // },
       });
 
       console.log(updatedNode, "updatedNode");
@@ -325,6 +357,32 @@ class NodeService {
       }
 
       const response = await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
+      //nodeName
+      const responseFromUser: any = await AuthService.addUser({
+        address: updatedNode?.address,
+        provider: provAddress,
+      });
+
+      const choosePlan = {
+        plan: updatedNode.plan,
+        planId: updatedNode.planId,
+        provAddress: updatedNode.provAddress,
+        bandwidth: updatedNode.bandwidth,
+        hours: updatedNode.hours,
+      };
+
+      //search with user to get Details
+
+      await prisma.activity.create({
+        data: {
+          type: updatedNode.requestFor,
+          action: isApproved ? APPROVED : REJECTED,
+          role: responseFromUser?.data?.user?.role,
+          metaData: choosePlan,
+          userId: responseFromUser?.data?.user?.id,
+          targetUid: responseFromUser?.data?.provider?.id ?? "",
+        },
+      });
 
       if (response.error) {
         return {
@@ -429,12 +487,22 @@ class NodeService {
 
       // Fetch data + count in parallel
       const [totalCount, linkCount, UnlinkCount] = await Promise.all([
-        prisma.nodeRequest.count({ where: { provAddress: providerAddress, status: PENDING } }),
         prisma.nodeRequest.count({
-          where: { provAddress: providerAddress, status: PENDING, requestFor: LINK },
+          where: { provAddress: providerAddress, status: PENDING },
         }),
         prisma.nodeRequest.count({
-          where: { provAddress: providerAddress, status: PENDING, requestFor: UNLINK },
+          where: {
+            provAddress: providerAddress,
+            status: PENDING,
+            requestFor: LINK,
+          },
+        }),
+        prisma.nodeRequest.count({
+          where: {
+            provAddress: providerAddress,
+            status: PENDING,
+            requestFor: UNLINK,
+          },
         }),
       ]);
 

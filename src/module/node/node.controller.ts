@@ -3,9 +3,10 @@ import { Request, Response } from "express";
 import * as Helpers from "../../service/index";
 import { Controller, Status } from "../../interfaces/index";
 import nodeService from "./node.service";
-import { convertNodeToWallet } from "../../Utility/common";
+import { convertNodeToWallet, decryptData } from "../../Utility/common";
 import { provWalletPrefix, UNDEFINED } from "../../constant";
 import { adminCheck } from "../../middleware/adminCheck";
+import redisHelper from "../../service/redis.helper";
 
 const setResponse = Helpers.ResponseHelper;
 
@@ -18,7 +19,7 @@ class NodeController implements Controller {
 
   private initializeRoutes() {
     this.router.post("", this.nodeFormRequest);
-    this.router.get("", this.getAllNodeRequestList);
+    this.router.get("", adminCheck, this.getAllNodeRequestList);
     this.router.get("/prov", adminCheck, this.getAllNodeForAddress);
     this.router.get("/action", adminCheck, this.updateNodeStatus);
     this.router.get("/count", adminCheck, this.getAllCountForAddress);
@@ -86,6 +87,10 @@ class NodeController implements Controller {
     const nodeAddress = String(req.query?.address);
     const rawStatus = req.query?.status;
     const allowedStatuses: Status[] = ["PENDING", "APPROVED", "REJECTED"];
+    const token = String(req.cookies?.session_id);
+    const redis_val = await redisHelper.getString(token);
+    const value = decryptData(redis_val);
+    const provAddress = value?.address;
 
     const status =
       typeof rawStatus === "string" && allowedStatuses.includes(rawStatus as Status)
@@ -98,7 +103,7 @@ class NodeController implements Controller {
         message: "Invalid status value. Allowed: PENDING, APPROVED, REJECTED",
       });
     }
-    const result = await nodeService.updateNodeStatus(nodeAddress, status);
+    const result = await nodeService.updateNodeStatus(nodeAddress, provAddress, status);
     if (result.error) {
       return setResponse.error(res, result);
     }
