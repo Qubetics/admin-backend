@@ -42,12 +42,7 @@ class NodeService {
   ) => {
     try {
       // function is verify the address
-      const isSignatureValid = verifyKeplrSignature(
-        address,
-        signature?.signature,
-        pubKey,
-        address
-      );
+      const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
 
       if (!isSignatureValid.verify) {
         return {
@@ -80,11 +75,7 @@ class NodeService {
 
       // If there’s no previous record, allow proceeding
       if (existing) {
-        const result = await canSubmitNodeRequest(
-          existing?.status,
-          existing?.requestFor,
-          request
-        );
+        const result = await canSubmitNodeRequest(existing?.status, existing?.requestFor, request);
 
         if (!result.ok) {
           return { error: true, message: result.message };
@@ -92,8 +83,7 @@ class NodeService {
       }
 
       // I have to check the wallet Address is related to the nodeAddress or not
-      const calculatedWalletAddress =
-        getWalletAddressFromNodeAddress(nodeAddress);
+      const calculatedWalletAddress = getWalletAddressFromNodeAddress(nodeAddress);
       if (calculatedWalletAddress != address) {
         return {
           error: true,
@@ -120,10 +110,7 @@ class NodeService {
         };
       }
 
-      if (
-        (!choosePlan || Object.keys(choosePlan).length === 0) &&
-        request === UNLINK
-      ) {
+      if ((!choosePlan || Object.keys(choosePlan).length === 0) && request === UNLINK) {
         const existingNode = await prisma.nodeRequest.findUnique({
           where: { nodeAddress },
           select: {
@@ -218,12 +205,7 @@ class NodeService {
     }
   };
 
-  public getAllNodeRequestList = async (
-    page: number,
-    limit: number,
-    reqStatus: string,
-    providerAddress: string
-  ) => {
+  public getAllNodeRequestList = async (page: number, limit: number, reqStatus: string, providerAddress: string) => {
     try {
       const where: any = { status: PENDING };
       if (reqStatus === LINK || reqStatus === UNLINK) {
@@ -345,7 +327,7 @@ class NodeService {
     }
   };
 
-  public updateNodeStatus = async (nodeAddress: string,provAddress:any, status: Status) => {
+  public updateNodeStatus = async (nodeAddress: string, provAddress: any, status: Status) => {
     try {
       if (nodeAddress == UNDEFINED || status == "undefined") {
         return {
@@ -374,26 +356,21 @@ class NodeService {
         };
       }
 
-      const response = await mailService.sendApprovalMail(
-        updatedNode.email,
-        updatedNode.nodeAddress,
-        isApproved
-      );
+      const response = await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
       //nodeName
       const responseFromUser: any = await AuthService.addUser({
-        address:updatedNode?.address,
+        address: updatedNode?.address,
         provider: provAddress,
       });
 
-
-     const choosePlan = {
+      const choosePlan = {
         plan: updatedNode.plan,
         planId: updatedNode.planId,
         provAddress: updatedNode.provAddress,
         bandwidth: updatedNode.bandwidth,
         hours: updatedNode.hours,
       };
-      
+
       //search with user to get Details
 
       await prisma.activity.create({
@@ -546,6 +523,24 @@ class NodeService {
       };
     }
   };
+
+  async getPrefillValues(address: string) {
+    const record = await prisma.nodeRequest.findUnique({
+      where: { address },
+      select: {
+        orgName: true,
+        email: true,
+        nodeAddress: true,
+        provAddress: true,
+      },
+    });
+
+    return {
+      error: false,
+      message: RES_MSG.FETCH_SUCCESS,
+      data: { data: record },
+    };
+  }
 }
 
 export default new NodeService();
