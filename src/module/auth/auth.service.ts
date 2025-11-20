@@ -1,15 +1,14 @@
 import { randomUUID } from "crypto";
 import {
+  convertNodeToWallet,
   encryptData,
   isValidProviderStatusTx,
   verifyKeplrSignature,
 } from "../../Utility/common";
 import {
-  CHAIN_METHOD,
   COOKIE_NAMES,
-  FETCH_METHODS,
   RES_MSG,
-  provWalletPrefix,
+  WALLET_PREFIX,
 } from "../../constant";
 import { IESResponse } from "../../interfaces";
 import prisma from "../../lib/db";
@@ -86,11 +85,10 @@ class AuthService {
   }
 
   async addUser(value: any): Promise<IESResponse> {
-    const { address } = value;
+    const { address, provider } = value;
+    
     try {
-      //Validate address
-
-      const result = await prisma.user.upsert({
+      const user = await prisma.user.upsert({
         where: { address },
         update: {}, // do nothing if exists
         create: {
@@ -98,12 +96,20 @@ class AuthService {
           role: 0,
         },
       });
-      if (!result) throw new Error(RES_MSG.ERROR);
+      
+      let providerUser = null;
+      
+      if (provider) {
+        const provAddress = convertNodeToWallet(provider, WALLET_PREFIX);
+        providerUser = await prisma.user.findUnique({
+          where: { address: provAddress },
+        });
+      }
 
       return {
         error: false,
         message: RES_MSG.USER_REGISTER_SUCCESS,
-        data: {},
+        data: { user,provider:providerUser },
       };
     } catch (err) {
       console.log("error in addUser : ", err);
