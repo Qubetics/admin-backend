@@ -67,7 +67,6 @@ export default class App {
           "https://dvpn-provider.qubetics.work",
           "https://dvpn.qubetics.work",
           "http://localhost:5173",
-          "http://localhost:5174",
         ],
         // origin: true,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
