@@ -523,6 +523,24 @@ class NodeService {
       };
     }
   };
+
+  async getPrefillValues(address: string) {
+    const record = await prisma.nodeRequest.findUnique({
+      where: { address },
+      select: {
+        orgName: true,
+        email: true,
+        nodeAddress: true,
+        provAddress: true,
+      },
+    });
+
+    return {
+      error: false,
+      message: RES_MSG.FETCH_SUCCESS,
+      data: { data: record },
+    };
+  }
 }
 
 export default new NodeService();

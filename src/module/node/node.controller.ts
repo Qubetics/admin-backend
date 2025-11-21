@@ -25,6 +25,7 @@ class NodeController implements Controller {
     this.router.get("/count", adminCheck, this.getAllCountForAddress);
     this.router.get("/request-count", adminCheck, this.getNodeRequestCount);
     this.router.get("/status", this.getNodeRequestStatus);
+    this.router.get("/linked-node-values", this.getPrefillValues);
   }
 
   private nodeFormRequest = async (req: Request, res: Response) => {
@@ -137,6 +138,35 @@ class NodeController implements Controller {
       return setResponse.error(res, result);
     }
     return setResponse.success(res, result);
+  };
+
+  private getPrefillValues = async (request: Request, response: Response) => {
+    try {
+      const address = request.query.address;
+
+      if (!address || typeof address !== "string") {
+        return setResponse.error(response, {
+          message: "address query parameter is required",
+          error: true,
+        });
+      }
+
+      const user = await nodeService.getPrefillValues(address);
+
+      if (!user) {
+        return setResponse.error(response, {
+          message: "No records found for the given address",
+          error: true,
+        });
+      }
+
+      return setResponse.success(response, user);
+    } catch (err: any) {
+      return setResponse.error(response, {
+        message: err.message || "Internal server error",
+        error: true,
+      });
+    }
   };
 }
 

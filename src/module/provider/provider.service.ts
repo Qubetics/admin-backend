@@ -1,11 +1,12 @@
 import prisma from "../../lib/db";
 import {
+  convertNodeToWallet,
   extractIP,
   fetchRequest,
   getOffset,
   getWalletAddressFromNodeAddress,
 } from "../../Utility/common";
-import { FETCH_METHODS, RES_MSG } from "../../constant";
+import { FETCH_METHODS, RES_MSG, WALLET_PREFIX } from "../../constant";
 import geoip from "geoip-lite";
 
 class ProviderService {
@@ -32,9 +33,7 @@ class ProviderService {
       let updatedProviders = allProviders;
 
       if (page && limit) {
-        const nodeCounts = await prisma.$queryRaw<
-          { provAddress: string; count: bigint }[]
-        >`
+        const nodeCounts = await prisma.$queryRaw<{ provAddress: string; count: bigint }[]>`
           SELECT "provAddress", COUNT(*)::bigint as count
           FROM "NodeRequest"
           WHERE "nodeStatus" = 'active'
@@ -65,11 +64,7 @@ class ProviderService {
     }
   }
 
-  async getProviderDetails(
-    address: string,
-    page = "1",
-    limit = "10"
-  ): Promise<any> {
+  async getProviderDetails(address: string, page = "1", limit = "10"): Promise<any> {
     try {
       if (!address) {
         return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
@@ -141,17 +136,36 @@ class ProviderService {
         return { error: true, message: RES_MSG.ERROR };
       }
       const activeProviders = [
-        ...new Set(
-          response?.data?.plans
-            .filter((p: any) => p.status === "active")
-            .map((p: any) => p.prov_address)
-        ),
+        ...new Set(response?.data?.plans.filter((p: any) => p.status === "active").map((p: any) => p.prov_address)),
       ];
+
+      const providerWallets = activeProviders.map((addr) => convertNodeToWallet(addr, WALLET_PREFIX));
+
+      const users = await prisma.user.findMany({
+        where: {
+          address: { in: providerWallets },
+        },
+        select: {
+          name: true,
+          address: true,
+        },
+      });
+
+      const finalProviders = activeProviders.map((nodeAddress) => {
+        const walletAddress = convertNodeToWallet(nodeAddress, WALLET_PREFIX);
+
+        const user = users.find((u) => u.address === walletAddress);
+
+        return {
+          providerAddress: nodeAddress,
+          name: user?.name || null,
+        };
+      });
 
       return {
         error: false,
         message: RES_MSG.FETCH_SUCCESS,
-        data: { providers: activeProviders },
+        data: { providers: finalProviders },
       };
     } catch (err) {
       console.error("get all provider error:", err);

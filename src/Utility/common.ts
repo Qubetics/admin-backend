@@ -27,11 +27,7 @@ import redisHelper from "../service/redis.helper";
  * @param data
  * @returns
  */
-export async function fetchRequest(
-  url: string,
-  method: string,
-  data: any = null
-) {
+export async function fetchRequest(url: string, method: string, data: any = null) {
   try {
     const result = await axios({
       method,
@@ -58,12 +54,7 @@ export async function fetchRequest(
  * @param data
  * @param dataColor
  */
-export function log(
-  msg: string,
-  msgColor: string,
-  data: any,
-  dataColor: string
-) {
+export function log(msg: string, msgColor: string, data: any, dataColor: string) {
   console.log(`${msgColor}${msg}${dataColor}${data}\x1b[0m`);
 }
 
@@ -72,10 +63,7 @@ export const getOffset = (page = 1, limit = 10) => {
   return (page - 1) * limit;
 };
 
-export const getWalletAddressFromNodeAddress = (
-  nodeAddress: String,
-  walletPrefix: String = WALLET_PREFIX
-): String => {
+export const getWalletAddressFromNodeAddress = (nodeAddress: String, walletPrefix: String = WALLET_PREFIX): String => {
   const decoded = bech32.decode(nodeAddress);
   const words = decoded.words;
 
@@ -114,24 +102,16 @@ export const verifyKeplrSignature = (
 ): { verify: boolean } => {
   try {
     // Encode the message into amino format
-    const aminoEncoded = messageToAminoTransaction(
-      address,
-      Buffer.from(signMessage).toString("base64")
-    );
+    const aminoEncoded = messageToAminoTransaction(address, Buffer.from(signMessage).toString("base64"));
     const serialized = serializeSignDoc(aminoEncoded);
 
     // Hash the amino message that was signed
     const hashed = sha3.keccak_256(arrayify(serialized));
 
     // Compare signature
-    const signatureToCompare = `0x${Buffer.from(signature, "base64").toString(
-      "hex"
-    )}`;
+    const signatureToCompare = `0x${Buffer.from(signature, "base64").toString("hex")}`;
 
-    const pubkeyComputed = signatureToPubkey(
-      signatureToCompare,
-      Buffer.from(hashed, "hex")
-    );
+    const pubkeyComputed = signatureToPubkey(signatureToCompare, Buffer.from(hashed, "hex"));
     return { verify: pubKey === pubkeyComputed };
   } catch (err) {
     console.error("err", err);
@@ -146,10 +126,7 @@ export const decryptData = (ciphertext: string) => {
 };
 
 export const encryptData = (data: any) => {
-  return CryptoJS.AES.encrypt(
-    JSON.stringify(data),
-    environment.secretKey
-  ).toString();
+  return CryptoJS.AES.encrypt(JSON.stringify(data), environment.secretKey).toString();
 };
 
 /**
@@ -218,10 +195,7 @@ export const convertNodeToWallet = (address: any, walletPrefix: any) => {
   return bech32.encode(walletPrefix, words);
 };
 
-export const isValidProviderStatusTx = async (
-  txHash: string,
-  address: string
-): Promise<boolean> => {
+export const isValidProviderStatusTx = async (txHash: string, address: string): Promise<boolean> => {
   try {
     const link = `${environment.evmHost}/cosmos/tx/v1beta1/txs/${txHash}`;
     const response = await fetchRequest(link, FETCH_METHODS.GET);
@@ -232,18 +206,24 @@ export const isValidProviderStatusTx = async (
     const msg = response?.data?.tx?.body?.messages?.[0];
     if (!msg) throw new Error(RES_MSG.INVALID_HASH);
 
-    const providerAddress = String(
-      convertNodeToWallet(address, provWalletPrefix)
-    );
+    const providerAddress = String(convertNodeToWallet(address, provWalletPrefix));
 
     const isValid =
-      msg["@type"] === CHAIN_METHOD.PROVIDER_STATUS &&
-      msg.status === "active" &&
-      msg.from === providerAddress;
+      msg["@type"] === CHAIN_METHOD.PROVIDER_STATUS && msg.status === "active" && msg.from === providerAddress;
 
     return isValid;
   } catch (err) {
     console.error("Validation error:", err);
     return false;
   }
+};
+
+export const parseAndConvertPlan = (planStr: string) => {
+  if (!planStr) return null;
+
+  const num = planStr.split(" ")[0];
+  const big = BigInt(num);
+  const converted = Number(big) / 1e18;
+
+  return `${converted} TICS/month`;
 };
