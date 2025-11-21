@@ -1,5 +1,5 @@
-import { LINK, PENDING, RES_MSG, UNDEFINED, UNLINK, WALLET_PREFIX } from "../../constant";
-
+import { RES_MSG, WALLET_PREFIX } from "../../constant";
+import BigNumber from "bignumber.js";
 import prisma from "../../lib/db";
 import { bytesToGb, convertNodeToWallet, parseAndConvertPlan } from "../../Utility/common";
 
@@ -33,8 +33,11 @@ class ActivityService {
             meta.plan = parseAndConvertPlan(meta.plan);
           }
 
+          console.log(typeof meta.bandwidth);
+
           if (meta?.bandwidth) {
-            meta.bandwidth = bytesToGb(meta.bandwidth);
+            const bandwidthBN = new BigNumber(meta.bandwidth);
+            meta.bandwidth = bytesToGb(bandwidthBN);
           }
 
           const provAddress = meta?.provAddress;
