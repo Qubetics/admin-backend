@@ -33,8 +33,6 @@ class ActivityService {
             meta.plan = parseAndConvertPlan(meta.plan);
           }
 
-          console.log(typeof meta.bandwidth);
-
           if (meta?.bandwidth) {
             const bandwidthBN = new BigNumber(meta.bandwidth);
             meta.bandwidth = bytesToGb(bandwidthBN);
