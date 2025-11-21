@@ -1,7 +1,7 @@
 import { LINK, PENDING, RES_MSG, UNDEFINED, UNLINK, WALLET_PREFIX } from "../../constant";
 
 import prisma from "../../lib/db";
-import { convertNodeToWallet, parseAndConvertPlan } from "../../Utility/common";
+import { bytesToGb, convertNodeToWallet, parseAndConvertPlan } from "../../Utility/common";
 
 class ActivityService {
   constructor() {}
@@ -31,6 +31,10 @@ class ActivityService {
 
           if (meta?.plan) {
             meta.plan = parseAndConvertPlan(meta.plan);
+          }
+
+          if (meta?.bandwidth) {
+            meta.bandwidth = bytesToGb(meta.bandwidth);
           }
 
           const provAddress = meta?.provAddress;
