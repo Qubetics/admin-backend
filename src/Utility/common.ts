@@ -229,3 +229,11 @@ export const parseAndConvertPlan = (planStr: string) => {
 
   return `${converted.toFixed()} TICS/month`;
 };
+
+export const bytesToGb = (bytes: BigNumber): string => {
+  if (!bytes || bytes.isZero()) return "0";
+
+  let result = bytes.dividedBy(1024 * 1024 * 1024).toFixed(2);
+  result = result.replace(/\.?0+$/, "");
+  return result;
+};

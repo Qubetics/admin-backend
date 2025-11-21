@@ -1,7 +1,7 @@
-import { LINK, PENDING, RES_MSG, UNDEFINED, UNLINK, WALLET_PREFIX } from "../../constant";
-
+import { RES_MSG, WALLET_PREFIX } from "../../constant";
+import BigNumber from "bignumber.js";
 import prisma from "../../lib/db";
-import { convertNodeToWallet, parseAndConvertPlan } from "../../Utility/common";
+import { bytesToGb, convertNodeToWallet, parseAndConvertPlan } from "../../Utility/common";
 
 class ActivityService {
   constructor() {}
@@ -31,6 +31,11 @@ class ActivityService {
 
           if (meta?.plan) {
             meta.plan = parseAndConvertPlan(meta.plan);
+          }
+
+          if (meta?.bandwidth) {
+            const bandwidthBN = new BigNumber(meta.bandwidth);
+            meta.bandwidth = bytesToGb(bandwidthBN);
           }
 
           const provAddress = meta?.provAddress;
