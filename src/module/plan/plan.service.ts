@@ -12,7 +12,6 @@ class PlanService {
       const limit = data.limit;
       const providerAddress = String(convertNodeToWallet(data.address, provWalletPrefix));
       let url = `${environment.evmHost}/qubetics/plan/v3/providers/${providerAddress}/plans`;
-      const baseUrl = url;
       // const redisKey = `plans:page:${page}:limit:${limit}`;
 
       // const cached = await RedisService.getString(redisKey);
@@ -31,10 +30,7 @@ class PlanService {
       }
 
       // const plansUrl = `${environment.evmHost}/qubetics/plan/v3/providers/${providerAddress}/plans?pagination.offset=${offset}&pagination.limit=${limit}&pagination.reverse=${data.reverse}&pagination.count_total=true`;
-      const [planResponse, totalResponse] = await Promise.all([
-        fetchRequest(url, FETCH_METHODS.GET),
-        fetchRequest(baseUrl, FETCH_METHODS.GET),
-      ]);
+      const planResponse = await fetchRequest(url, FETCH_METHODS.GET);
 
       if (!planResponse || !planResponse.data?.plans) {
         return { error: true, message: RES_MSG.ERROR };
@@ -58,7 +54,7 @@ class PlanService {
         error: false,
         message: RES_MSG.FETCH_SUCCESS,
         data: plans ? plans : [],
-        total: totalResponse.data.pagination,
+        total: planResponse.data.pagination,
       };
     } catch (err) {
       console.error("PlanService.getAllPlans error:", err);
