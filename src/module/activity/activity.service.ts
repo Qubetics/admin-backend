@@ -60,6 +60,7 @@ class ActivityService {
 
       const total = await prisma.activity.count({
         where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
       });
 
       return {

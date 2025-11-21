@@ -19,6 +19,7 @@ import { signatureToPubkey } from "@hanchon/signature-to-pubkey";
 const { bech32 } = require("bech32");
 import CryptoJS from "crypto-js";
 import redisHelper from "../service/redis.helper";
+import BigNumber from "bignumber.js";
 
 /**
  * For making http requests
@@ -222,8 +223,9 @@ export const parseAndConvertPlan = (planStr: string) => {
   if (!planStr) return null;
 
   const num = planStr.split(" ")[0];
-  const big = BigInt(num);
-  const converted = Number(big) / 1e18;
 
-  return `${converted} TICS/month`;
+  const big = new BigNumber(num);
+  const converted = big.dividedBy("1e18");
+
+  return `${converted.toFixed()} TICS/month`;
 };
