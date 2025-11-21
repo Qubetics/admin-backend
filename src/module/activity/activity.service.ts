@@ -17,7 +17,7 @@ class ActivityService {
         return { error: true, message: "User not found" };
       }
 
-      const options: any = { where: { userId: user.id } };
+      const options: any = { where: { userId: user.id }, orderBy: { createdAt: "desc" } };
       if (page && limit) {
         options.skip = (page - 1) * limit;
         options.take = limit;
