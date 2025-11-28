@@ -14,8 +14,10 @@ class ResponseHelper {
     if (responseData?.message) {
       if (responseData.message.indexOf(CONST_NAME.NOT_FOUND) !== -1) {
         statusCode = RESPONSES.NOTFOUND;
+      } else {
+        statusCode = responseData?.status || RESPONSES.BADREQUEST;
       }
-      return response.status(responseData?.status || RESPONSES.BADREQUEST).send(responseData);
+      return response.status(statusCode).send(responseData);
     }
 
     return response.status(RESPONSES.INTERNAL_SERVER).send(responseData);

@@ -7,15 +7,17 @@ import { decryptData, isTokenExpired } from "../Utility/common";
 import prisma from "../lib/db";
 
 const setResponse = Helpers.ResponseHelper;
-export const adminCheck = async (
-  req: any,
-  res: Response,
-  next: NextFunction
-) => {
+export const adminCheck = async (req: any, res: Response, next: NextFunction) => {
   try {
     // fetch the admin address from contract
     const token = String(req.cookies?.session_id);
     const redis_val = await redisHelper.getString(token);
+    if (!redis_val) {
+      return setResponse.error(res, {
+        message: RES_MSG.UNAUTHORIZED,
+        status: RESPONSES.UN_AUTHORIZED,
+      });
+    }
     const value = decryptData(redis_val);
 
     // check for token
@@ -25,18 +27,17 @@ export const adminCheck = async (
         status: RESPONSES.UN_AUTHORIZED,
       });
     }
-    
-    const user:any = await prisma.user.findUnique({
+
+    const user: any = await prisma.user.findUnique({
       where: { address: value.address },
     });
 
     if (user.address && user.role == 1) {
-
       // updating the token time for session login
       await redisHelper.updateRedisTime(token);
       (req as any).user = (req as any).user || {};
       (req as any).user.address = user.address;
-      (req as any).user.role = user.role;      
+      (req as any).user.role = user.role;
       next();
     } else {
       return setResponse.error(res, {
