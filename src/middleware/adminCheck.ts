@@ -32,7 +32,7 @@ export const adminCheck = async (req: any, res: Response, next: NextFunction) =>
       where: { address: value.address },
     });
 
-    if (user.address && user.role == 1) {
+    if (user && user.address && user.role == 1) {
       // updating the token time for session login
       await redisHelper.updateRedisTime(token);
       (req as any).user = (req as any).user || {};
