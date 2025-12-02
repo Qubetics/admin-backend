@@ -1,15 +1,13 @@
 import { Response, Request, NextFunction } from "express";
 import * as Helpers from "../service/index";
-// import { RESPONSE_MESSAGES, STATUS_CODES, ADMIN } from '../constants';
 import redisHelper from "../service/redis.helper";
 import { RESPONSES, RES_MSG } from "../constant";
-import { decryptData, isTokenExpired } from "../Utility/common";
+import { decryptData } from "../Utility/common";
 import prisma from "../lib/db";
 
 const setResponse = Helpers.ResponseHelper;
 export const adminCheck = async (req: any, res: Response, next: NextFunction) => {
   try {
-    // fetch the admin address from contract
     const token = String(req.cookies?.session_id);
     const redis_val = await redisHelper.getString(token);
     if (!redis_val) {
@@ -20,7 +18,6 @@ export const adminCheck = async (req: any, res: Response, next: NextFunction) =>
     }
     const value = decryptData(redis_val);
 
-    // check for token
     if (!token || token == undefined || !value.address) {
       return setResponse.error(res, {
         message: RES_MSG.UNAUTHORIZED,
@@ -33,7 +30,6 @@ export const adminCheck = async (req: any, res: Response, next: NextFunction) =>
     });
 
     if (user && user.address && user.role == 1) {
-      // updating the token time for session login
       await redisHelper.updateRedisTime(token);
       (req as any).user = (req as any).user || {};
       (req as any).user.address = user.address;

@@ -14,13 +14,12 @@ class AuthService {
       const isValid = await isValidProviderStatusTx(txHash, address);
       if (!isValid) throw new Error(RES_MSG.UNAUTHORIZED);
 
-      //Validate address
       const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
       if (!isSignatureValid?.verify) throw new Error(RES_MSG.UNAUTHORIZED);
 
       const result = await prisma.user.upsert({
         where: { address },
-        update: {}, // do nothing if exists
+        update: {},
         create: {
           address,
           name,
@@ -42,7 +41,6 @@ class AuthService {
         httpOnly: checkCookieVariable,
         secure: checkCookieVariable,
         sameSite: checkCookieVariable ? "none" : "lax",
-        // maxAge: environment.redisExpiry,
       });
 
       await redisHelper.setString(uuid, encryptedData);
@@ -67,7 +65,7 @@ class AuthService {
     try {
       const user = await prisma.user.upsert({
         where: { address },
-        update: {}, // do nothing if exists
+        update: {},
         create: {
           address,
           role: 0,
@@ -124,7 +122,6 @@ class AuthService {
         httpOnly: checkCookieVariable,
         secure: checkCookieVariable,
         sameSite: checkCookieVariable ? "none" : "lax",
-        // maxAge: environment.redisExpiry,
       });
 
       await redisHelper.setString(uuid, encryptedData);
@@ -146,10 +143,8 @@ class AuthService {
     try {
       const sessionId = String(req?.cookies?.session_id);
 
-      // Delete session from Redis
       await redisHelper.deleteRedisKey(sessionId);
 
-      // Clear cookie
       res.clearCookie(COOKIE_NAMES.SESSION_ID, {
         httpOnly: checkCookieVariable,
         secure: checkCookieVariable,

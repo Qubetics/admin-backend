@@ -14,7 +14,7 @@ class ActivityService {
       });
 
       if (!user) {
-        return { error: true, message: "User not found" };
+        return { error: true, message: RES_MSG.USER_NOT_FOUND };
       }
 
       const options: any = { where: { userId: user.id }, orderBy: { createdAt: "desc" } };

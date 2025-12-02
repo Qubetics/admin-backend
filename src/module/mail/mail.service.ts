@@ -1,24 +1,17 @@
-import { RES_MSG, approveTemplate, rejectedTemplate } from "../../constant";
+import { MAIL_SUBJECT, RES_MSG, approveTemplate, rejectedTemplate } from "../../constant";
 import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(environment.sendgrid_key);
 class MailService {
-  public sendApprovalMail = async (
-    email: string,
-    nodeName: string,
-    isApproved: boolean
-  ) => {
+  public sendApprovalMail = async (email: string, nodeName: string, isApproved: boolean) => {
     try {
-      const subject = isApproved
-        ? ` Your Qubetics Node Operator Registration is Successful!`
-        : `Qubetics Node Registration Update - Action Required`;
+      const subject = isApproved ? MAIL_SUBJECT.APPROVAL : MAIL_SUBJECT.REJECTION;
 
       const msg = {
         to: email,
         from: environment.service_email,
         subject,
-        // text: message,
-        html: isApproved ? approveTemplate(): rejectedTemplate(),
+        html: isApproved ? approveTemplate() : rejectedTemplate(),
       };
 
       await sgMail.send(msg);

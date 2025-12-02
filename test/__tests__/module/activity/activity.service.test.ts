@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
 import BigNumber from "bignumber.js";
 
 jest.mock("../.././../../src/constant", () => ({
   RES_MSG: {
     NODE_REQUESTLIST: "node request list",
     ERROR: "internal error",
+    USER_NOT_FOUND: "User not found",
   },
   WALLET_PREFIX: "wallet:",
 }));
@@ -40,7 +40,6 @@ describe("ActivityService.getActivityList", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // require service after mocks so imports are replaced
     activityService = require("../.././../../src/module/activity/activity.service").default;
   });
 

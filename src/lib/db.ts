@@ -5,7 +5,6 @@ import logger from "./logger";
 
 const prisma = new PrismaClient();
 
-// Log message when the Prisma Client is connected to the database
 prisma
   .$connect()
   .then(() => {
