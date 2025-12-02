@@ -76,7 +76,7 @@ describe("AuthService", () => {
     const value = {
       address: "addr1",
       name: "John",
-      email: "john@test.com",
+      email: "john@gmail.com",
       description: "",
       url: "",
       pubKey: "pubkey",
@@ -102,6 +102,21 @@ describe("AuthService", () => {
         error: false,
         message: RES_MSG.USER_REGISTER_SUCCESS,
         data: {},
+      });
+    });
+
+    it("should fail when email is disposable", async () => {
+      (isValidProviderStatusTx as jest.Mock).mockResolvedValue(true);
+      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+
+      const disposableValue = { ...value, email: "test@mailinator.com" };
+      const res = mockResponse();
+
+      const result = await AuthService.addAdmin(disposableValue, res);
+
+      expect(result).toEqual({
+        error: true,
+        message: RES_MSG.DISPOSBLE_EMAIL,
       });
     });
 

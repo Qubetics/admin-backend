@@ -96,6 +96,26 @@ describe("NodeService", () => {
       });
     });
 
+    it("should return error when email is disposable", async () => {
+      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+
+      const result = await NodeService.nodeFormRequest(
+        mockParams.orgName,
+        "test@mailinator.com",
+        mockParams.nodeAddress,
+        mockParams.choosePlan,
+        mockParams.address,
+        mockParams.pubKey,
+        mockParams.signature,
+        mockParams.request
+      );
+
+      expect(result).toEqual({
+        error: true,
+        message: RES_MSG.DISPOSBLE_EMAIL,
+      });
+    });
+
     it("should return error when node is not present on chain", async () => {
       (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
       (fetchRequest as jest.Mock).mockResolvedValue({

@@ -158,7 +158,10 @@ export const canSubmitNodeRequest = async (
   currentRequest: string
 ): Promise<{ ok: boolean; message?: string }> => {
   if (status === PENDING) {
-    return { ok: false, message: RES_MSG.NODE_REQUEST_IS_STILL };
+    if (requestFor === LINK) {
+      return { ok: false, message: RES_MSG.LINK_REQUEST_IS_STILL };
+    }
+    return { ok: false, message: RES_MSG.UNLINK_REQUEST_IS_STILL };
   }
 
   if (currentRequest === LINK) {

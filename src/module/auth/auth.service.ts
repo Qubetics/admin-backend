@@ -5,6 +5,7 @@ import { IESResponse } from "../../interfaces";
 import prisma from "../../lib/db";
 import redisHelper from "../../service/redis.helper";
 import { Response } from "express";
+import MailChecker from "mailchecker";
 const checkCookieVariable = process.env.NODE_ENV == "production" ? false : true;
 
 class AuthService {
@@ -17,6 +18,15 @@ class AuthService {
       //Validate address
       const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
       if (!isSignatureValid?.verify) throw new Error(RES_MSG.UNAUTHORIZED);
+
+      if (email) {
+        if (!MailChecker.isValid(email)) {
+          return {
+            error: true,
+            message: RES_MSG.DISPOSBLE_EMAIL,
+          };
+        }
+      }
 
       const result = await prisma.user.upsert({
         where: { address },

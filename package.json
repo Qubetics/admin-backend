@@ -54,6 +54,7 @@
     "joi": "^17.10.2",
     "js-sha3": "^0.9.3",
     "jsonwebtoken": "^9.0.1",
+    "mailchecker": "^6.0.19",
     "moment": "^2.29.4",
     "node-cron": "^4.2.1",
     "redis": "^4.6.10",
