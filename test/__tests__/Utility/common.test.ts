@@ -44,6 +44,8 @@ jest.mock("../.././../src/constant/index.ts", () => ({
     NODE_IS_NOT_LINK: "Node is not linked",
     INVALID_REQUEST: "Invalid request",
     INVALID_HASH: "Invalid Hash",
+    LINK_REQUEST_IS_STILL: "Link request is still pending",
+    UNLINK_REQUEST_IS_STILL: " Unlink request is still pending",
   },
   WALLET_PREFIX: "wallet",
   FETCH_METHODS: { GET: "GET" },
@@ -226,7 +228,13 @@ describe("Utils Test Suite", () => {
     it("should return false if status is PENDING", async () => {
       const res = await canSubmitNodeRequest("PENDING", "LINK", "LINK");
       expect(res.ok).toBe(false);
-      expect(res.message).toContain("Request is still pending");
+      expect(res.message).toContain("request is still pending");
+    });
+
+    it("should return false if status is PENDING and request is UNLINK", async () => {
+      const res = await canSubmitNodeRequest("PENDING", "UNLINK", "LINK");
+      expect(res.ok).toBe(false);
+      expect(res.message).toContain("request is still pending");
     });
 
     // Current Request = LINK

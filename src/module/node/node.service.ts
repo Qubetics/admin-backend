@@ -1,24 +1,6 @@
-import {
-  ACTIVE,
-  APPROVED,
-  INACTIVE,
-  LINK,
-  PENDING,
-  REJECTED,
-  RES_MSG,
-  UNDEFINED,
-  UNLINK,
-  WALLET_PREFIX,
-} from "../../constant";
-import {
-  extractIP,
-  fetchRequest,
-  getWalletAddressFromNodeAddress,
-  canSubmitNodeRequest,
-  convertNodeToWallet,
-} from "../../Utility/common";
+import { ACTIVE, APPROVED, INACTIVE, LINK, PENDING, REJECTED, RES_MSG, UNDEFINED, UNLINK } from "../../constant";
+import { extractIP, fetchRequest, getWalletAddressFromNodeAddress, canSubmitNodeRequest } from "../../Utility/common";
 import { FETCH_METHODS } from "../../constant";
-import { RedisService } from "../../service";
 import AuthService from "../auth/auth.service";
 import prisma from "../../lib/db";
 import { verifyKeplrSignature } from "../../Utility/common";
@@ -26,6 +8,7 @@ import geoip from "geoip-lite";
 import countries from "i18n-iso-countries";
 import { Status } from "../../interfaces";
 import mailService from "../mail/mail.service";
+import MailChecker from "mailchecker";
 
 class NodeService {
   constructor() {}
@@ -49,6 +32,15 @@ class NodeService {
           error: true,
           message: RES_MSG.NOT_VERIFY,
         };
+      }
+
+      if (email) {
+        if (!MailChecker.isValid(email)) {
+          return {
+            error: true,
+            message: RES_MSG.DISPOSBLE_EMAIL,
+          };
+        }
       }
 
       const nodeUrl = `${environment?.evmHost}qubetics/node/v3/nodes/${nodeAddress}`;
@@ -222,6 +214,9 @@ class NodeService {
         skip,
         take: limit,
         where,
+        orderBy: {
+          updatedAt: "desc",
+        },
         select: {
           orgName: true,
           email: true,

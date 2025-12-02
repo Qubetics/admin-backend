@@ -76,7 +76,7 @@ describe("AuthService", () => {
     const value = {
       address: "addr1",
       name: "John",
-      email: "john@test.com",
+      // email: "john@gmail.com",
       description: "",
       url: "",
       pubKey: "pubkey",

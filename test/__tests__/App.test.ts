@@ -4,14 +4,10 @@
   service_email: 'service@test.com',
   evmHost: 'https://test-api.example.com/',
   planHost: 'http://test-host',
+  cors_origins: 'http://localhost:3000,http://example.com',
 };
 
 // Mocking dependencies
-jest.mock('../../src/service/redis.helper', () => ({
-  RedisService: {
-    startRedis: jest.fn(),
-  },
-}));
 
 jest.mock('../../src/service', () => ({
   RedisService: {

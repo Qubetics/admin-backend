@@ -27,8 +27,7 @@ export const RESPONSES = {
 };
 
 export const RATE_LIMITER_MESSAGE = {
-  TOO_MANY_REQUEST:
-    "You are doing too many request. Please try again in 5 minutes.",
+  TOO_MANY_REQUEST: "You are doing too many request. Please try again in 5 minutes.",
   WINDOW_MS: 5 * 60 * 1000, // 5 minutes  600000, // 10 minutes in milliseconds
   MAX: 20, // 20 request in 10 minutes
 };
@@ -46,9 +45,9 @@ export const RES_MSG = {
   UNABLE_TO_FIND_LOC: "Unable to find the location",
   PROVIDER_ADDRESS_IS_PRESENT: "Provider address is not present",
   NODE_ADRES_IS_NOT_PRESENT: "Node address is not present",
-  NODE_REQUEST_IS_STILL: "Node request is still alive",
-  NODE_REQUEST_ACTION_DONE_NO_EMAIL:
-    "successfully action done but no email Address to send the email",
+  LINK_REQUEST_IS_STILL: "Link request is still pending",
+  UNLINK_REQUEST_IS_STILL: " Unlink request is still pending",
+  NODE_REQUEST_ACTION_DONE_NO_EMAIL: "successfully action done but no email Address to send the email",
   NODE_REQUESTLIST: "successfully fetched the node request list",
   SUCCESS_REQUEST: "successfully request send",
   NOT_FOUND: "data not found",
@@ -69,6 +68,7 @@ export const RES_MSG = {
   INVALID_HASH: "Invalid Transaction hash",
   INVALID_REQUEST: "invalid request type",
   NOT_ADMIN: "Access denied: user is not an admin",
+  DISPOSBLE_EMAIL: "Sorry, but we do not accept your mail provider.",
 };
 
 export const CONST_NAME = {
@@ -135,8 +135,7 @@ export const REJECTED = "REJECTED";
 export const ACTIVE = "active";
 export const INACTIVE = "inactive";
 export const WALLET_PREFIX = "qubetics";
-export const API_BASE_URL =
-  "API_BASE_URL is not defined in environment variables";
+export const API_BASE_URL = "API_BASE_URL is not defined in environment variables";
 export const CRON_WORKER = {
   NODE: "Running Node Worker cron job",
   PROVIDER: "Running Provider Worker cron job",
