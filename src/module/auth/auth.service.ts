@@ -19,15 +19,6 @@ class AuthService {
       const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
       if (!isSignatureValid?.verify) throw new Error(RES_MSG.UNAUTHORIZED);
 
-      if (email && email !== UNDEFINED) {
-        if (!MailChecker.isValid(email)) {
-          return {
-            error: true,
-            message: RES_MSG.DISPOSBLE_EMAIL,
-          };
-        }
-      }
-
       const result = await prisma.user.upsert({
         where: { address },
         update: {}, // do nothing if exists
@@ -171,6 +162,34 @@ class AuthService {
         message: RES_MSG.LOGOUT_SUCCESS,
       };
     } catch (err) {
+      if (err instanceof Error) {
+        return { error: true, message: err.message };
+      }
+      return { error: true, message: RES_MSG.ERROR };
+    }
+  }
+
+  async checkEmail(email: string): Promise<IESResponse> {
+    try {
+      if (!email || email === UNDEFINED) {
+        return { error: true, message: "Email is required" };
+      }
+
+      if (!MailChecker.isValid(email)) {
+        return {
+          error: true,
+          message: RES_MSG.DISPOSBLE_EMAIL,
+          data: { valid: false },
+        };
+      }
+
+      return {
+        error: false,
+        message: RES_MSG.FETCH_SUCCESS,
+        data: { valid: true },
+      };
+    } catch (err) {
+      console.log("error in checkEmail : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }
