@@ -1,11 +1,5 @@
 import cron from "node-cron";
-import {
-  CRON_WORKER,
-  LINK,
-  Message,
-  REQUEST_STATUS,
-  WALLET_PREFIX,
-} from "../constant";
+import { CRON_WORKER, LINK, Message, REQUEST_STATUS, WALLET_PREFIX } from "../constant";
 import axios from "axios";
 import { saveNodes, saveProvider } from "../helper/node.helper";
 import prisma from "../lib/db";
@@ -19,18 +13,12 @@ class Worker {
     try {
       cron.schedule("*/5 * * * *", async () => {
         console.log(CRON_WORKER.NODE);
-        const results = await this.fetchAndSave(
-          `${environment.evmHost}/qubetics/node/v3/nodes`,
-          saveNodes
-        );
+        const results = await this.fetchAndSave(`${environment.evmHost}/qubetics/node/v3/nodes`, saveNodes);
 
         //@ts-ignore
         results.forEach((result: any, index: number) => {
           if (result.status === "rejected") {
-            console.error(
-              `Node  failed:`,
-              result.reason?.message || result.reason
-            );
+            console.error(`Node  failed:`, result.reason?.message || result.reason);
           } else {
             console.log(` Node updated row(s))`);
           }
@@ -46,18 +34,14 @@ class Worker {
       cron.schedule("*/1 * * * *", async () => {
         console.log(CRON_WORKER.NODE_REQUEST);
 
-        const response = await axios.get(
-          `${environment.evmHost}/qubetics/plan/v3/plans`
-        );
+        const response = await axios.get(`${environment.evmHost}/qubetics/plan/v3/plans`);
 
         const allNodes: any = [];
 
         await Promise.all(
           response?.data?.plans?.map(async (val: any) => {
             try {
-              const result = await axios.get(
-                `${environment.evmHost}/qubetics/node/v3/plans/${val?.id}/nodes`
-              );
+              const result = await axios.get(`${environment.evmHost}/qubetics/node/v3/plans/${val?.id}/nodes`);
 
               const nodes = result?.data?.nodes || [];
 
@@ -100,14 +84,14 @@ class Worker {
               plan: val?.plan?.prices[0]?.quote_value,
               status: REQUEST_STATUS.APPROVED,
               action: false,
-              requestFor:LINK,
+              requestFor: LINK,
               address,
             },
           });
         });
       });
     } catch (error) {
-      console.log(error, "error");
+      console.log(error, "error in provider worker");
     }
   }
 
@@ -116,18 +100,15 @@ class Worker {
       cron.schedule("*/5 * * * *", async () => {
         console.log(CRON_WORKER.PROVIDER);
 
-        const response = await axios.get(
-          `${environment.evmHost}/qubetics/provider/v2/providers`
-        );
+        const response = await axios.get(`${environment.evmHost}/qubetics/provider/v2/providers`);
         await saveProvider(response?.data?.providers || []);
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error, "error in provider worker");
+    }
   }
 
-  private async fetchAndSave<T>(
-    url: string,
-    saveFunction: (data: T[]) => void
-  ): Promise<void> {
+  private async fetchAndSave<T>(url: string, saveFunction: (data: T[]) => void): Promise<void> {
     //try catch
     const response = await axios.get(url);
 
