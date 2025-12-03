@@ -18,6 +18,7 @@ class AuthController implements Controller {
     this.router
       .post("/login", this.loginUser)
       .post("/register", this.addUser)
+      .post("/check-disposable-email", this.checkEmail)
       .get("/logout", adminCheck, this.logout);
   }
 
@@ -27,6 +28,14 @@ class AuthController implements Controller {
       return setResponse.error(response, user);
     }
     return setResponse.success(response, user);
+  };
+
+  private checkEmail = async (request: Request, response: Response) => {
+    const result = await AuthService.checkEmail(request.body.email);
+    if (result.error) {
+      return setResponse.error(response, result);
+    }
+    return setResponse.success(response, result);
   };
 
   private loginUser = async (request: Request, response: Response) => {
