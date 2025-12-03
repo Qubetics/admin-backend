@@ -12,17 +12,21 @@ class Worker {
   public async startNodeWorker(): Promise<void> {
     try {
       cron.schedule("*/5 * * * *", async () => {
-        console.log(CRON_WORKER.NODE);
-        const results = await this.fetchAndSave(`${environment.evmHost}/qubetics/node/v3/nodes`, saveNodes);
+        try {
+          console.log(CRON_WORKER.NODE);
+          const results = await this.fetchAndSave(`${environment.evmHost}/qubetics/node/v3/nodes`, saveNodes);
 
-        //@ts-ignore
-        results.forEach((result: any, index: number) => {
-          if (result.status === "rejected") {
-            console.error(`Node  failed:`, result.reason?.message || result.reason);
-          } else {
-            console.log(` Node updated row(s))`);
-          }
-        });
+          //@ts-ignore
+          results.forEach((result: any, index: number) => {
+            if (result.status === "rejected") {
+              console.error(`Node  failed:`, result.reason?.message || result.reason);
+            } else {
+              console.log(` Node updated row(s))`);
+            }
+          });
+        } catch (error) {
+          console.error("Error in node worker cron job:", error);
+        }
       });
     } catch (error) {
       console.log(error, "error");
@@ -32,76 +36,97 @@ class Worker {
   public async nodeRequestWorker(): Promise<void> {
     try {
       cron.schedule("*/1 * * * *", async () => {
-        console.log(CRON_WORKER.NODE_REQUEST);
+        try {
+          console.log(CRON_WORKER.NODE_REQUEST);
 
-        const response = await axios.get(`${environment.evmHost}/qubetics/plan/v3/plans`);
+          const response = await axios.get(`${environment.evmHost}/qubetics/plan/v3/plans`);
 
-        const allNodes: any = [];
+          const allNodes: any = [];
 
-        await Promise.all(
-          response?.data?.plans?.map(async (val: any) => {
-            try {
-              const result = await axios.get(`${environment.evmHost}/qubetics/node/v3/plans/${val?.id}/nodes`);
+          await Promise.all(
+            response?.data?.plans?.map(async (val: any) => {
+              try {
+                const result = await axios.get(`${environment.evmHost}/qubetics/node/v3/plans/${val?.id}/nodes`);
 
-              const nodes = result?.data?.nodes || [];
+                const nodes = result?.data?.nodes || [];
 
-              if (nodes.length > 0) {
-                nodes.forEach((node: any) => {
-                  allNodes.push({
-                    ...node,
-                    plan: val, // attach the corresponding plan info
+                if (nodes.length > 0) {
+                  nodes.forEach((node: any) => {
+                    allNodes.push({
+                      ...node,
+                      plan: val, // attach the corresponding plan info
+                    });
                   });
-                });
+                }
+              } catch (err) {
+                console.error(`Error fetching nodes for plan ${val?.id}:`, err);
               }
-            } catch (err) {
-              console.error(`Error fetching nodes for plan ${val?.id}:`, err);
-            }
-          })
-        );
+            })
+          );
 
-        await allNodes?.map(async (val: any) => {
-          const ip = extractIP(val?.remote_url);
-          const geo: any = geoip.lookup(ip);
-          const countryName = countries.getName(geo.country, "en");
-          const address = convertNodeToWallet(val?.address, WALLET_PREFIX);
+          await Promise.all(
+            allNodes?.map(async (val: any) => {
+              try {
+                const ip = extractIP(val?.remote_url);
+                const geo: any = geoip.lookup(ip);
+                
+                // Check if geo is null to prevent crashes
+                if (!geo) {
+                  console.warn(`Could not find geo location for IP: ${ip}`);
+                  return;
+                }
+                
+                const countryName = countries.getName(geo.country, "en");
+                const address = convertNodeToWallet(val?.address, WALLET_PREFIX);
 
-          await authService.addUser({ address });
+                await authService.addUser({ address });
 
-          await prisma.nodeRequest.upsert({
-            where: {
-              nodeAddress: val?.address,
-            },
-            update: { provAddress: val?.plan?.prov_address },
-            create: {
-              nodeAddress: val?.address,
-              nodeStatus: val?.status,
-              planId: val?.plan?.id,
-              remoteUrl: val?.remote_url,
-              hours: val?.plan?.hours,
-              provAddress: val?.plan?.prov_address,
-              bandwidth: val?.plan?.gigabytes,
-              location: countryName || geo.country || "",
-              plan: val?.plan?.prices[0]?.quote_value,
-              status: REQUEST_STATUS.APPROVED,
-              action: false,
-              requestFor: LINK,
-              address,
-            },
-          });
-        });
+                await prisma.nodeRequest.upsert({
+                  where: {
+                    nodeAddress: val?.address,
+                  },
+                  update: { provAddress: val?.plan?.prov_address },
+                  create: {
+                    nodeAddress: val?.address,
+                    nodeStatus: val?.status,
+                    planId: val?.plan?.id,
+                    remoteUrl: val?.remote_url,
+                    hours: val?.plan?.hours,
+                    provAddress: val?.plan?.prov_address,
+                    bandwidth: val?.plan?.gigabytes,
+                    location: countryName || geo.country || "",
+                    plan: val?.plan?.prices[0]?.quote_value,
+                    status: REQUEST_STATUS.APPROVED,
+                    action: false,
+                    requestFor: LINK,
+                    address,
+                  },
+                });
+              } catch (err) {
+                console.error(`Error processing node ${val?.address}:`, err);
+              }
+            }) || []
+          );
+        } catch (error) {
+          console.error("Error in node request worker cron job:", error);
+        }
       });
     } catch (error) {
-      console.log(error, "error in provider worker");
+      console.log(error, "error in node request worker");
     }
   }
 
   public async startProviderWorker(): Promise<void> {
     try {
       cron.schedule("*/5 * * * *", async () => {
-        console.log(CRON_WORKER.PROVIDER);
+        try {
+          console.log(CRON_WORKER.PROVIDER);
 
-        const response = await axios.get(`${environment.evmHost}/qubetics/provider/v2/providers`);
-        await saveProvider(response?.data?.providers || []);
+          const response = await axios.get(`${environment.evmHost}/qubetics/provider/v2/providers`);
+          await saveProvider(response?.data?.providers || []);
+        } catch (error) {
+          console.error("Error in provider worker cron job:", error);
+        }
       });
     } catch (error) {
       console.log(error, "error in provider worker");
