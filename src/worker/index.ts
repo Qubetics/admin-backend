@@ -44,7 +44,7 @@ class Worker {
   public async nodeRequestWorker(): Promise<void> {
     try {
       cron.schedule("*/1 * * * *", async () => {
-        console.log(CRON_WORKER.PROVIDER);
+        console.log(CRON_WORKER.NODE_REQUEST);
 
         const response = await axios.get(
           `${environment.evmHost}/qubetics/plan/v3/plans`

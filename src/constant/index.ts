@@ -139,6 +139,7 @@ export const API_BASE_URL = "API_BASE_URL is not defined in environment variable
 export const CRON_WORKER = {
   NODE: "Running Node Worker cron job",
   PROVIDER: "Running Provider Worker cron job",
+  NODE_REQUEST: "Running Node Request Worker cron job",
 };
 
 export const Message = {
