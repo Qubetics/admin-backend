@@ -87,6 +87,6 @@ export default class App {
   private StartWorker() {
     worker.startNodeWorker();
     worker.startProviderWorker();
-    worker.nodeRequestWorker();
+    // worker.nodeRequestWorker();
   }
 }
