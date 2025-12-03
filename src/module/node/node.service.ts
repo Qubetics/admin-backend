@@ -34,7 +34,7 @@ class NodeService {
         };
       }
 
-      if (email) {
+      if (email && email !== UNDEFINED) {
         if (!MailChecker.isValid(email)) {
           return {
             error: true,

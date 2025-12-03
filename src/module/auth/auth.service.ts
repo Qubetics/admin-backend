@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { convertNodeToWallet, encryptData, isValidProviderStatusTx, verifyKeplrSignature } from "../../Utility/common";
-import { COOKIE_NAMES, RES_MSG, WALLET_PREFIX } from "../../constant";
+import { COOKIE_NAMES, RES_MSG, WALLET_PREFIX, UNDEFINED } from "../../constant";
 import { IESResponse } from "../../interfaces";
 import prisma from "../../lib/db";
 import redisHelper from "../../service/redis.helper";
@@ -19,7 +19,7 @@ class AuthService {
       const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
       if (!isSignatureValid?.verify) throw new Error(RES_MSG.UNAUTHORIZED);
 
-      if (email) {
+      if (email && email !== UNDEFINED) {
         if (!MailChecker.isValid(email)) {
           return {
             error: true,
