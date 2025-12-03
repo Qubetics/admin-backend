@@ -35,7 +35,7 @@ class Worker {
 
   public async nodeRequestWorker(): Promise<void> {
     try {
-      cron.schedule("*/1 * * * *", async () => {
+      cron.schedule("*/5 * * * *", async () => {
         try {
           console.log(CRON_WORKER.NODE_REQUEST);
 
