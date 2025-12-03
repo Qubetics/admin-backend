@@ -151,7 +151,7 @@ class ProviderService {
         },
       });
 
-      const finalProviders = activeProviders.map((nodeAddress) => {
+      let finalProviders = activeProviders.map((nodeAddress) => {
         const walletAddress = convertNodeToWallet(nodeAddress, WALLET_PREFIX);
 
         const user = users.find((u) => u.address === walletAddress);
@@ -160,6 +160,12 @@ class ProviderService {
           providerAddress: nodeAddress,
           name: user?.name || null,
         };
+      });
+
+      finalProviders.sort((a, b) => {
+        const nameA = a.name?.toLowerCase() || "";
+        const nameB = b.name?.toLowerCase() || "";
+        return nameA.localeCompare(nameB);
       });
 
       return {
