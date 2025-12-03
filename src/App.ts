@@ -29,7 +29,6 @@ export default class App {
       legacyHeaders: false,
     });
     this.StartWorker();
-    console.log(environment.cors_origins?.split(","), "environment.cors_origins.split(", ")");
   }
 
   public async init(): Promise<void> {
