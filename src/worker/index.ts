@@ -69,13 +69,13 @@ class Worker {
               try {
                 const ip = extractIP(val?.remote_url);
                 const geo: any = geoip.lookup(ip);
-                
+
                 // Check if geo is null to prevent crashes
                 if (!geo) {
                   console.warn(`Could not find geo location for IP: ${ip}`);
                   return;
                 }
-                
+
                 const countryName = countries.getName(geo.country, "en");
                 const address = convertNodeToWallet(val?.address, WALLET_PREFIX);
 
@@ -134,15 +134,19 @@ class Worker {
   }
 
   private async fetchAndSave<T>(url: string, saveFunction: (data: T[]) => void): Promise<void> {
-    //try catch
-    const response = await axios.get(url);
+    try {
+      const response = await axios.get(url);
+      const data = response?.data?.nodes;
 
-    const data = response.data?.nodes;
-    if (!data) {
-      throw new Error(`${Message.nodeFail} Response data missing`);
+      if (!data) {
+        throw new Error(`${Message.nodeFail} Response data missing`);
+      }
+
+      await saveFunction(data);
+    } catch (error) {
+      console.error(`Error fetching or saving data from ${url}:`, error);
+      throw error;
     }
-
-    return await saveFunction(data);
   }
 }
 
