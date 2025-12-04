@@ -16,6 +16,7 @@ jest.mock("../../../../src/module/auth/auth.service", () => ({
     addAdmin: jest.fn(),
     loginUser: jest.fn(),
     logout: jest.fn(),
+    checkEmail: jest.fn(),
   },
 }));
 
@@ -110,6 +111,43 @@ describe("AuthController", () => {
 
       await controller.logout(req as Request, res as Response);
 
+      expect(Helpers.ResponseHelper.error).toHaveBeenCalledWith(res, mockErr);
+    });
+  });
+
+  describe("checkEmail", () => {
+    it("calls ResponseHelper.success for valid email", async () => {
+      const mockResult = { error: false, message: "Fetch success", data: { valid: true } };
+      (AuthService.checkEmail as jest.Mock).mockResolvedValue(mockResult);
+
+      req.body = { email: "user@example.com" };
+      await controller.checkEmail(req as Request, res as Response);
+
+      expect(AuthService.checkEmail).toHaveBeenCalledWith("user@example.com");
+      expect(Helpers.ResponseHelper.success).toHaveBeenCalledWith(res, mockResult);
+      expect(Helpers.ResponseHelper.error).not.toHaveBeenCalled();
+    });
+
+    it("calls ResponseHelper.error for disposable email", async () => {
+      const mockErr = { error: true, message: "Sorry, but we do not accept your mail provider.", data: { valid: false } };
+      (AuthService.checkEmail as jest.Mock).mockResolvedValue(mockErr);
+
+      req.body = { email: "test@mailinator.com" };
+      await controller.checkEmail(req as Request, res as Response);
+
+      expect(AuthService.checkEmail).toHaveBeenCalledWith("test@mailinator.com");
+      expect(Helpers.ResponseHelper.error).toHaveBeenCalledWith(res, mockErr);
+      expect(Helpers.ResponseHelper.success).not.toHaveBeenCalled();
+    });
+
+    it("calls ResponseHelper.error for missing email", async () => {
+      const mockErr = { error: true, message: "Email is required" };
+      (AuthService.checkEmail as jest.Mock).mockResolvedValue(mockErr);
+
+      req.body = { email: "" };
+      await controller.checkEmail(req as Request, res as Response);
+
+      expect(AuthService.checkEmail).toHaveBeenCalledWith("");
       expect(Helpers.ResponseHelper.error).toHaveBeenCalledWith(res, mockErr);
     });
   });

@@ -105,21 +105,6 @@ describe("AuthService", () => {
       });
     });
 
-    it("should fail when email is disposable", async () => {
-      (isValidProviderStatusTx as jest.Mock).mockResolvedValue(true);
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
-
-      const disposableValue = { ...value, email: "test@mailinator.com" };
-      const res = mockResponse();
-
-      const result = await AuthService.addAdmin(disposableValue, res);
-
-      expect(result).toEqual({
-        error: true,
-        message: RES_MSG.DISPOSBLE_EMAIL,
-      });
-    });
-
     it("should fail when provider-tx is invalid", async () => {
       (isValidProviderStatusTx as jest.Mock).mockResolvedValue(false);
       const res = mockResponse();
@@ -219,19 +204,14 @@ describe("AuthService", () => {
       });
 
       const res = mockResponse();
-      // FIX: Apply type assertion to inform TypeScript about the 'isExist' property on data
       const result = (await AuthService.loginUser(value, res)) as LoginUserResult;
 
       expect(result.error).toBe(true);
-      expect(result.message).toBe(RES_MSG.NOT_ADMIN);
-      // Error on line 180 is now fixed
+      expect(result.message).toBe(RES_MSG.NOT_ADMIN);  
       expect(result.data!.isExist).toBe(false);
     });
   });
 
-  // ---------------------------------------------------------
-  // logout()
-  // ---------------------------------------------------------
   describe("logout()", () => {
     it("should logout successfully", async () => {
       const req: any = { cookies: { session_id: "123" } };
@@ -257,6 +237,38 @@ describe("AuthService", () => {
 
       expect(result.error).toBe(true);
       expect(result.message).toBe("Redis failed");
+    });
+  });
+
+  describe("checkEmail()", () => {
+    it("should return valid:true for legitimate email", async () => {
+      const result = await AuthService.checkEmail("user@example.com");
+
+      expect(result.error).toBe(false);
+      expect(result.message).toBe(RES_MSG.FETCH_SUCCESS);
+      expect(result.data).toEqual({ valid: true });
+    });
+
+    it("should return valid:false for disposable email", async () => {
+      const result = await AuthService.checkEmail("test@mailinator.com");
+
+      expect(result.error).toBe(true);
+      expect(result.message).toBe(RES_MSG.DISPOSBLE_EMAIL);
+      expect(result.data).toEqual({ valid: false });
+    });
+
+    it("should return error for missing email", async () => {
+      const result = await AuthService.checkEmail("");
+
+      expect(result.error).toBe(true);
+      expect(result.message).toBe("Email is required");
+    });
+
+    it("should return error for undefined email", async () => {
+      const result = await AuthService.checkEmail("undefined");
+
+      expect(result.error).toBe(true);
+      expect(result.message).toBe("Email is required");
     });
   });
 });
