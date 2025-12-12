@@ -2,6 +2,7 @@ import { RES_MSG, WALLET_PREFIX } from "../../constant";
 import BigNumber from "bignumber.js";
 import prisma from "../../lib/db";
 import { bytesToGb, convertNodeToWallet, parseAndConvertPlan } from "../../Utility/common";
+import { ActivityMeta } from "../../interfaces";
 
 class ActivityService {
   constructor() {}
@@ -17,7 +18,17 @@ class ActivityService {
         return { error: true, message: "User not found" };
       }
 
-      const options: any = { where: { userId: user.id }, orderBy: { createdAt: "desc" } };
+      const options: any = {
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        select: {
+          type: true,
+          action: true,
+          createdAt: true,
+          metaData: true,
+        },
+      };
+
       if (page && limit) {
         options.skip = (page - 1) * limit;
         options.take = limit;
@@ -25,9 +36,30 @@ class ActivityService {
 
       const activities = await prisma.activity.findMany(options);
 
+      const providerAddressesSet = new Set<string>();
+      for (const act of activities) {
+        const provAddress = (act.metaData as ActivityMeta)?.provAddress;
+        if (provAddress) {
+          const walletAddress = convertNodeToWallet(provAddress, WALLET_PREFIX);
+          providerAddressesSet.add(walletAddress);
+        }
+      }
+
+      const providerAddresses = Array.from(providerAddressesSet);
+      let providerMap = new Map<string, string | null>();
+
+      if (providerAddresses.length > 0) {
+        const providerUsers = await prisma.user.findMany({
+          where: { address: { in: providerAddresses } },
+          select: { address: true, name: true },
+        });
+
+        providerUsers.forEach((p) => providerMap.set(p.address, p.name));
+      }
+
       const result = await Promise.all(
         activities.map(async (act: any) => {
-          const meta = act.metaData || {};
+          const meta = (act.metaData as ActivityMeta) || {};
 
           if (meta?.plan) {
             meta.plan = parseAndConvertPlan(meta.plan);
@@ -40,25 +72,14 @@ class ActivityService {
 
           const provAddress = meta?.provAddress;
 
-          if (!provAddress) {
-            return {
-              ...act,
-              metaData: meta,
-              providerName: null,
-            };
-          }
-
-          const walletAddress = convertNodeToWallet(provAddress, WALLET_PREFIX);
-
-          const providerUser = await prisma.user.findUnique({
-            where: { address: walletAddress },
-            select: { name: true },
-          });
+          const providerName = provAddress
+            ? providerMap.get(convertNodeToWallet(provAddress, WALLET_PREFIX)) || null
+            : null;
 
           return {
             ...act,
             metaData: meta,
-            providerName: providerUser?.name || null,
+            providerName,
           };
         })
       );

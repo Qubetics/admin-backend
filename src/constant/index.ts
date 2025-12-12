@@ -69,6 +69,10 @@ export const RES_MSG = {
   INVALID_REQUEST: "invalid request type",
   NOT_ADMIN: "Access denied: user is not an admin",
   DISPOSBLE_EMAIL: "Sorry, but we do not accept your mail provider.",
+  USER_NOT_FOUND: "User not found",
+  NO_RECORDS: "No records found for the given address",
+  ADDRESS_REQUIRED: "address parameter is required",
+  INVALID_STATUS: "Invalid status value. Allowed: PENDING, APPROVED, REJECTED",
 };
 
 export const CONST_NAME = {

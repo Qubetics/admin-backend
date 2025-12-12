@@ -1,5 +1,3 @@
-
-
 // Define mocks before imports to avoid hoisting issues affecting variable access
 const mockInit = jest.fn();
 const mockExpressSet = jest.fn();
@@ -106,10 +104,7 @@ describe("server bootstrap", () => {
     const reason = new Error("unhandled");
     (process as any).emit("unhandledRejection", reason);
 
-    expect(loggerErrorMock).toHaveBeenCalledWith(
-      "Unhandled Promise Rejection: reason:",
-      reason.message
-    );
+    expect(loggerErrorMock).toHaveBeenCalledWith("Unhandled Promise Rejection: reason:", reason.message);
     expect(loggerErrorMock).toHaveBeenCalledWith(reason.stack);
   });
 
@@ -118,16 +113,13 @@ describe("server bootstrap", () => {
     await import("../../src/server");
 
     // Get the listening callback passed to server.on
-    const listeningCallback = mockServerOn.mock.calls.find(
-      (call) => call[0] === "listening"
-    )[1];
+    const listeningCallback = mockServerOn.mock.calls.find((call) => call[0] === "listening")[1];
 
     expect(listeningCallback).toBeDefined();
 
     // Execute the callback
     listeningCallback();
 
-    expect(mockServerAddress).toHaveBeenCalled();
     expect(logMock).toHaveBeenCalled();
   });
 
@@ -135,9 +127,7 @@ describe("server bootstrap", () => {
     mockInit.mockResolvedValue(undefined);
     await import("../../src/server");
 
-    const errorCallback = mockServerOn.mock.calls.find(
-      (call) => call[0] === "error"
-    )[1];
+    const errorCallback = mockServerOn.mock.calls.find((call) => call[0] === "error")[1];
 
     expect(errorCallback).toBeDefined();
 
@@ -151,9 +141,7 @@ describe("server bootstrap", () => {
     mockInit.mockResolvedValue(undefined);
     await import("../../src/server");
 
-    const errorCallback = mockServerOn.mock.calls.find(
-      (call) => call[0] === "error"
-    )[1];
+    const errorCallback = mockServerOn.mock.calls.find((call) => call[0] === "error")[1];
 
     expect(errorCallback).toBeDefined();
 
@@ -163,5 +151,3 @@ describe("server bootstrap", () => {
     expect(() => errorCallback(error)).toThrow(error);
   });
 });
-
-

@@ -22,6 +22,7 @@ jest.mock("../.././../../src/lib/db", () => {
     default: {
       user: {
         findUnique: jest.fn(),
+        findMany: jest.fn(),
       },
       activity: {
         findMany: jest.fn(),
@@ -40,6 +41,12 @@ describe("ActivityService.getActivityList", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Restore mock implementations that were cleared
+    (convertNodeToWallet as jest.Mock).mockImplementation((prov: any, prefix: any) => `${prefix}${prov}`);
+    (parseAndConvertPlan as jest.Mock).mockImplementation((p: any) => `converted-${p}`);
+    (bytesToGb as jest.Mock).mockReturnValue("10GB");
+    // Set default mock implementations
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
     // require service after mocks so imports are replaced
     activityService = require("../.././../../src/module/activity/activity.service").default;
   });
@@ -100,14 +107,13 @@ describe("ActivityService.getActivityList", () => {
   });
 
   it("fetches provider user and includes providerName when provAddress present", async () => {
-    // prisma.user.findUnique is called twice:
-    // 1) find user by address (select id)
-    // 2) inside mapping find provider user (select name)
-    (prisma.user.findUnique as jest.Mock).mockImplementation(async (args: any) => {
-      if (args.select && args.select.id) return { id: "user-3" };
-      if (args.select && args.select.name) return { name: "Provider Joe" };
-      return null;
-    });
+    // prisma.user.findUnique is called to find user by address
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: "user-3" });
+    
+    // prisma.user.findMany is called to fetch provider users (service uses findMany for batch lookup)
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([
+      { address: "wallet:node-1", name: "Provider Joe" }
+    ]);
 
     const activity = {
       id: "a2",
@@ -126,6 +132,10 @@ describe("ActivityService.getActivityList", () => {
     const res = await activityService.getActivityList(1, 10, "0xuser3");
 
     expect(convertNodeToWallet).toHaveBeenCalledWith("node-1", "wallet:");
+    expect(prisma.user.findMany).toHaveBeenCalledWith({
+      where: { address: { in: ["wallet:node-1"] } },
+      select: { address: true, name: true },
+    });
     expect(res.error).toBe(false);
     expect(res.data.activityList[0].providerName).toBe("Provider Joe");
   });

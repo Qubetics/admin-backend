@@ -125,7 +125,6 @@ class AuthService {
         httpOnly: checkCookieVariable,
         secure: checkCookieVariable,
         sameSite: checkCookieVariable ? "none" : "lax",
-        // maxAge: environment.redisExpiry,
       });
 
       await redisHelper.setString(uuid, encryptedData);

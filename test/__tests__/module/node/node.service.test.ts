@@ -766,9 +766,8 @@ describe("NodeService", () => {
       const result = await NodeService.getPrefillValues("wallet123");
 
       expect(result).toEqual({
-        error: false,
-        message: RES_MSG.FETCH_SUCCESS,
-        data: { data: null },
+        error: true,
+        message: RES_MSG.NO_RECORDS,
       });
     });
   });

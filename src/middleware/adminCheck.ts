@@ -1,9 +1,8 @@
-import { Response, Request, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import * as Helpers from "../service/index";
-// import { RESPONSE_MESSAGES, STATUS_CODES, ADMIN } from '../constants';
 import redisHelper from "../service/redis.helper";
 import { RESPONSES, RES_MSG } from "../constant";
-import { decryptData, isTokenExpired } from "../Utility/common";
+import { decryptData } from "../Utility/common";
 import prisma from "../lib/db";
 
 const setResponse = Helpers.ResponseHelper;

@@ -28,7 +28,6 @@ class ProviderService {
       }
 
       const allProviders = response?.data?.providers || [];
-      // const activeProviders = allProviders.filter((provider: any) => provider.status?.toLowerCase() === "active");
 
       let updatedProviders = allProviders;
 
