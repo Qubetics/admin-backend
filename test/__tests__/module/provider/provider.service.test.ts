@@ -1,4 +1,3 @@
-// Mock dependencies BEFORE importing the service
 jest.mock("../../../../src/lib/db", () => ({
   __esModule: true,
   default: {
@@ -21,7 +20,6 @@ jest.mock("geoip-lite", () => ({
   lookup: jest.fn(),
 }));
 
-// Import AFTER mocking
 import ProviderService from "../../../../src/module/provider/provider.service";
 import prisma from "../../../../src/lib/db";
 import {
@@ -37,7 +35,7 @@ import geoip from "geoip-lite";
 describe("ProviderService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Set environment before each test
+
     (global as any).environment = {
       evmHost: "https://test-api.example.com/",
     };

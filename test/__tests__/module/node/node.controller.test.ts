@@ -3,7 +3,6 @@ import nodeService from "../../../../src/module/node/node.service";
 import { Request, Response } from "express";
 import { convertNodeToWallet, decryptData } from "../../../../src/Utility/common";
 import redisHelper from "../../../../src/service/redis.helper";
-import prisma from "../../../../src/lib/db";
 
 jest.mock("../../../../src/service/index", () => ({
   ResponseHelper: {
@@ -47,7 +46,6 @@ describe("NodeController", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
 
-  // Mock admin user from middleware
   const mockAdminUser = {
     id: "admin-id-123",
     address: "0x123abc",

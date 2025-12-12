@@ -1,4 +1,3 @@
-// Define mocks before imports to avoid hoisting issues affecting variable access
 const mockInit = jest.fn();
 const mockExpressSet = jest.fn();
 const mockServerOn = jest.fn();
@@ -73,7 +72,6 @@ describe("server bootstrap", () => {
   it("initializes app, sets port, registers listeners and starts server on success", async () => {
     mockInit.mockResolvedValue(undefined);
 
-    // Re-import to trigger execution
     await import("../../src/server");
 
     expect(mockExpressSet).toHaveBeenCalledWith("port", 3000);
@@ -112,12 +110,10 @@ describe("server bootstrap", () => {
     mockInit.mockResolvedValue(undefined);
     await import("../../src/server");
 
-    // Get the listening callback passed to server.on
     const listeningCallback = mockServerOn.mock.calls.find((call) => call[0] === "listening")[1];
 
     expect(listeningCallback).toBeDefined();
 
-    // Execute the callback
     listeningCallback();
 
     expect(logMock).toHaveBeenCalled();

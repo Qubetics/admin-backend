@@ -9,18 +9,7 @@ import {
   canSubmitNodeRequest,
   extractIP,
 } from "../../../../src/Utility/common";
-import {
-  ACTIVE,
-  APPROVED,
-  INACTIVE,
-  LINK,
-  PENDING,
-  REJECTED,
-  RES_MSG,
-  UNDEFINED,
-  UNLINK,
-  FETCH_METHODS,
-} from "../../../../src/constant";
+import { ACTIVE, APPROVED, LINK, PENDING, REJECTED, RES_MSG, UNDEFINED, UNLINK } from "../../../../src/constant";
 import geoip from "geoip-lite";
 import countries from "i18n-iso-countries";
 

@@ -1,43 +1,38 @@
-// Set up global environment BEFORE any imports
 (global as any).environment = {
-  sendgrid_key: 'test-sendgrid-key',
-  service_email: 'service@test.com',
-  evmHost: 'https://test-api.example.com/',
-  planHost: 'http://test-host',
-  cors_origins: 'http://localhost:3000,http://example.com',
+  sendgrid_key: "test-sendgrid-key",
+  service_email: "service@test.com",
+  evmHost: "https://test-api.example.com/",
+  planHost: "http://test-host",
+  cors_origins: "http://localhost:3000,http://example.com",
 };
 
-// Mocking dependencies
-
-jest.mock('../../src/service', () => ({
+jest.mock("../../src/service", () => ({
   RedisService: {
     startRedis: jest.fn(),
   },
 }));
 
-jest.mock('../../src/worker', () => ({
+jest.mock("../../src/worker", () => ({
   startNodeWorker: jest.fn(),
   startProviderWorker: jest.fn(),
   nodeRequestWorker: jest.fn(),
 }));
 
-import http from 'http';
-import express from 'express';
-import App from '../../src/App';
-import { RedisService } from '../../src/service';
-import worker from '../../src/worker';
+import http from "http";
 
+import App from "../../src/App";
+import { RedisService } from "../../src/service";
+import worker from "../../src/worker";
 
-describe('App Class', () => {
+describe("App Class", () => {
   let app: App;
 
   beforeEach(() => {
-    // Clear all mocks before each test
     jest.clearAllMocks();
   });
 
-  describe('Constructor', () => {
-    it('should create a rate limiter with correct configuration', () => {
+  describe("Constructor", () => {
+    it("should create a rate limiter with correct configuration", () => {
       app = new App();
 
       expect(worker.startNodeWorker).toHaveBeenCalled();
@@ -46,82 +41,75 @@ describe('App Class', () => {
     });
   });
 
-  describe('Initialization', () => {
+  describe("Initialization", () => {
     beforeEach(async () => {
       app = new App();
       await app.init();
     });
 
-    it('should initialize express application', () => {
+    it("should initialize express application", () => {
       expect(app.express).toBeDefined();
-      expect(typeof app.express.use).toBe('function');
+      expect(typeof app.express.use).toBe("function");
     });
 
-    it('should create HTTP server', () => {
+    it("should create HTTP server", () => {
       expect(app.httpServer).toBeDefined();
       expect(app.httpServer).toBeInstanceOf(http.Server);
     });
 
-    it('should start Redis connection', () => {
+    it("should start Redis connection", () => {
       expect(RedisService.startRedis).toHaveBeenCalled();
     });
   });
 
-  describe('Middleware', () => {
+  describe("Middleware", () => {
     beforeEach(async () => {
       app = new App();
       await app.init();
     });
 
-    it('should apply CORS middleware with correct configuration', () => {
-      const corsMiddleware = app.express._router.stack.find(
-        (layer: any) => layer.handle.name === 'corsMiddleware'
-      );
+    it("should apply CORS middleware with correct configuration", () => {
+      const corsMiddleware = app.express._router.stack.find((layer: any) => layer.handle.name === "corsMiddleware");
 
       expect(corsMiddleware).toBeDefined();
     });
 
-    it('should apply cookie parser middleware', () => {
+    it("should apply cookie parser middleware", () => {
       const cookieParserMiddleware = app.express._router.stack.find(
-        (layer: any) => layer.handle.name === 'cookieParser'
+        (layer: any) => layer.handle.name === "cookieParser"
       );
 
       expect(cookieParserMiddleware).toBeDefined();
     });
 
-    it('should apply helmet middleware with specific configuration', () => {
-      const helmetMiddleware = app.express._router.stack.find(
-        (layer: any) => layer.handle.name === 'helmetMiddleware'
-      );
+    it("should apply helmet middleware with specific configuration", () => {
+      const helmetMiddleware = app.express._router.stack.find((layer: any) => layer.handle.name === "helmetMiddleware");
 
       expect(helmetMiddleware).toBeDefined();
     });
 
-    it('should apply JSON parsing middleware', () => {
-      const jsonMiddleware = app.express._router.stack.find(
-        (layer: any) => layer.handle.name === 'jsonParser'
-      );
+    it("should apply JSON parsing middleware", () => {
+      const jsonMiddleware = app.express._router.stack.find((layer: any) => layer.handle.name === "jsonParser");
 
       expect(jsonMiddleware).toBeDefined();
     });
 
-    it('should apply URL-encoded parsing middleware', () => {
+    it("should apply URL-encoded parsing middleware", () => {
       const urlEncodedMiddleware = app.express._router.stack.find(
-        (layer: any) => layer.handle.name === 'urlencodedParser'
+        (layer: any) => layer.handle.name === "urlencodedParser"
       );
 
       expect(urlEncodedMiddleware).toBeDefined();
     });
   });
 
-  describe('Routes', () => {
+  describe("Routes", () => {
     beforeEach(async () => {
       app = new App();
       await app.init();
     });
 
-    it('should register routes under /api/v1', () => {
-      // Simple check that the app has an express router
+    it("should register routes under /api/v1", () => {
       expect(app.express._router).toBeDefined();
     });
   });
