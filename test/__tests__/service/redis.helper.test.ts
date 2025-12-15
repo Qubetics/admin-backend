@@ -1,4 +1,3 @@
-// Mock environment FIRST
 const mockEnvironment = {
   redisHost: "localhost",
   redisPort: "6379",
@@ -9,11 +8,8 @@ jest.mock("../../../src/global", () => ({
   __esModule: true,
   default: mockEnvironment,
 }));
-
-// Ensure environment is available globally
 (global as any).environment = mockEnvironment;
 
-// Mock the logger
 const mockLogger = {
   info: jest.fn(),
   error: jest.fn(),
@@ -24,12 +20,10 @@ jest.mock("../../../src/lib/logger", () => ({
   default: mockLogger,
 }));
 
-// Mock the common utility
 jest.mock("../../../src/Utility/common", () => ({
   log: jest.fn(),
 }));
 
-// Mock redis client
 const mockRedisClient = {
   connect: jest.fn(),
   select: jest.fn(),
@@ -51,18 +45,14 @@ describe("RedisService", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    
-    // Clear module cache to get fresh instance
+
     jest.resetModules();
-    
-    // Re-setup mocks
+
     (global as any).environment = mockEnvironment;
-    
-    // Dynamically import to get the module
+
     const module = await import("../../../src/service/redis.helper");
     redisServiceInstance = module.default;
-    
-    // Get the class constructor for testing static methods
+
     RedisService = (redisServiceInstance as any).constructor;
   });
 
@@ -101,15 +91,13 @@ describe("RedisService", () => {
     it("should trigger error event handler", async () => {
       await redisServiceInstance.startRedis();
 
-      const errorHandler = mockRedisClient.on.mock.calls.find(
-        (call) => call[0] === "error"
-      )?.[1];
+      const errorHandler = mockRedisClient.on.mock.calls.find((call) => call[0] === "error")?.[1];
 
       expect(errorHandler).toBeDefined();
-      
+
       // Trigger the error handler
       errorHandler(new Error("Redis error"));
-      
+
       expect(mockLogger.error).toHaveBeenCalled();
     });
   });
@@ -126,11 +114,7 @@ describe("RedisService", () => {
 
       await redisServiceInstance.setString(key, data);
 
-      expect(mockRedisClient.set).toHaveBeenCalledWith(
-        key,
-        JSON.stringify(data),
-        { EX: mockEnvironment.redisExpiry }
-      );
+      expect(mockRedisClient.set).toHaveBeenCalledWith(key, JSON.stringify(data), { EX: mockEnvironment.redisExpiry });
     });
 
     it("should handle set error and log it", async () => {
@@ -138,10 +122,7 @@ describe("RedisService", () => {
 
       await redisServiceInstance.setString("key", { a: 1 });
 
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        "error while setting the data into redis: ",
-        expect.any(Error)
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith("error while setting the data into redis: ", expect.any(Error));
     });
   });
 
@@ -166,10 +147,7 @@ describe("RedisService", () => {
       const result = await redisServiceInstance.getString("mykey");
 
       expect(result).toEqual([]);
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        "error while getting the data from redis: ",
-        expect.any(Error)
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith("error while getting the data from redis: ", expect.any(Error));
     });
 
     it("should handle null response", async () => {
@@ -177,7 +155,6 @@ describe("RedisService", () => {
 
       const result = await redisServiceInstance.getString("nonexistent");
 
-      // getString returns null when JSON.parse(null) is called
       expect(result).toBeNull();
     });
   });
@@ -244,4 +221,3 @@ describe("RedisService", () => {
     });
   });
 });
-

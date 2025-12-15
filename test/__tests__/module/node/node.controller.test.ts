@@ -3,7 +3,6 @@ import nodeService from "../../../../src/module/node/node.service";
 import { Request, Response } from "express";
 import { convertNodeToWallet, decryptData } from "../../../../src/Utility/common";
 import redisHelper from "../../../../src/service/redis.helper";
-import prisma from "../../../../src/lib/db";
 
 jest.mock("../../../../src/service/index", () => ({
   ResponseHelper: {
@@ -47,7 +46,6 @@ describe("NodeController", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
 
-  // Mock admin user from middleware
   const mockAdminUser = {
     id: "admin-id-123",
     address: "0x123abc",
@@ -326,33 +324,17 @@ describe("NodeController", () => {
       expect(Helpers.ResponseHelper.success).toHaveBeenCalledWith(res, mockData);
     });
 
-    it("returns error when address is missing", async () => {
-      req.query = {};
-
-      await (controller as any).getPrefillValues(req as Request, res as Response);
-
-      expect(Helpers.ResponseHelper.error).toHaveBeenCalledWith(
-        res,
-        expect.objectContaining({
-          message: "address query parameter is required",
-          error: true,
-        })
-      );
-    });
-
-    it("returns error when no records found", async () => {
-      (nodeService.getPrefillValues as jest.Mock).mockResolvedValue(null);
+    it("returns error when service returns error", async () => {
+      const mockError = {
+        error: true,
+        message: "No records found for the given address",
+      };
+      (nodeService.getPrefillValues as jest.Mock).mockResolvedValue(mockError);
       req.query = { address: "0x123" };
 
       await (controller as any).getPrefillValues(req as Request, res as Response);
 
-      expect(Helpers.ResponseHelper.error).toHaveBeenCalledWith(
-        res,
-        expect.objectContaining({
-          message: "No records found for the given address",
-          error: true,
-        })
-      );
+      expect(Helpers.ResponseHelper.error).toHaveBeenCalledWith(res, mockError);
     });
 
     it("handles service errors gracefully", async () => {

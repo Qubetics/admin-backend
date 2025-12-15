@@ -520,6 +520,13 @@ class NodeService {
   };
 
   async getPrefillValues(address: string) {
+    if (!address || address === UNDEFINED) {
+      return {
+        error: true,
+        message: RES_MSG.ADDRESS_REQUIRED,
+      };
+    }
+
     const record = await prisma.nodeRequest.findUnique({
       where: { address },
       select: {
@@ -529,6 +536,13 @@ class NodeService {
         provAddress: true,
       },
     });
+
+    if (!record) {
+      return {
+        error: true,
+        message: RES_MSG.NO_RECORDS,
+      };
+    }
 
     return {
       error: false,

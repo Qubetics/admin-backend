@@ -7,7 +7,6 @@ import { saveNodes, saveProvider } from "../../../src/helper/node.helper";
 import prisma from "../../../src/lib/db";
 import authService from "../../../src/module/auth/auth.service";
 
-// Mock external dependencies FIRST
 jest.mock("node-cron");
 jest.mock("axios");
 jest.mock("geoip-lite");
@@ -15,13 +14,11 @@ jest.mock("i18n-iso-countries");
 jest.mock("../../../src/helper/node.helper");
 jest.mock("../../../src/module/auth/auth.service");
 
-// Mock the utility functions that cause bech32 errors
 jest.mock("../../../src/Utility/common", () => ({
   convertNodeToWallet: jest.fn().mockImplementation((nodeAddress: string) => `qubetics:${nodeAddress}`),
   extractIP: jest.fn().mockImplementation((url: string) => "1.2.3.4"),
 }));
 
-// Mock prisma EXACTLY like the reference - at module level with all methods
 jest.mock("../../../src/lib/db", () => ({
   $connect: jest.fn().mockResolvedValue(undefined),
   $disconnect: jest.fn().mockResolvedValue(undefined),
@@ -45,14 +42,12 @@ describe("Worker", () => {
   const mockAxios = axios as jest.Mocked<typeof axios>;
   const mockSaveNodes = saveNodes as jest.MockedFunction<typeof saveNodes>;
   const mockSaveProvider = saveProvider as jest.MockedFunction<typeof saveProvider>;
-  const mockAuthService = authService as jest.Mocked<typeof authService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
     workerInstance = Worker;
 
     (cron.schedule as jest.Mock).mockImplementation((time, callback) => {
-      // Store the callback to be called in tests
       (cron.schedule as any).lastCallback = callback;
       return { start: jest.fn(), stop: jest.fn() };
     });
@@ -62,13 +57,11 @@ describe("Worker", () => {
       planHost: "http://test-host",
     };
 
-    // Reset mocks to default values
     (prisma.$connect as jest.Mock).mockResolvedValue(undefined);
     (prisma.nodeRequest.upsert as jest.Mock).mockResolvedValue({});
     (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.activity.create as jest.Mock).mockResolvedValue({});
 
-    // Reset utility mock
     const { convertNodeToWallet } = require("../../../src/Utility/common");
     (convertNodeToWallet as jest.Mock).mockImplementation((nodeAddress: string) => `qubetics:${nodeAddress}`);
   });
@@ -154,7 +147,6 @@ describe("Worker", () => {
       },
     ];
 
-    // ✅ FIXED: Use valid bech32-like address format
     const mockNode = {
       address: "qubetics1testnodeaddressherewithsufficientlength",
       status: "active",
@@ -162,16 +154,13 @@ describe("Worker", () => {
     };
 
     beforeEach(() => {
-      // Mock geoip and countries
       (geoip.lookup as jest.Mock).mockReturnValue({
         country: "US",
       });
       (countries.getName as jest.Mock).mockReturnValue("United States");
 
-      // Setup auth service mock methods
       (authService.addUser as jest.Mock).mockResolvedValue({});
 
-      // Reset prisma mocks specifically for nodeRequestWorker
       (prisma.nodeRequest.upsert as jest.Mock).mockResolvedValue({});
       (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.activity.create as jest.Mock).mockResolvedValue({});
@@ -190,7 +179,6 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      // Wait for all promises to resolve inside the worker
       await new Promise((resolve) => setImmediate(resolve));
 
       expect(mockAxios.get).toHaveBeenCalledWith("https://test-api.example.com//qubetics/plan/v3/plans");
@@ -308,7 +296,6 @@ describe("Worker", () => {
 
       await new Promise((resolve) => setImmediate(resolve));
 
-      // The worker should handle the error gracefully
       expect(mockAxios.get).toHaveBeenCalled();
     });
 
@@ -320,7 +307,6 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      // The worker should handle the error gracefully
       expect(mockAxios.get).toHaveBeenCalled();
     });
   });
@@ -354,7 +340,6 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      // The worker should handle the error gracefully
       expect(mockAxios.get).toHaveBeenCalled();
     });
 

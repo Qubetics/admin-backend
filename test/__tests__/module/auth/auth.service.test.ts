@@ -9,34 +9,24 @@ import {
 } from "../../../../src/Utility/common";
 import { RES_MSG, COOKIE_NAMES } from "../../../../src/constant";
 
-// --- START: TYPE DEFINITIONS TO FIX TS2339 ERRORS ---
-
-// 1. General API Response Structure
 interface ApiResponse<T = unknown> {
   error: boolean;
   message: string;
   data?: T;
 }
 
-// 2. Data Structure for AuthService.addUser success response
 interface AddUserResponseData {
   provider?: {
     id: number;
-    // ... potentially other provider user properties
   };
 }
 
-// 3. Data Structure for AuthService.loginUser rejection response
 interface LoginUserResponseData {
   isExist?: boolean;
-  // ... other successful login data properties
 }
 
-// 4. Combined Types for Assertion
 type AddUserResult = ApiResponse<AddUserResponseData>;
 type LoginUserResult = ApiResponse<LoginUserResponseData>;
-
-// --- END: TYPE DEFINITIONS TO FIX TS2339 ERRORS ---
 
 jest.mock("../../../../src/lib/db", () => ({
   user: {
@@ -69,9 +59,6 @@ describe("AuthService", () => {
     jest.clearAllMocks();
   });
 
-  // ---------------------------------------------------------
-  // addAdmin()
-  // ---------------------------------------------------------
   describe("addAdmin()", () => {
     const value = {
       address: "addr1",
@@ -126,9 +113,6 @@ describe("AuthService", () => {
     });
   });
 
-  // ---------------------------------------------------------
-  // addUser()
-  // ---------------------------------------------------------
   describe("addUser()", () => {
     it("should create normal user successfully", async () => {
       (prisma.user.upsert as jest.Mock).mockResolvedValue({ id: 1 });
@@ -159,9 +143,6 @@ describe("AuthService", () => {
     });
   });
 
-  // ---------------------------------------------------------
-  // loginUser()
-  // ---------------------------------------------------------
   describe("loginUser()", () => {
     const value = {
       address: "addr1",
@@ -207,7 +188,7 @@ describe("AuthService", () => {
       const result = (await AuthService.loginUser(value, res)) as LoginUserResult;
 
       expect(result.error).toBe(true);
-      expect(result.message).toBe(RES_MSG.NOT_ADMIN);  
+      expect(result.message).toBe(RES_MSG.NOT_ADMIN);
       expect(result.data!.isExist).toBe(false);
     });
   });

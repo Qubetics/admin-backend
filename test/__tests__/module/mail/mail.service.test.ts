@@ -1,18 +1,15 @@
 import sgMail from "@sendgrid/mail";
 
-// Mock the @sendgrid/mail module
 jest.mock("@sendgrid/mail", () => ({
   setApiKey: jest.fn(),
   send: jest.fn(),
 }));
 
-// Set up test environment before importing the service
 (global as any).environment = {
   sendgrid_key: "test-sendgrid-key",
   service_email: "service@test.com",
 };
 
-// Now import the service after setting up the environment
 import MailService from "../../../../src/module/mail/mail.service";
 import { RES_MSG, approveTemplate, rejectedTemplate } from "../../../../src/constant";
 

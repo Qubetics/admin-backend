@@ -4,7 +4,7 @@ import * as Helpers from "../../service/index";
 import { Controller, Status } from "../../interfaces/index";
 import nodeService from "./node.service";
 import { convertNodeToWallet, decryptData } from "../../Utility/common";
-import { provWalletPrefix, UNDEFINED } from "../../constant";
+import { provWalletPrefix, RES_MSG, UNDEFINED } from "../../constant";
 import { adminCheck } from "../../middleware/adminCheck";
 import redisHelper from "../../service/redis.helper";
 
@@ -101,7 +101,7 @@ class NodeController implements Controller {
     if (!status) {
       return setResponse.error(res, {
         error: true,
-        message: "Invalid status value. Allowed: PENDING, APPROVED, REJECTED",
+        message: RES_MSG.INVALID_STATUS,
       });
     }
     const result = await nodeService.updateNodeStatus(nodeAddress, provAddress, status);
@@ -142,22 +142,11 @@ class NodeController implements Controller {
 
   private getPrefillValues = async (request: Request, response: Response) => {
     try {
-      const address = request.query.address;
-
-      if (!address || typeof address !== "string") {
-        return setResponse.error(response, {
-          message: "address query parameter is required",
-          error: true,
-        });
-      }
-
+      const address = String(request.query?.address);
       const user = await nodeService.getPrefillValues(address);
 
-      if (!user) {
-        return setResponse.error(response, {
-          message: "No records found for the given address",
-          error: true,
-        });
+      if (user.error) {
+        return setResponse.error(response, user);
       }
 
       return setResponse.success(response, user);

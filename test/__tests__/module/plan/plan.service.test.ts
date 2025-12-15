@@ -1,13 +1,7 @@
-// -------------------------------------------------------------
-// Mock global environment BEFORE loading the service
-// -------------------------------------------------------------
 (global as any).environment = {
   evmHost: "http://mock-host",
 };
 
-// -------------------------------------------------------------
-// Mock dependencies used inside PlanService
-// -------------------------------------------------------------
 jest.mock("../../../../src/Utility/common", () => ({
   convertNodeToWallet: jest.fn(),
   fetchRequest: jest.fn(),
@@ -23,9 +17,6 @@ jest.mock("../../../../src/constant", () => ({
   FETCH_METHODS: { GET: "GET" },
 }));
 
-// -------------------------------------------------------------
-// Import mocks and the service under test
-// -------------------------------------------------------------
 import { convertNodeToWallet, fetchRequest, getOffset } from "../../../../src/Utility/common";
 import { RES_MSG, provWalletPrefix, FETCH_METHODS } from "../../../../src/constant";
 
@@ -46,9 +37,6 @@ describe("PlanService.getAllPlans (global env)", () => {
     jest.clearAllMocks();
   });
 
-  // -------------------------------------------------------------
-  // Test 1: No pagination (page empty or limit empty)
-  // -------------------------------------------------------------
   it("builds URL WITHOUT pagination when page or limit is missing", async () => {
     (convertNodeToWallet as jest.Mock).mockReturnValue("mock-wallet");
     (fetchRequest as jest.Mock).mockResolvedValue({
@@ -65,9 +53,6 @@ describe("PlanService.getAllPlans (global env)", () => {
     expect(fetchRequest).toHaveBeenCalledWith(expectedUrl, FETCH_METHODS.GET);
   });
 
-  // -------------------------------------------------------------
-  // Test 2: With pagination & getOffset call
-  // -------------------------------------------------------------
   it("builds URL WITH pagination when page and limit exist", async () => {
     (convertNodeToWallet as jest.Mock).mockReturnValue("mock-wallet");
     (getOffset as jest.Mock).mockReturnValue(20);
@@ -88,9 +73,6 @@ describe("PlanService.getAllPlans (global env)", () => {
     expect(fetchRequest).toHaveBeenCalledWith(expectedUrl, FETCH_METHODS.GET);
   });
 
-  // -------------------------------------------------------------
-  // Test 3: Missing data.plans → return error
-  // -------------------------------------------------------------
   it("returns error when response does not contain data.plans", async () => {
     (convertNodeToWallet as jest.Mock).mockReturnValue("mock-wallet");
 
@@ -111,9 +93,6 @@ describe("PlanService.getAllPlans (global env)", () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // Test 4: Successful API response
-  // -------------------------------------------------------------
   it("returns plans and pagination on success", async () => {
     (convertNodeToWallet as jest.Mock).mockReturnValue("wallet123");
     (getOffset as jest.Mock).mockReturnValue(0);
@@ -142,9 +121,6 @@ describe("PlanService.getAllPlans (global env)", () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // Test 5: convertNodeToWallet throws → catch block returns error
-  // -------------------------------------------------------------
   it("handles convertNodeToWallet() throwing errors", async () => {
     (convertNodeToWallet as jest.Mock).mockImplementation(() => {
       throw new Error("wallet conversion failed");
@@ -163,9 +139,6 @@ describe("PlanService.getAllPlans (global env)", () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // Test 6: fetchRequest rejects (network error)
-  // -------------------------------------------------------------
   it("handles fetchRequest() rejection gracefully", async () => {
     (convertNodeToWallet as jest.Mock).mockReturnValue("mock-wallet");
 
@@ -185,9 +158,6 @@ describe("PlanService.getAllPlans (global env)", () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // Test 7: plans is an empty array
-  // -------------------------------------------------------------
   it("returns empty array when plans is empty", async () => {
     (convertNodeToWallet as jest.Mock).mockReturnValue("mock-wallet");
     (getOffset as jest.Mock).mockReturnValue(0);
