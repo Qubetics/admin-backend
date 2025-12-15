@@ -6,6 +6,7 @@ import registerRoutes from "./routes";
 import { RedisService } from "./service";
 import cookieParser from "cookie-parser";
 import worker from "./worker";
+import limiter from "./helper/limiter.helper";
 
 export default class App {
   public express: express.Application;
@@ -35,11 +36,7 @@ export default class App {
    * here register your all routes
    */
   private routes(): void {
-    this.express.use(
-      "/api/v1",
-      // this.limiter,
-      registerRoutes()
-    );
+    this.express.use("/api/v1", limiter, registerRoutes());
   }
   /**
    * here you can apply your middlewares

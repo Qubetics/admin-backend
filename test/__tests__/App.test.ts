@@ -32,7 +32,7 @@ describe("App Class", () => {
   });
 
   describe("Constructor", () => {
-    it("should create a rate limiter with correct configuration", () => {
+    it("should start all worker processes", () => {
       app = new App();
 
       expect(worker.startNodeWorker).toHaveBeenCalled();
