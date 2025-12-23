@@ -19,9 +19,10 @@ class PlanController implements Controller {
 
   private getAllPlans = async (request: Request, response: Response) => {
     const data = {
-      page: !request.query?.page ? 1 : Number(request.query?.page),
-      limit: !request.query?.limit ? 10 : Number(request.query?.limit),
+      page: !request.query?.page ? "" : Number(request.query?.page),
+      limit: !request.query?.limit ? "" : Number(request.query?.limit),
       reverse: request.query?.reverse === "true",
+      address:request.query?.address
     };
 
     const res = await planService.getAllPlans(data);

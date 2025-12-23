@@ -30,6 +30,10 @@ class Environment implements IEnvironment {
 
   public gitbook_url: string;
 
+  public cors_origins: string;
+
+  // public allowed_origins: string;
+
   /**
    *
    * @param NODE_ENV
@@ -49,7 +53,8 @@ class Environment implements IEnvironment {
     this.sendgrid_key = <string>process.env.SENDGRID_API_KEY;
     this.service_email = <string>process.env.MAILING_SERVICE_EMAIL;
     this.gitbook_url = <string>process.env.GITBOOK_URL;
-
+    this.cors_origins = <string>process.env.CORS_ORIGINS;
+    // this.allowed_origins = <string>process.env.ALLOWED_ORIGINS;
   }
 
   /**
@@ -103,10 +108,7 @@ class Environment implements IEnvironment {
    * @returns
    */
   public isDevEnvironment(): boolean {
-    return (
-      this.getCurrentEnvironment() === Environments.DEV ||
-      this.getCurrentEnvironment() === Environments.LOCAL
-    );
+    return this.getCurrentEnvironment() === Environments.DEV || this.getCurrentEnvironment() === Environments.LOCAL;
   }
 
   /**

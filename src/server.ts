@@ -1,5 +1,4 @@
 import * as http from "http";
-import { AddressInfo } from "net";
 import Environment from "./environments/environment";
 import { setGlobalEnvironment } from "./global";
 import logger from "./lib/logger";
@@ -18,12 +17,10 @@ function serverError(error: NodeJS.ErrnoException): void {
   if (error.syscall !== "listen") {
     throw error;
   }
-  // handle specific error codes here.
   throw error;
 }
 
 function serverListening(): void {
-  const addressInfo: AddressInfo = <AddressInfo>server.address();
   log("Listening on : ", COLORS.yellow, env.port, COLORS.green);
 }
 

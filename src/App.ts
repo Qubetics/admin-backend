@@ -2,33 +2,18 @@ import http from "http";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import { rateLimit } from "express-rate-limit";
 import registerRoutes from "./routes";
-import { RATE_LIMITER_MESSAGE } from "./constant";
 import { RedisService } from "./service";
-import prisma from "./lib/db";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import worker from "./worker";
+import limiter from "./helper/limiter.helper";
 
 export default class App {
   public express: express.Application;
 
   public httpServer: http.Server;
 
-  public limiter;
-
   constructor() {
-    // Create a rate limiter with a limit of 20 requests per 2 minutes (120000 milliseconds)
-    this.limiter = rateLimit({
-      windowMs: RATE_LIMITER_MESSAGE.WINDOW_MS,
-      max: RATE_LIMITER_MESSAGE.MAX,
-      standardHeaders: "draft-7",
-      message: {
-        error: true,
-        message: RATE_LIMITER_MESSAGE.TOO_MANY_REQUEST,
-      },
-      legacyHeaders: false,
-    });
     this.StartWorker();
   }
 
@@ -51,11 +36,7 @@ export default class App {
    * here register your all routes
    */
   private routes(): void {
-    this.express.use(
-      "/api/v1",
-      // this.limiter,
-      registerRoutes(),
-    );
+    this.express.use("/api/v1", limiter, registerRoutes());
   }
   /**
    * here you can apply your middlewares
@@ -63,13 +44,10 @@ export default class App {
   private middleware(): void {
     this.express.use(
       cors({
-        origin: [
-          "https://testnet-dvpn-admin.qubetics.work",
-          "https://testnet-dvpn-user.qubetics.work",
-        ], 
+        origin: ["https://testnet-dvpn-admin.qubetics.work", "https://testnet-dvpn-user.qubetics.work",""],
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
-        credentials: true, // add this if you need cookies / auth headers
+        credentials: true,
       })
     );
     this.express.use(cookieParser());
@@ -80,7 +58,7 @@ export default class App {
       helmet({
         contentSecurityPolicy: false,
         crossOriginEmbedderPolicy: false,
-      }),
+      })
     );
 
     this.express.use(express.json({ limit: "100mb" }));
@@ -89,6 +67,7 @@ export default class App {
 
   private StartWorker() {
     worker.startNodeWorker();
+    worker.startProviderWorker();
+    worker.nodeRequestWorker();
   }
-
 }

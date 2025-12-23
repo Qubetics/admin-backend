@@ -10,6 +10,10 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   address   String   @unique
+  name      String?
+  email     String?
+  url       String?
+  description String?
   role      Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,28 +49,23 @@ model NodeRequest {
 
 model Activity {
   id          String   @id @default(uuid())
-  address     String
   type        String
   action      String
-  role        String
-  topic       String
-  data        Json
+  role        Int
+  metaData    Json?
+  userId      String
   targetUid   String?
-  userIp      String
-  country     String?
-  countryCode String?
-  userAgent   String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   // Relations
-  user User @relation(fields: [id], references: [id])
+    user User @relation(fields: [userId], references: [id])
 }
 
 enum Status {
   PENDING
   APPROVED
   REJECTED
+  UNSPECIFIED
 }
 
 enum NodeStatus {

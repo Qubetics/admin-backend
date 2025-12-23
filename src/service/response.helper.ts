@@ -15,7 +15,7 @@ class ResponseHelper {
       if (responseData.message.indexOf(CONST_NAME.NOT_FOUND) !== -1) {
         statusCode = RESPONSES.NOTFOUND;
       } else {
-        statusCode = RESPONSES.BADREQUEST;
+        statusCode = responseData?.status || RESPONSES.BADREQUEST;
       }
       return response.status(statusCode).send(responseData);
     }

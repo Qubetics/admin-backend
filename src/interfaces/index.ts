@@ -1,6 +1,5 @@
 import { Router } from "express";
 
-
 export interface IESResponse {
   error?: boolean;
   data?: object | object[];
@@ -15,3 +14,10 @@ export interface Controller {
 export type Status = "PENDING" | "APPROVED" | "REJECTED" | "undefined";
 
 export type RequestType = "Link" | "Unlink";
+
+export interface ActivityMeta {
+  provAddress?: string;
+  bandwidth?: string | number;
+  plan?: any;
+  [key: string]: any;
+}

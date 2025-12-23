@@ -27,28 +27,27 @@ export const RESPONSES = {
 };
 
 export const RATE_LIMITER_MESSAGE = {
-  TOO_MANY_REQUEST:
-    "You are doing too many request. Please try again in 5 minutes.",
-  WINDOW_MS: 5 * 60 * 1000, // 5 minutes  600000, // 10 minutes in milliseconds
-  MAX: 20, // 20 request in 10 minutes
+  TOO_MANY_REQUEST: "You are doing too many request. Please try again after some time.",
+  WINDOW_MS: 60 * 1000, // 1 minute in milliseconds
+  MAX: 30, // 30 request in 1 minutes
 };
 
 export const RES_MSG = {
-  WALLET_ADDRESS:"Address is not present",
+  WALLET_ADDRESS: "Address is not present",
   WALLET_ADDRESS_IS_NOT_PRESENT: "Wallet address is not present",
   NOT_VERIFY: "Unable to verify the wallet address.",
   NOT_PRESENT_ON_CHAIN: "Node address is not present on the chain",
-  NOT_LINKED:"Node is not linked to this wallet address",
-  UNABLE_TO_SAVE_THE_USER:"Unable to save user details.",
+  NOT_LINKED: "Node is not linked to this wallet address",
+  UNABLE_TO_SAVE_THE_USER: "Unable to save user details.",
   UNABLE_TO_SEND_EMAIL: "Not able to send the email",
-  NODE_IS_NOT_LINK:"Node is not linked",
-  NODE_IS_LINK:"This node is already linked and cannot be linked again",
-  UNABLE_TO_FIND_LOC:"Unable to find the location",
-  PROVIDER_ADDRESS_IS_PRESENT:"Provider address is not present",
-  NODE_ADRES_IS_NOT_PRESENT:"Node address is not present",
-  NODE_REQUEST_IS_STILL: "Node request is still alive",
-  NODE_REQUEST_ACTION_DONE_NO_EMAIL:
-    "successfully action done but no email Address to send the email",
+  NODE_IS_NOT_LINK: "Node is not linked",
+  NODE_IS_LINK: "This node is already linked and cannot be linked again",
+  UNABLE_TO_FIND_LOC: "Unable to find the location",
+  PROVIDER_ADDRESS_IS_PRESENT: "Provider address is not present",
+  NODE_ADRES_IS_NOT_PRESENT: "Node address is not present",
+  LINK_REQUEST_IS_STILL: "Link request is still pending",
+  UNLINK_REQUEST_IS_STILL: " Unlink request is still pending",
+  NODE_REQUEST_ACTION_DONE_NO_EMAIL: "successfully action done but no email Address to send the email",
   NODE_REQUESTLIST: "successfully fetched the node request list",
   SUCCESS_REQUEST: "successfully request send",
   NOT_FOUND: "data not found",
@@ -66,7 +65,14 @@ export const RES_MSG = {
   INVALID_ADDRESS: "invalid address",
   INVALID_MESSAGE: "this message type data not found ",
   UNAUTHORIZED: "invalid user",
-  INVALID_REQUEST:"invalid request type"
+  INVALID_HASH: "Invalid Transaction hash",
+  INVALID_REQUEST: "invalid request type",
+  NOT_ADMIN: "Access denied: user is not an admin",
+  DISPOSBLE_EMAIL: "Sorry, but we do not accept your mail provider.",
+  USER_NOT_FOUND: "User not found",
+  NO_RECORDS: "No records found for the given address",
+  ADDRESS_REQUIRED: "address parameter is required",
+  INVALID_STATUS: "Invalid status value. Allowed: PENDING, APPROVED, REJECTED",
 };
 
 export const CONST_NAME = {
@@ -116,6 +122,12 @@ export const HEADERS = {
     Accept: "application/json",
   },
 };
+export const REQUEST_STATUS: any = {
+  UNSPECIFIED: "UNSPECIFIED",
+  REJECTED: "REJECTED",
+  PENDING: "PENDING",
+  APPROVED: "APPROVED",
+};
 
 export const provWalletPrefix = "qubeticsprov";
 export const UNDEFINED = "undefined";
@@ -127,9 +139,12 @@ export const REJECTED = "REJECTED";
 export const ACTIVE = "active";
 export const INACTIVE = "inactive";
 export const WALLET_PREFIX = "qubetics";
-export const API_BASE_URL =
-  "API_BASE_URL is not defined in environment variables";
-export const CRON_WORKER = "Running Node Worker cron job";
+export const API_BASE_URL = "API_BASE_URL is not defined in environment variables";
+export const CRON_WORKER = {
+  NODE: "Running Node Worker cron job",
+  PROVIDER: "Running Provider Worker cron job",
+  NODE_REQUEST: "Running Node Request Worker cron job",
+};
 
 export const Message = {
   nodesave: "Nodes saved with geo info",
@@ -141,6 +156,10 @@ export const Message = {
 
 export const COOKIE_NAMES = {
   SESSION_ID: "session_id", // Cookie for Redis-backed sessions
+};
+
+export const CHAIN_METHOD = {
+  PROVIDER_STATUS: "/qubetics.provider.v3.MsgUpdateProviderStatusRequest",
 };
 
 // emailTemplate.js
