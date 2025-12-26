@@ -1,7 +1,7 @@
 import cron from "node-cron";
-import { CRON_WORKER, LINK, Message, REQUEST_STATUS, WALLET_PREFIX } from "../constant";
+import { CRON_WORKER, LINK, UNLINK, Message, REQUEST_STATUS, WALLET_PREFIX } from "../constant";
 import axios from "axios";
-import { saveNodes, saveProvider } from "../helper/node.helper";
+import { saveNodes, saveProvider, batchUpdateNodeRequests } from "../helper/node.helper";
 import prisma from "../lib/db";
 import { convertNodeToWallet, extractIP } from "../Utility/common";
 import geoip from "geoip-lite";
@@ -117,6 +117,108 @@ class Worker {
         await saveProvider(response?.data?.providers || []);
       } catch (error) {
         console.error("Error in provider worker cron job:", error);
+      }
+    });
+  }
+
+  public async nodeUnlinkWorker(): Promise<void> {
+    cron.schedule("*/5 * * * *", async () => {
+      try {
+        console.log(CRON_WORKER.NODE_UNLINK);
+
+        const nodeRequests = await prisma.nodeRequest.findMany({
+          where: {
+            OR: [
+              {
+                requestFor: LINK,
+                status: REQUEST_STATUS.APPROVED,
+              },
+              {
+                requestFor: UNLINK,
+                status: {
+                  in: [REQUEST_STATUS.REJECTED, REQUEST_STATUS.PENDING],
+                },
+              },
+            ],
+          },
+        });
+
+        if (!nodeRequests || nodeRequests.length === 0) {
+          console.log("No linked node requests found");
+          return;
+        }
+
+        const planNodeAddresses: Map<string, Set<string>> = new Map();
+        const uniquePlanIds = [...new Set(nodeRequests.map((req: any) => req.planId))];
+
+        await Promise.all(
+          uniquePlanIds.map(async (planId: string) => {
+            try {
+              const result = await axios.get(`${environment.evmHost}/qubetics/node/v3/plans/${planId}/nodes`);
+              const nodes = result?.data?.nodes || [];
+              const nodeAddressSet: Set<string> = new Set(nodes.map((node: any) => node.address));
+              planNodeAddresses.set(planId, nodeAddressSet);
+            } catch (err) {
+              console.error(`Error fetching nodes for plan ${planId}:`, err);
+            }
+          })
+        );
+
+        const nodesToUpdate: any[] = [];
+        for (const request of nodeRequests) {
+          const planNodes = planNodeAddresses.get(request.planId);
+          if (!planNodes || !planNodes.has(request.nodeAddress)) {
+            nodesToUpdate.push(request.id);
+          }
+        }
+
+        await batchUpdateNodeRequests(
+          nodesToUpdate,
+          {
+            status: REQUEST_STATUS.APPROVED,
+            requestFor: UNLINK,
+          },
+          "Nodes unlinked"
+        );
+      } catch (error) {
+        console.error("Error in Node unlink worker cron job:", error);
+      }
+    });
+  }
+
+  public async nodeTerminationWorker(): Promise<void> {
+    cron.schedule("*/5 * * * *", async () => {
+      try {
+        console.log(CRON_WORKER.NODE_TERMINATION);
+
+        const nodeRequests = await prisma.nodeRequest.findMany();
+
+        if (!nodeRequests || nodeRequests.length === 0) {
+          console.log("No node requests found in database");
+          return;
+        }
+
+        const response = await axios.get(`${environment.evmHost}/qubetics/node/v3/nodes`);
+        const activeNodes = response?.data?.nodes || [];
+
+        const activeNodeAddresses = new Set(activeNodes.map((node: any) => node.address));
+        const nodesToUpdate: any[] = [];
+        for (const request of nodeRequests) {
+          if (!activeNodeAddresses.has(request.nodeAddress)) {
+            nodesToUpdate.push(request.id);
+          }
+        }
+
+        await batchUpdateNodeRequests(
+          nodesToUpdate,
+          {
+            status: REQUEST_STATUS.APPROVED,
+            requestFor: UNLINK,
+          },
+          "Nodes terminated"
+        );
+      } catch (error) {
+        console.error("Error in node termination worker cron job:", error);
       }
     });
   }

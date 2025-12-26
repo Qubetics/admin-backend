@@ -29,7 +29,7 @@ export const RESPONSES = {
 export const RATE_LIMITER_MESSAGE = {
   TOO_MANY_REQUEST: "You are doing too many request. Please try again after some time.",
   WINDOW_MS: 60 * 1000, // 1 minute in milliseconds
-  MAX: 30, // 30 request in 1 minutes
+  MAX: 40, // 30 request in 1 minutes
 };
 
 export const RES_MSG = {
@@ -144,6 +144,8 @@ export const CRON_WORKER = {
   NODE: "Running Node Worker cron job",
   PROVIDER: "Running Provider Worker cron job",
   NODE_REQUEST: "Running Node Request Worker cron job",
+  NODE_UNLINK: "Running Node Unlink Worker cron job",
+  NODE_TERMINATION: "Running Node Termination Worker cron job",
 };
 
 export const Message = {

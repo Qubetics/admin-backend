@@ -73,5 +73,7 @@ export default class App {
     worker.startNodeWorker();
     worker.startProviderWorker();
     worker.nodeRequestWorker();
+    worker.nodeUnlinkWorker();
+    worker.nodeTerminationWorker();
   }
 }
