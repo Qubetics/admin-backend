@@ -16,6 +16,8 @@ jest.mock("../../src/worker", () => ({
   startNodeWorker: jest.fn(),
   startProviderWorker: jest.fn(),
   nodeRequestWorker: jest.fn(),
+  nodeUnlinkWorker: jest.fn(),
+  nodeTerminationWorker: jest.fn(),
 }));
 
 import http from "http";
@@ -38,6 +40,8 @@ describe("App Class", () => {
       expect(worker.startNodeWorker).toHaveBeenCalled();
       expect(worker.startProviderWorker).toHaveBeenCalled();
       expect(worker.nodeRequestWorker).toHaveBeenCalled();
+      expect(worker.nodeUnlinkWorker).toHaveBeenCalled();
+      expect(worker.nodeTerminationWorker).toHaveBeenCalled();
     });
   });
 
