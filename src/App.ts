@@ -44,7 +44,7 @@ export default class App {
   private middleware(): void {
     this.express.use(
       cors({
-        origin: ["https://testnet-dvpn-admin.qubetics.work", "https://testnet-dvpn-user.qubetics.work",""],
+        origin: environment.cors_origins.split(","),
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
@@ -69,5 +69,7 @@ export default class App {
     worker.startNodeWorker();
     worker.startProviderWorker();
     worker.nodeRequestWorker();
+    worker.nodeUnlinkWorker();
+    worker.nodeTerminationWorker();
   }
 }
