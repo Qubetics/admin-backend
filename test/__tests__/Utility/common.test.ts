@@ -27,6 +27,13 @@ jest.mock("../.././../src/service/redis.helper", () => ({
   getString: jest.fn(),
 }));
 
+jest.mock("../.././../src/lib/logger", () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+}));
+
 jest.mock("../.././../src/constant/index.ts", () => ({
   LINK: "LINK",
   UNLINK: "UNLINK",
@@ -54,17 +61,18 @@ jest.mock("../.././../src/constant/index.ts", () => ({
   evmHost: "http://localhost:1317",
 };
 
-global.console = {
-  ...console,
-  log: jest.fn(),
-  error: jest.fn(),
-};
-
 describe("Utils Test Suite", () => {
+  let logger: any;
+  
+  beforeEach(() => {
+    // Get logger mock and clear it before each test
+    logger = require("../.././../src/lib/logger");
+    jest.clearAllMocks();
+  });
+
   afterEach(() => {
     jest.clearAllTimers();
     jest.restoreAllMocks();
-    jest.resetModules();
   });
 
   describe("fetchRequest", () => {
@@ -88,15 +96,14 @@ describe("Utils Test Suite", () => {
       const result = await fetchRequest("http://test.com", "GET");
 
       expect(result).toEqual({ error: true, data: null });
-      expect(console.error).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalled();
     });
   });
 
   describe("log", () => {
-    it("should call console.log with formatted colors", () => {
+    it("should call logger.info", () => {
       log("Message", "\x1b[32m", "Data", "\x1b[33m");
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining("Message"));
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining("Data"));
+      expect(logger.info).toHaveBeenCalledWith("Message", { data: "Data" });
     });
   });
 
@@ -144,7 +151,7 @@ describe("Utils Test Suite", () => {
     it("should return false on error or invalid signature structure", () => {
       const result = verifyKeplrSignature("addr", "sig", "pubkey", "msg");
       expect(result).toEqual({ verify: false });
-      expect(console.error).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalled();
     });
   });
 

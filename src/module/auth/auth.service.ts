@@ -6,6 +6,7 @@ import prisma from "../../lib/db";
 import redisHelper from "../../service/redis.helper";
 import { Response } from "express";
 import MailChecker from "mailchecker";
+import logger from "../../lib/logger";
 const checkCookieVariable = process.env.NODE_ENV == "production" ? false : true;
 
 class AuthService {
@@ -54,7 +55,7 @@ class AuthService {
         data: {},
       };
     } catch (err) {
-      console.log("error in addUser : ", err);
+      logger.error("error in addUser : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }
@@ -89,8 +90,8 @@ class AuthService {
         message: RES_MSG.USER_REGISTER_SUCCESS,
         data: { user, provider: providerUser },
       };
-    } catch (err) {
-      console.log("error in addUser : ", err);
+    } catch (err: any) {
+      logger.error("error in addUser : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }
@@ -135,7 +136,7 @@ class AuthService {
         data: { isExist: true, name: user?.name },
       };
     } catch (err) {
-      console.log("error in addUser : ", err);
+      logger.error("error in addUser : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }
@@ -188,7 +189,7 @@ class AuthService {
         data: { valid: true },
       };
     } catch (err) {
-      console.log("error in checkEmail : ", err);
+      logger.error("error in checkEmail : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }

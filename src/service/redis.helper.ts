@@ -39,22 +39,18 @@ class RedisService {
         logger.info("End");
       });
       this.client.on("error", (err: Error) =>
-        logger.error(
-          "\x1b[31m%s\x1b[0m",
-          "error while connecting redis server: ",
-          err.message,
-        ),
+        logger.error("\x1b[31m%s\x1b[0m", "error while connecting redis server: ", err.message)
       );
     } catch (error) {
-      console.log("error while connecting to redis .. ", error);
+      logger.error("error while connecting to redis .. ", error);
     }
   }
 
   // set the string data to redis
   public async setString<T>(key: string, data: T, expiryInSeconds?: number) {
     try {
-       await this.client.set(key, JSON.stringify(data),{
-        EX: environment.redisExpiry
+      await this.client.set(key, JSON.stringify(data), {
+        EX: environment.redisExpiry,
       });
     } catch (err) {
       logger.error("error while setting the data into redis: ", err);
@@ -72,27 +68,23 @@ class RedisService {
     }
   }
 
-  public updateRedisTime = async (
-    token: string,
-  ): Promise<boolean | null> => {
+  public updateRedisTime = async (token: string): Promise<boolean | null> => {
     try {
       const result = await this.client.expire(token, environment.redisExpiry);
       return result;
     } catch (error) {
-      console.log("error ", error);
-  
+      logger.error("error ", error);
+
       return null;
     }
   };
 
-  public deleteRedisKey = async (
-    key: string
-  ): Promise<boolean | null> => {
+  public deleteRedisKey = async (key: string): Promise<boolean | null> => {
     try {
       const result = await this.client.del(key); // Delete the key
       return result > 0; // Returns true if a key was deleted
     } catch (error) {
-      console.error("Error deleting Redis key:", error);
+      logger.error("Error deleting Redis key:", error);
       return null;
     }
   };

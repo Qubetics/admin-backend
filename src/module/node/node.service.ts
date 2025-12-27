@@ -9,6 +9,7 @@ import countries from "i18n-iso-countries";
 import { Status } from "../../interfaces";
 import mailService from "../mail/mail.service";
 import MailChecker from "mailchecker";
+import logger from "../../lib/logger";
 
 class NodeService {
   constructor() {}
@@ -192,7 +193,7 @@ class NodeService {
         message: RES_MSG.SUCCESS_REQUEST,
       };
     } catch (err) {
-      console.error("PlanService.getAllPlans error:", err);
+      logger.error("PlanService.getAllPlans error:", err);
       return { error: true, message: RES_MSG.ERROR };
     }
   };
@@ -314,7 +315,7 @@ class NodeService {
         },
       };
     } catch (error) {
-      console.error("NodeService.getAllNodeForAddress error:", error);
+      logger.error("NodeService.getAllNodeForAddress error:", error);
       return {
         error: true,
         message: RES_MSG.ERROR,
@@ -339,8 +340,6 @@ class NodeService {
         //   nodeAddress: true,
         // },
       });
-
-      console.log(updatedNode, "updatedNode");
 
       const isApproved: boolean = status === "APPROVED";
 
@@ -427,7 +426,7 @@ class NodeService {
         },
       };
     } catch (error) {
-      console.error("NodeService.getAllNodeForAddress error:", error);
+      logger.error("NodeService.getAllNodeForAddress error:", error);
       return {
         error: true,
         message: RES_MSG.ERROR,
@@ -463,7 +462,7 @@ class NodeService {
         data: { requestFor: node.requestFor, status: node.status },
       };
     } catch (error) {
-      console.error("NodeService.getNodeRequestStatus error:", error);
+      logger.error("NodeService.getNodeRequestStatus error:", error);
       return {
         error: true,
         message: RES_MSG.ERROR,
@@ -511,7 +510,7 @@ class NodeService {
         },
       };
     } catch (error) {
-      console.error("NodeService.getAllNodeForAddress error:", error);
+      logger.error("NodeService.getAllNodeForAddress error:", error);
       return {
         error: true,
         message: RES_MSG.ERROR,

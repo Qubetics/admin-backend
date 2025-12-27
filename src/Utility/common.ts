@@ -20,6 +20,7 @@ const { bech32 } = require("bech32");
 import CryptoJS from "crypto-js";
 import redisHelper from "../service/redis.helper";
 import BigNumber from "bignumber.js";
+import logger from "../lib/logger";
 
 /**
  * For making http requests
@@ -40,7 +41,7 @@ export async function fetchRequest(url: string, method: string, data: any = null
       data: result.data,
     };
   } catch (error) {
-    console.error("error while get ", url, error);
+    logger.error("error while get ", url, error);
     return {
       error: true,
       data: null,
@@ -115,7 +116,7 @@ export const verifyKeplrSignature = (
     const pubkeyComputed = signatureToPubkey(signatureToCompare, Buffer.from(hashed, "hex"));
     return { verify: pubKey === pubkeyComputed };
   } catch (err) {
-    console.error("err", err);
+    logger.error("err", err);
     return { verify: false };
   }
 };
@@ -147,7 +148,7 @@ export const extractIP = (url: string): string => {
     const hostname = withoutProtocol.split(":")[0];
     return hostname;
   } catch (err) {
-    console.log(`${Message.invalidurl}: ${url}`);
+    logger.error(`${Message.invalidurl}: ${url}`);
     return "";
   }
 };
@@ -217,7 +218,7 @@ export const isValidProviderStatusTx = async (txHash: string, address: string): 
 
     return isValid;
   } catch (err) {
-    console.error("Validation error:", err);
+    logger.error("Validation error:", err);
     return false;
   }
 };

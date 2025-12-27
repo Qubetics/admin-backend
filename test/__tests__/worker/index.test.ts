@@ -13,6 +13,12 @@ jest.mock("geoip-lite");
 jest.mock("i18n-iso-countries");
 jest.mock("../../../src/helper/node.helper");
 jest.mock("../../../src/module/auth/auth.service");
+jest.mock("../../../src/lib/logger", () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+}));
 
 jest.mock("../../../src/Utility/common", () => ({
   convertNodeToWallet: jest.fn().mockImplementation((nodeAddress: string) => `qubetics:${nodeAddress}`),
@@ -88,9 +94,7 @@ describe("Worker", () => {
     });
 
     it("should handle rejected results in forEach loop", async () => {
-      const mockNodes = [{ id: 1, name: "Node 1" }];
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-      const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
+      const mockNodes = [{ id: 1, name: "Node 1" }];      const logger = require("../../../src/lib/logger");
 
       mockAxios.get.mockResolvedValueOnce({
         data: { nodes: mockNodes },
@@ -105,11 +109,8 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Node update failed:", "Save failed");
-      expect(consoleLogSpy).toHaveBeenCalledWith("Node updated row(s)");
-
-      consoleErrorSpy.mockRestore();
-      consoleLogSpy.mockRestore();
+      expect(logger.error).toHaveBeenCalledWith('Node update failed', { reason: "Save failed" });
+      expect(logger.info).toHaveBeenCalledWith('Node updated');
     });
 
     it("should handle missing nodes data in response", async () => {
