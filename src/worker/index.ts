@@ -1,7 +1,7 @@
 import cron from "node-cron";
-import { CRON_WORKER, LINK, Message, REQUEST_STATUS, WALLET_PREFIX } from "../constant";
+import { CRON_WORKER, LINK, UNLINK, Message, REQUEST_STATUS, WALLET_PREFIX } from "../constant";
 import axios from "axios";
-import { saveNodes, saveProvider } from "../helper/node.helper";
+import { saveNodes, saveProvider, batchUpdateNodeRequests } from "../helper/node.helper";
 import prisma from "../lib/db";
 import { convertNodeToWallet, extractIP } from "../Utility/common";
 import geoip from "geoip-lite";
@@ -122,8 +122,6 @@ class Worker {
     });
   }
 
-<<<<<<< Updated upstream
-=======
   public async nodeUnlinkWorker(): Promise<void> {
     cron.schedule("*/5 * * * *", async () => {
       try {
@@ -226,7 +224,6 @@ class Worker {
     });
   }
 
->>>>>>> Stashed changes
   private async fetchAndSave<T>(url: string, saveFunction: (data: T[]) => any): Promise<any> {
     try {
       const response = await axios.get(url);

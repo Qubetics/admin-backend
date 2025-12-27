@@ -26,10 +26,10 @@ export const saveProvider = async (providers: any[]) => {
   try {
     const tasks: any = providers.map((provider: any) =>
       prisma.user.upsert({
-        where: { address: convertNodeToWallet(provider.address,WALLET_PREFIX) },
-        update: {}, // do nothing if exists
+        where: { address: convertNodeToWallet(provider.address, WALLET_PREFIX) },
+        update: {},
         create: {
-          address: convertNodeToWallet(provider.address,WALLET_PREFIX),
+          address: convertNodeToWallet(provider.address, WALLET_PREFIX),
           name: provider.name,
           email: provider.identity,
           url: provider.website,
@@ -45,8 +45,6 @@ export const saveProvider = async (providers: any[]) => {
     return err;
   }
 };
-<<<<<<< Updated upstream
-=======
 
 export const batchUpdateNodeRequests = async (
   nodeIds: string[],
@@ -79,4 +77,3 @@ export const batchUpdateNodeRequests = async (
     })
   );
 };
->>>>>>> Stashed changes
