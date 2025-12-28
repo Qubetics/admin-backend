@@ -10,7 +10,7 @@ import authService from "../module/auth/auth.service";
 
 class Worker {
   public async startNodeWorker(): Promise<void> {
-    cron.schedule("*/1 * * * *", async () => {
+    cron.schedule("*/5 * * * *", async () => {
       try {
         console.log(CRON_WORKER.NODE);
 
@@ -35,7 +35,7 @@ class Worker {
   }
 
   public async nodeRequestWorker(): Promise<void> {
-    cron.schedule("*/1 * * * *", async () => {
+    cron.schedule("*/5 * * * *", async () => {
       try {
         console.log(CRON_WORKER.NODE_REQUEST);
 
@@ -108,7 +108,7 @@ class Worker {
   }
 
   public async startProviderWorker(): Promise<void> {
-    cron.schedule("*/1 * * * *", async () => {
+    cron.schedule("*/5 * * * *", async () => {
       try {
         console.log(CRON_WORKER.PROVIDER);
 
