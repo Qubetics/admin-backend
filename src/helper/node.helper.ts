@@ -60,7 +60,7 @@ export const batchUpdateNodeRequests = async (
     batches.push(nodeIds.slice(i, i + batchSize));
   }
 
-  await Promise.all(
+  await Promise.allSettled(
     batches.map(async (batch, index) => {
       try {
         await prisma.nodeRequest.updateMany({
