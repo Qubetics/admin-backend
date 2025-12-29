@@ -21,12 +21,7 @@ class ActivityService {
       const options: any = {
         where: { userId: user.id },
         orderBy: { createdAt: "desc" },
-        select: {
-          type: true,
-          action: true,
-          createdAt: true,
-          metaData: true,
-        },
+        select: { type: true, action: true, createdAt: true, metaData: true },
       };
 
       if (page && limit) {
@@ -36,16 +31,15 @@ class ActivityService {
 
       const activities = await prisma.activity.findMany(options);
 
-      const providerAddressesSet = new Set<string>();
-      for (const act of activities) {
-        const provAddress = (act.metaData as ActivityMeta)?.provAddress;
-        if (provAddress) {
-          const walletAddress = convertNodeToWallet(provAddress, WALLET_PREFIX);
-          providerAddressesSet.add(walletAddress);
-        }
-      }
+      const providerAddresses = [
+        ...new Set(
+          activities
+            .map((act) => (act.metaData as ActivityMeta)?.provAddress)
+            .filter(Boolean)
+            .map((addr) => convertNodeToWallet(addr, WALLET_PREFIX))
+        ),
+      ];
 
-      const providerAddresses = Array.from(providerAddressesSet);
       let providerMap = new Map<string, string | null>();
 
       if (providerAddresses.length > 0) {
@@ -57,43 +51,24 @@ class ActivityService {
         providerUsers.forEach((p) => providerMap.set(p.address, p.name));
       }
 
-      const result = await Promise.all(
-        activities.map(async (act: any) => {
-          const meta = (act.metaData as ActivityMeta) || {};
+      const result = activities.map((act: any) => {
+        const meta = (act.metaData as ActivityMeta) || {};
 
-          if (meta?.plan) {
-            meta.plan = parseAndConvertPlan(meta.plan);
-          }
+        if (meta?.plan) meta.plan = parseAndConvertPlan(meta.plan);
+        if (meta?.bandwidth) meta.bandwidth = bytesToGb(new BigNumber(meta.bandwidth));
 
-          if (meta?.bandwidth) {
-            const bandwidthBN = new BigNumber(meta.bandwidth);
-            meta.bandwidth = bytesToGb(bandwidthBN);
-          }
+        const providerName = meta?.provAddress
+          ? providerMap.get(convertNodeToWallet(meta.provAddress, WALLET_PREFIX)) || null
+          : null;
 
-          const provAddress = meta?.provAddress;
-
-          const providerName = provAddress
-            ? providerMap.get(convertNodeToWallet(provAddress, WALLET_PREFIX)) || null
-            : null;
-
-          return {
-            ...act,
-            metaData: meta,
-            providerName,
-          };
-        })
-      );
-
-      const total = await prisma.activity.count({
-        where: { userId: user.id },
+        return { ...act, metaData: meta, providerName };
       });
+
+      const total = await prisma.activity.count({ where: { userId: user.id } });
 
       return {
         error: false,
-        data: {
-          activityList: result,
-          count: total,
-        },
+        data: { activityList: result, count: total },
         message: RES_MSG.NODE_REQUESTLIST,
       };
     } catch (error) {

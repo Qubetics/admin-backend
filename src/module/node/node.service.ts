@@ -9,6 +9,7 @@ import countries from "i18n-iso-countries";
 import { Status } from "../../interfaces";
 import mailService from "../mail/mail.service";
 import MailChecker from "mailchecker";
+import logger from "../../lib/logger";
 
 class NodeService {
   constructor() {}
@@ -192,7 +193,7 @@ class NodeService {
         message: RES_MSG.SUCCESS_REQUEST,
       };
     } catch (err) {
-      console.error("PlanService.getAllPlans error:", err);
+      logger.error("PlanService.getAllPlans error:", err);
       return { error: true, message: RES_MSG.ERROR };
     }
   };
@@ -267,7 +268,6 @@ class NodeService {
         status = UNDEFINED;
       }
 
-      // Build query conditions
       const where: any = { provAddress: providerAddress };
       if (status != UNDEFINED) {
         where.nodeStatus = status;
@@ -284,7 +284,6 @@ class NodeService {
         status: true,
       };
 
-      // Only include nodeStatus if no status filter is applied
       if (status === UNDEFINED) {
         selectFields.nodeStatus = true;
       }
@@ -293,7 +292,6 @@ class NodeService {
         selectFields.status = true;
       }
 
-      // Fetch data + count in parallel
       const [data, total] = await Promise.all([
         prisma.nodeRequest.findMany({
           where,
@@ -314,7 +312,7 @@ class NodeService {
         },
       };
     } catch (error) {
-      console.error("NodeService.getAllNodeForAddress error:", error);
+      logger.error("NodeService.getAllNodeForAddress error:", error);
       return {
         error: true,
         message: RES_MSG.ERROR,
@@ -324,7 +322,7 @@ class NodeService {
 
   public updateNodeStatus = async (nodeAddress: string, provAddress: any, status: Status) => {
     try {
-      if (nodeAddress == UNDEFINED || status == "undefined") {
+      if (nodeAddress == UNDEFINED || status == UNDEFINED) {
         return {
           error: true,
           message: RES_MSG.NODE_ADRES_IS_NOT_PRESENT,
@@ -334,13 +332,7 @@ class NodeService {
       const updatedNode = await prisma.nodeRequest.update({
         where: { nodeAddress },
         data: { status },
-        // select: {
-        //   email: true,
-        //   nodeAddress: true,
-        // },
       });
-
-      console.log(updatedNode, "updatedNode");
 
       const isApproved: boolean = status === "APPROVED";
 
@@ -352,7 +344,7 @@ class NodeService {
       }
 
       const response = await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
-      //nodeName
+
       const responseFromUser: any = await AuthService.addUser({
         address: updatedNode?.address,
         provider: provAddress,
@@ -365,8 +357,6 @@ class NodeService {
         bandwidth: updatedNode.bandwidth,
         hours: updatedNode.hours,
       };
-
-      //search with user to get Details
 
       await prisma.activity.create({
         data: {
@@ -406,7 +396,6 @@ class NodeService {
         };
       }
 
-      // Fetch data + count in parallel
       const [total, active, inactive] = await Promise.all([
         prisma.nodeRequest.count({ where: { provAddress: providerAddress } }),
         prisma.nodeRequest.count({
@@ -427,7 +416,7 @@ class NodeService {
         },
       };
     } catch (error) {
-      console.error("NodeService.getAllNodeForAddress error:", error);
+      logger.error("NodeService.getAllCountForAddress error:", error);
       return {
         error: true,
         message: RES_MSG.ERROR,
@@ -444,7 +433,6 @@ class NodeService {
         };
       }
 
-      // Fetch data + count in parallel
       const node = await prisma.nodeRequest.findUnique({
         where: { address: walletAddress },
         select: { status: true, requestFor: true },
@@ -463,7 +451,7 @@ class NodeService {
         data: { requestFor: node.requestFor, status: node.status },
       };
     } catch (error) {
-      console.error("NodeService.getNodeRequestStatus error:", error);
+      logger.error("NodeService.getNodeRequestStatus error:", error);
       return {
         error: true,
         message: RES_MSG.ERROR,
@@ -480,7 +468,6 @@ class NodeService {
         };
       }
 
-      // Fetch data + count in parallel
       const [totalCount, linkCount, UnlinkCount] = await Promise.all([
         prisma.nodeRequest.count({
           where: { provAddress: providerAddress, status: PENDING },
@@ -511,7 +498,7 @@ class NodeService {
         },
       };
     } catch (error) {
-      console.error("NodeService.getAllNodeForAddress error:", error);
+      logger.error("NodeService.getNodeRequestCount error:", error);
       return {
         error: true,
         message: RES_MSG.ERROR,
@@ -520,35 +507,43 @@ class NodeService {
   };
 
   async getPrefillValues(address: string) {
-    if (!address || address === UNDEFINED) {
+    try {
+      if (!address || address === UNDEFINED) {
+        return {
+          error: true,
+          message: RES_MSG.ADDRESS_REQUIRED,
+        };
+      }
+
+      const record = await prisma.nodeRequest.findUnique({
+        where: { address },
+        select: {
+          orgName: true,
+          email: true,
+          nodeAddress: true,
+          provAddress: true,
+        },
+      });
+
+      if (!record) {
+        return {
+          error: true,
+          message: RES_MSG.NO_RECORDS,
+        };
+      }
+
+      return {
+        error: false,
+        message: RES_MSG.FETCH_SUCCESS,
+        data: { data: record },
+      };
+    } catch (error) {
+      logger.error("NodeService.getPrefillValues error:", error);
       return {
         error: true,
-        message: RES_MSG.ADDRESS_REQUIRED,
+        message: RES_MSG.ERROR,
       };
     }
-
-    const record = await prisma.nodeRequest.findUnique({
-      where: { address },
-      select: {
-        orgName: true,
-        email: true,
-        nodeAddress: true,
-        provAddress: true,
-      },
-    });
-
-    if (!record) {
-      return {
-        error: true,
-        message: RES_MSG.NO_RECORDS,
-      };
-    }
-
-    return {
-      error: false,
-      message: RES_MSG.FETCH_SUCCESS,
-      data: { data: record },
-    };
   }
 }
 

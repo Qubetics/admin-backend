@@ -1,6 +1,7 @@
 import { convertNodeToWallet } from "../Utility/common";
 import { WALLET_PREFIX } from "../constant";
 import prisma from "../lib/db";
+import logger from "../lib/logger";
 
 export const saveNodes = async (nodeData: any[]) => {
   try {
@@ -14,8 +15,8 @@ export const saveNodes = async (nodeData: any[]) => {
     );
 
     return await Promise.allSettled(tasks);
-  } catch (err) {
-    console.log(err, `error in the saving the node data`);
+  } catch (err: any) {
+    logger.error(err, `error in the saving the node data`);
     return err;
   }
 };
@@ -39,8 +40,8 @@ export const saveProvider = async (providers: any[]) => {
     );
 
     return await Promise.allSettled(tasks);
-  } catch (err) {
-    console.log(err, `error in the saving the node data`);
+  } catch (err: any) {
+    logger.error(err, `error in the saving the node data`);
     return err;
   }
 };
@@ -60,7 +61,7 @@ export const batchUpdateNodeRequests = async (
     batches.push(nodeIds.slice(i, i + batchSize));
   }
 
-  await Promise.all(
+  await Promise.allSettled(
     batches.map(async (batch, index) => {
       try {
         await prisma.nodeRequest.updateMany({
@@ -69,9 +70,9 @@ export const batchUpdateNodeRequests = async (
           },
           data: updateData,
         });
-        console.log(`${logMessage}: Batch ${index + 1}/${batches.length} - ${batch.length} records updated`);
+        logger.info(`${logMessage}: Batch ${index + 1}/${batches.length} - ${batch.length} records updated`);
       } catch (err) {
-        console.error(`Error processing batch ${index + 1}:`, err);
+        logger.error(`Error processing batch ${index + 1}:`, err);
       }
     })
   );

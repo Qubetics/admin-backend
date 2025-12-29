@@ -1,6 +1,7 @@
 import { RES_MSG, provWalletPrefix } from "../../constant";
 import { convertNodeToWallet, fetchRequest, getOffset } from "../../Utility/common";
 import { FETCH_METHODS } from "../../constant";
+import logger from "../../lib/logger";
 
 class PlanService {
   constructor() {}
@@ -34,7 +35,7 @@ class PlanService {
         total: planResponse.data.pagination,
       };
     } catch (err) {
-      console.error("PlanService.getAllPlans error:", err);
+      logger.error("PlanService.getAllPlans error:", err);
       return { error: true, message: RES_MSG.ERROR };
     }
   }
