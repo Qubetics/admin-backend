@@ -7,29 +7,30 @@ import { convertNodeToWallet, extractIP } from "../Utility/common";
 import geoip from "geoip-lite";
 import countries from "i18n-iso-countries";
 import authService from "../module/auth/auth.service";
+import logger from "../lib/logger";
 
 class Worker {
   public async startNodeWorker(): Promise<void> {
     cron.schedule("*/5 * * * *", async () => {
       try {
-        console.log(CRON_WORKER.NODE);
+        logger.info(CRON_WORKER.NODE);
 
         const results = await this.fetchAndSave(`${environment.evmHost}/qubetics/node/v3/nodes`, saveNodes);
 
         if (!Array.isArray(results) || results.length === 0) {
-          console.error("Node worker: invalid or empty results from saveNodes");
+          logger.error("Node worker: invalid or empty results from saveNodes");
           return;
         }
 
         results.forEach((result: any) => {
           if (result.status === "rejected") {
-            console.error("Node update failed:", result.reason?.message || result.reason);
+            logger.error("Node update failed:", result.reason?.message || result.reason);
           } else {
-            console.log("Node updated row(s)");
+            logger.info("Node updated row(s)");
           }
         });
       } catch (error) {
-        console.error("Error in node worker cron job:", error);
+        logger.error("Error in node worker cron job:", error);
       }
     });
   }
@@ -37,13 +38,13 @@ class Worker {
   public async nodeRequestWorker(): Promise<void> {
     cron.schedule("*/5 * * * *", async () => {
       try {
-        console.log(CRON_WORKER.NODE_REQUEST);
+        logger.info(CRON_WORKER.NODE_REQUEST);
 
         const response = await axios.get(`${environment.evmHost}/qubetics/plan/v3/plans`);
 
         const allNodes: any[] = [];
 
-        await Promise.all(
+        await Promise.allSettled(
           response?.data?.plans?.map(async (val: any) => {
             try {
               const result = await axios.get(`${environment.evmHost}/qubetics/node/v3/plans/${val?.id}/nodes`);
@@ -54,12 +55,12 @@ class Worker {
                 allNodes.push({ ...node, plan: val });
               });
             } catch (err) {
-              console.error(`Error fetching nodes for plan ${val?.id}:`, err);
+              logger.error(`Error fetching nodes for plan ${val?.id}:`, err);
             }
           })
         );
 
-        await Promise.all(
+        await Promise.allSettled(
           allNodes.map(async (val: any) => {
             try {
               const ip = extractIP(val?.remote_url);
@@ -97,12 +98,12 @@ class Worker {
                 },
               });
             } catch (err) {
-              console.error(`Error processing node ${val?.address}:`, err);
+              logger.error(`Error processing node ${val?.address}:`, err);
             }
           })
         );
       } catch (error) {
-        console.error("Error in node request worker cron job:", error);
+        logger.error("Error in node request worker cron job:", error);
       }
     });
   }
@@ -110,13 +111,13 @@ class Worker {
   public async startProviderWorker(): Promise<void> {
     cron.schedule("*/5 * * * *", async () => {
       try {
-        console.log(CRON_WORKER.PROVIDER);
+        logger.info(CRON_WORKER.PROVIDER);
 
         const response = await axios.get(`${environment.evmHost}/qubetics/provider/v2/providers`);
 
         await saveProvider(response?.data?.providers || []);
       } catch (error) {
-        console.error("Error in provider worker cron job:", error);
+        logger.error("Error in provider worker cron job:", error);
       }
     });
   }
@@ -124,7 +125,7 @@ class Worker {
   public async nodeUnlinkWorker(): Promise<void> {
     cron.schedule("*/5 * * * *", async () => {
       try {
-        console.log(CRON_WORKER.NODE_UNLINK);
+        logger.info(CRON_WORKER.NODE_UNLINK);
 
         const nodeRequests = await prisma.nodeRequest.findMany({
           where: {
@@ -144,14 +145,14 @@ class Worker {
         });
 
         if (!nodeRequests || nodeRequests.length === 0) {
-          console.log("No linked node requests found");
+          logger.info("No linked node requests found");
           return;
         }
 
         const planNodeAddresses: Map<string, Set<string>> = new Map();
         const uniquePlanIds = [...new Set(nodeRequests.map((req: any) => req.planId))];
 
-        await Promise.all(
+        await Promise.allSettled(
           uniquePlanIds.map(async (planId: string) => {
             try {
               const result = await axios.get(`${environment.evmHost}/qubetics/node/v3/plans/${planId}/nodes`);
@@ -159,7 +160,7 @@ class Worker {
               const nodeAddressSet: Set<string> = new Set(nodes.map((node: any) => node.address));
               planNodeAddresses.set(planId, nodeAddressSet);
             } catch (err) {
-              console.error(`Error fetching nodes for plan ${planId}:`, err);
+              logger.error(`Error fetching nodes for plan ${planId}:`, err);
             }
           })
         );
@@ -181,7 +182,7 @@ class Worker {
           "Nodes unlinked"
         );
       } catch (error) {
-        console.error("Error in Node unlink worker cron job:", error);
+        logger.error("Error in Node unlink worker cron job:", error);
       }
     });
   }
@@ -189,12 +190,12 @@ class Worker {
   public async nodeTerminationWorker(): Promise<void> {
     cron.schedule("*/5 * * * *", async () => {
       try {
-        console.log(CRON_WORKER.NODE_TERMINATION);
+        logger.info(CRON_WORKER.NODE_TERMINATION);
 
         const nodeRequests = await prisma.nodeRequest.findMany();
 
         if (!nodeRequests || nodeRequests.length === 0) {
-          console.log("No node requests found in database");
+          logger.info("No node requests found in database");
           return;
         }
 
@@ -218,7 +219,7 @@ class Worker {
           "Nodes terminated"
         );
       } catch (error) {
-        console.error("Error in node termination worker cron job:", error);
+        logger.error("Error in node termination worker cron job:", error);
       }
     });
   }
@@ -234,7 +235,7 @@ class Worker {
 
       return await saveFunction(data);
     } catch (error) {
-      console.error(`Error fetching or saving data from ${url}:`, error);
+      logger.error(`Error fetching or saving data from ${url}:`, error);
       return null;
     }
   }

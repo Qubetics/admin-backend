@@ -3,11 +3,7 @@ import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(environment.sendgrid_key);
 class MailService {
-  public sendApprovalMail = async (
-    email: string,
-    nodeName: string,
-    isApproved: boolean
-  ) => {
+  public sendApprovalMail = async (email: string, nodeName: string, isApproved: boolean) => {
     try {
       const subject = isApproved
         ? ` Your Qubetics Node Operator Registration is Successful!`
@@ -18,7 +14,7 @@ class MailService {
         from: environment.service_email,
         subject,
         // text: message,
-        html: isApproved ? approveTemplate(): rejectedTemplate(),
+        html: isApproved ? approveTemplate() : rejectedTemplate(),
       };
 
       await sgMail.send(msg);

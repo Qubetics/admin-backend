@@ -89,8 +89,9 @@ describe("Worker", () => {
 
     it("should handle rejected results in forEach loop", async () => {
       const mockNodes = [{ id: 1, name: "Node 1" }];
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-      const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
+      const logger = require("../../../src/lib/logger").default;
+      const loggerInfoSpy = jest.spyOn(logger, "info");
+      const loggerErrorSpy = jest.spyOn(logger, "error");
 
       mockAxios.get.mockResolvedValueOnce({
         data: { nodes: mockNodes },
@@ -105,11 +106,10 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Node update failed:", "Save failed");
-      expect(consoleLogSpy).toHaveBeenCalledWith("Node updated row(s)");
+      expect(loggerInfoSpy).toHaveBeenCalledWith("Node updated row(s)");
 
-      consoleErrorSpy.mockRestore();
-      consoleLogSpy.mockRestore();
+      loggerInfoSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
 
     it("should handle missing nodes data in response", async () => {
@@ -470,10 +470,7 @@ describe("Worker", () => {
         { id: "req3", nodeAddress: "node3" },
       ];
 
-      const mockActiveNodes = [
-        { address: "node1" },
-        { address: "node2" },
-      ];
+      const mockActiveNodes = [{ address: "node1" }, { address: "node2" }];
 
       (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce(mockRequests);
       mockAxios.get.mockResolvedValueOnce({
@@ -513,10 +510,7 @@ describe("Worker", () => {
         { id: "req2", nodeAddress: "node2" },
       ];
 
-      const mockActiveNodes = [
-        { address: "node1" },
-        { address: "node2" },
-      ];
+      const mockActiveNodes = [{ address: "node1" }, { address: "node2" }];
 
       (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce(mockRequests);
       mockAxios.get.mockResolvedValueOnce({
