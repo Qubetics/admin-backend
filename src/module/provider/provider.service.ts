@@ -6,8 +6,9 @@ import {
   getOffset,
   getWalletAddressFromNodeAddress,
 } from "../../Utility/common";
-import { FETCH_METHODS, RES_MSG, WALLET_PREFIX } from "../../constant";
+import { ACTIVE, FETCH_METHODS, RES_MSG, UNDEFINED, WALLET_PREFIX } from "../../constant";
 import geoip from "geoip-lite";
+import logger from "../../lib/logger";
 
 class ProviderService {
   async getAllProvider(data: any): Promise<any> {
@@ -58,14 +59,14 @@ class ProviderService {
         total: response?.data?.pagination,
       };
     } catch (err) {
-      console.error("get all provider error:", err);
+      logger.error("get all provider error:", err);
       return { error: true, message: RES_MSG.ERROR };
     }
   }
 
   async getProviderDetails(address: string, page = "1", limit = "10"): Promise<any> {
     try {
-      if (!address) {
+      if (!address || address === UNDEFINED) {
         return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
       }
 
@@ -121,7 +122,7 @@ class ProviderService {
         },
       };
     } catch (err) {
-      console.error("getProviderDetails error:", err);
+      logger.error("getProviderDetails error:", err);
       return { error: true, message: RES_MSG.ERROR };
     }
   }
@@ -135,7 +136,7 @@ class ProviderService {
         return { error: true, message: RES_MSG.ERROR };
       }
       const activeProviders = [
-        ...new Set(response?.data?.plans.filter((p: any) => p.status === "active").map((p: any) => p.prov_address)),
+        ...new Set(response?.data?.plans.filter((p: any) => p.status === ACTIVE).map((p: any) => p.prov_address)),
       ];
 
       const providerWallets = activeProviders.map((addr) => convertNodeToWallet(addr, WALLET_PREFIX));
@@ -173,7 +174,7 @@ class ProviderService {
         data: { providers: finalProviders },
       };
     } catch (err) {
-      console.error("get all provider error:", err);
+      logger.error("get all provider error:", err);
       return { error: true, message: RES_MSG.ERROR };
     }
   }

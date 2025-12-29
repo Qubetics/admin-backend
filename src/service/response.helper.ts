@@ -3,12 +3,11 @@ import { RESPONSES, CONST_NAME } from "../constant";
 import { IESResponse } from "../interfaces/index";
 
 class ResponseHelper {
-  // for success responses
+
   public success(response: Response, responseData: IESResponse = {}) {
     return response.status(RESPONSES.SUCCESS).send(responseData);
   }
-
-  // for error responses
+  
   public error(response: Response, responseData: IESResponse = {}) {
     let statusCode;
     if (responseData?.message) {

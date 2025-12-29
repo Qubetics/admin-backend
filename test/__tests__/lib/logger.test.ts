@@ -13,6 +13,9 @@ jest.mock("winston", () => ({
     }),
     format: {
       json: jest.fn(),
+      simple: jest.fn(),
+      colorize: jest.fn(() => ({})),
+      combine: jest.fn((...args) => ({})),
     },
     transports: {
       Console: jest.fn(),
