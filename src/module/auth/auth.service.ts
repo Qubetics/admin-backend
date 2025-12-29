@@ -6,6 +6,7 @@ import prisma from "../../lib/db";
 import redisHelper from "../../service/redis.helper";
 import { Response } from "express";
 import MailChecker from "mailchecker";
+import logger from "../../lib/logger";
 const checkCookieVariable = process.env.NODE_ENV == "production" ? false : true;
 
 class AuthService {
@@ -54,7 +55,7 @@ class AuthService {
         data: {},
       };
     } catch (err) {
-      console.log("error in addUser : ", err);
+      logger.info("error in addUser : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }
@@ -90,7 +91,7 @@ class AuthService {
         data: { user, provider: providerUser },
       };
     } catch (err) {
-      console.log("error in addUser : ", err);
+      logger.info("error in addUser : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }
@@ -125,7 +126,6 @@ class AuthService {
         httpOnly: checkCookieVariable,
         secure: checkCookieVariable,
         sameSite: checkCookieVariable ? "none" : "lax",
-        // maxAge: environment.redisExpiry,
       });
 
       await redisHelper.setString(uuid, encryptedData);
@@ -136,7 +136,7 @@ class AuthService {
         data: { isExist: true, name: user?.name },
       };
     } catch (err) {
-      console.log("error in addUser : ", err);
+      logger.info("error in addUser : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }
@@ -189,7 +189,7 @@ class AuthService {
         data: { valid: true },
       };
     } catch (err) {
-      console.log("error in checkEmail : ", err);
+      logger.info("error in checkEmail : ", err);
       if (err instanceof Error) {
         return { error: true, message: err.message };
       }

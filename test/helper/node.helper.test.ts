@@ -26,7 +26,7 @@ describe("saveNodes", () => {
   it("should call prisma.nodeRequest.updateMany for each node and return results", async () => {
     const nodeData = [
       { address: "addr1", status: "active" },
-      { address: "addr2", status: "inactive" }
+      { address: "addr2", status: "inactive" },
     ];
 
     (prisma.nodeRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
@@ -36,7 +36,7 @@ describe("saveNodes", () => {
     expect(prisma.nodeRequest.updateMany).toHaveBeenCalledTimes(nodeData.length);
     expect(prisma.nodeRequest.updateMany).toHaveBeenCalledWith({
       where: { nodeAddress: "addr1" },
-      data: { nodeStatus: "active" }
+      data: { nodeStatus: "active" },
     });
     expect(Array.isArray(result)).toBe(true);
   });
@@ -55,15 +55,15 @@ describe("saveProvider", () => {
         name: "Provider One",
         identity: "email1@example.com",
         website: "https://provider1.com",
-        description: "desc1"
+        description: "desc1",
       },
       {
         address: "prov2",
         name: "Provider Two",
         identity: "email2@example.com",
         website: "https://provider2.com",
-        description: "desc2"
-      }
+        description: "desc2",
+      },
     ];
 
     mockedConvertNodeToWallet.mockImplementation((address, prefix) => prefix + address);
@@ -71,7 +71,7 @@ describe("saveProvider", () => {
 
     const result = await saveProvider(providers);
 
-    expect(mockedConvertNodeToWallet).toHaveBeenCalledTimes(providers.length * 2); // Called twice per provider (where + create)
+    expect(mockedConvertNodeToWallet).toHaveBeenCalledTimes(providers.length * 2);
     expect(prisma.user.upsert).toHaveBeenCalledTimes(providers.length);
     expect(prisma.user.upsert).toHaveBeenCalledWith({
       where: { address: WALLET_PREFIX + "prov1" },
@@ -82,8 +82,8 @@ describe("saveProvider", () => {
         email: "email1@example.com",
         url: "https://provider1.com",
         description: "desc1",
-        role: 1
-      }
+        role: 1,
+      },
     });
     expect(Array.isArray(result)).toBe(true);
   });

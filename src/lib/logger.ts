@@ -8,10 +8,15 @@ if (!existsSync(logDir)) {
 }
 
 const logger: Logger = winston.createLogger({
-  format: winston.format.json(),
+  level: "info",
   transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: `${logDir}/combined.log` }),
+    new winston.transports.Console({
+      format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
+    }),
+    new winston.transports.File({
+      filename: `${logDir}/combined.log`,
+      format: winston.format.json(),
+    }),
   ],
 });
 

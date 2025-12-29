@@ -3,7 +3,6 @@ import MailService from "../../../../src/module/mail/mail.service";
 import * as Helpers from "../../../../src/service/index";
 import { Request, Response } from "express";
 
-// Mock MailService
 jest.mock("../../../../src/module/mail/mail.service", () => ({
   __esModule: true,
   default: {
@@ -11,7 +10,6 @@ jest.mock("../../../../src/module/mail/mail.service", () => ({
   },
 }));
 
-// Mock ResponseHelper
 const mockSuccess = jest.fn();
 const mockError = jest.fn();
 

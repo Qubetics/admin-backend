@@ -9,18 +9,7 @@ import {
   canSubmitNodeRequest,
   extractIP,
 } from "../../../../src/Utility/common";
-import {
-  ACTIVE,
-  APPROVED,
-  INACTIVE,
-  LINK,
-  PENDING,
-  REJECTED,
-  RES_MSG,
-  UNDEFINED,
-  UNLINK,
-  FETCH_METHODS,
-} from "../../../../src/constant";
+import { ACTIVE, APPROVED, LINK, PENDING, REJECTED, RES_MSG, UNDEFINED, UNLINK } from "../../../../src/constant";
 import geoip from "geoip-lite";
 import countries from "i18n-iso-countries";
 
@@ -766,9 +755,8 @@ describe("NodeService", () => {
       const result = await NodeService.getPrefillValues("wallet123");
 
       expect(result).toEqual({
-        error: false,
-        message: RES_MSG.FETCH_SUCCESS,
-        data: { data: null },
+        error: true,
+        message: RES_MSG.NO_RECORDS,
       });
     });
   });

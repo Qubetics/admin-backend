@@ -5,8 +5,6 @@ import redisHelper from "../../../src/service/redis.helper";
 import { decryptData } from "../../../src/Utility/common";
 import { RESPONSES, RES_MSG } from "../../../src/constant";
 
-// Mock dependencies
-// Mock dependencies
 jest.mock("../../../src/service/redis.helper");
 jest.mock("../../../src/lib/db", () => ({
   user: {
@@ -24,7 +22,6 @@ jest.mock("../../../src/service/index", () => {
   };
 });
 
-// Get the mocked Prisma instance
 const mockPrisma = require("../../../src/lib/db");
 describe("adminCheck Middleware", () => {
   let req: Partial<Request> & { user?: any; cookies: any };
@@ -33,10 +30,8 @@ describe("adminCheck Middleware", () => {
   let mockDecryptData: jest.Mock;
 
   beforeEach(() => {
-    // Reset all mocks
     jest.clearAllMocks();
-    
-    // Setup default request
+
     req = {
       cookies: {
         session_id: "test-session-token",
@@ -44,16 +39,13 @@ describe("adminCheck Middleware", () => {
       user: {},
     } as Request & { user?: any; cookies: any };
 
-    // Setup response mock
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     } as unknown as Response;
 
-    // Setup next function
     next = jest.fn() as jest.Mock<NextFunction>;
 
-    // Setup decryptData mock
     mockDecryptData = decryptData as jest.Mock;
   });
 
@@ -62,17 +54,14 @@ describe("adminCheck Middleware", () => {
   });
 
   it("should call next() for valid admin user", async () => {
-    // Mock redis helper
     (redisHelper.getString as jest.Mock).mockResolvedValue("encrypted-user-data");
     mockDecryptData.mockReturnValue({ address: "0x123" });
-    
-    // Mock prisma
+
     mockPrisma.user.findUnique.mockResolvedValue({
       address: "0x123",
-      role: 1, // Admin role
+      role: 1,
     });
 
-    // Mock redis update time
     (redisHelper.updateRedisTime as jest.Mock).mockResolvedValue(true);
 
     await adminCheck(req as Request, res as Response, next);
@@ -146,7 +135,7 @@ describe("adminCheck Middleware", () => {
     mockDecryptData.mockReturnValue({ address: "0x123" });
     mockPrisma.user.findUnique.mockResolvedValue({
       address: "0x123",
-      role: 0, // Non-admin role
+      role: 0,
     });
 
     await adminCheck(req as Request, res as Response, next);

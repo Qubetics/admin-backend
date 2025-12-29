@@ -9,7 +9,6 @@ jest.mock("../../../src/lib/logger", () => ({
   },
 }));
 
-// Import mocked versions
 const { log } = require("../../../src/Utility/common");
 const logger = require("../../../src/lib/logger").default;
 

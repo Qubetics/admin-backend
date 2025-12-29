@@ -3,11 +3,10 @@ import axios from "axios";
 import geoip from "geoip-lite";
 import countries from "i18n-iso-countries";
 import Worker from "../../../src/worker";
-import { saveNodes, saveProvider } from "../../../src/helper/node.helper";
+import { saveNodes, saveProvider, batchUpdateNodeRequests } from "../../../src/helper/node.helper";
 import prisma from "../../../src/lib/db";
 import authService from "../../../src/module/auth/auth.service";
 
-// Mock external dependencies FIRST
 jest.mock("node-cron");
 jest.mock("axios");
 jest.mock("geoip-lite");
@@ -15,13 +14,11 @@ jest.mock("i18n-iso-countries");
 jest.mock("../../../src/helper/node.helper");
 jest.mock("../../../src/module/auth/auth.service");
 
-// Mock the utility functions that cause bech32 errors
 jest.mock("../../../src/Utility/common", () => ({
   convertNodeToWallet: jest.fn().mockImplementation((nodeAddress: string) => `qubetics:${nodeAddress}`),
   extractIP: jest.fn().mockImplementation((url: string) => "1.2.3.4"),
 }));
 
-// Mock prisma EXACTLY like the reference - at module level with all methods
 jest.mock("../../../src/lib/db", () => ({
   $connect: jest.fn().mockResolvedValue(undefined),
   $disconnect: jest.fn().mockResolvedValue(undefined),
@@ -45,14 +42,12 @@ describe("Worker", () => {
   const mockAxios = axios as jest.Mocked<typeof axios>;
   const mockSaveNodes = saveNodes as jest.MockedFunction<typeof saveNodes>;
   const mockSaveProvider = saveProvider as jest.MockedFunction<typeof saveProvider>;
-  const mockAuthService = authService as jest.Mocked<typeof authService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
     workerInstance = Worker;
 
     (cron.schedule as jest.Mock).mockImplementation((time, callback) => {
-      // Store the callback to be called in tests
       (cron.schedule as any).lastCallback = callback;
       return { start: jest.fn(), stop: jest.fn() };
     });
@@ -62,13 +57,11 @@ describe("Worker", () => {
       planHost: "http://test-host",
     };
 
-    // Reset mocks to default values
     (prisma.$connect as jest.Mock).mockResolvedValue(undefined);
     (prisma.nodeRequest.upsert as jest.Mock).mockResolvedValue({});
     (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.activity.create as jest.Mock).mockResolvedValue({});
 
-    // Reset utility mock
     const { convertNodeToWallet } = require("../../../src/Utility/common");
     (convertNodeToWallet as jest.Mock).mockImplementation((nodeAddress: string) => `qubetics:${nodeAddress}`);
   });
@@ -96,8 +89,9 @@ describe("Worker", () => {
 
     it("should handle rejected results in forEach loop", async () => {
       const mockNodes = [{ id: 1, name: "Node 1" }];
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-      const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
+      const logger = require("../../../src/lib/logger").default;
+      const loggerInfoSpy = jest.spyOn(logger, "info");
+      const loggerErrorSpy = jest.spyOn(logger, "error");
 
       mockAxios.get.mockResolvedValueOnce({
         data: { nodes: mockNodes },
@@ -112,11 +106,10 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Node update failed:", "Save failed");
-      expect(consoleLogSpy).toHaveBeenCalledWith("Node updated row(s)");
+      expect(loggerInfoSpy).toHaveBeenCalledWith("Node updated row(s)");
 
-      consoleErrorSpy.mockRestore();
-      consoleLogSpy.mockRestore();
+      loggerInfoSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
 
     it("should handle missing nodes data in response", async () => {
@@ -154,7 +147,6 @@ describe("Worker", () => {
       },
     ];
 
-    // ✅ FIXED: Use valid bech32-like address format
     const mockNode = {
       address: "qubetics1testnodeaddressherewithsufficientlength",
       status: "active",
@@ -162,16 +154,13 @@ describe("Worker", () => {
     };
 
     beforeEach(() => {
-      // Mock geoip and countries
       (geoip.lookup as jest.Mock).mockReturnValue({
         country: "US",
       });
       (countries.getName as jest.Mock).mockReturnValue("United States");
 
-      // Setup auth service mock methods
       (authService.addUser as jest.Mock).mockResolvedValue({});
 
-      // Reset prisma mocks specifically for nodeRequestWorker
       (prisma.nodeRequest.upsert as jest.Mock).mockResolvedValue({});
       (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.activity.create as jest.Mock).mockResolvedValue({});
@@ -190,7 +179,6 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      // Wait for all promises to resolve inside the worker
       await new Promise((resolve) => setImmediate(resolve));
 
       expect(mockAxios.get).toHaveBeenCalledWith("https://test-api.example.com//qubetics/plan/v3/plans");
@@ -308,7 +296,6 @@ describe("Worker", () => {
 
       await new Promise((resolve) => setImmediate(resolve));
 
-      // The worker should handle the error gracefully
       expect(mockAxios.get).toHaveBeenCalled();
     });
 
@@ -320,7 +307,6 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      // The worker should handle the error gracefully
       expect(mockAxios.get).toHaveBeenCalled();
     });
   });
@@ -354,7 +340,6 @@ describe("Worker", () => {
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
-      // The worker should handle the error gracefully
       expect(mockAxios.get).toHaveBeenCalled();
     });
 
@@ -384,6 +369,174 @@ describe("Worker", () => {
       await callback();
 
       expect(mockSaveProvider).toHaveBeenCalledWith([]);
+    });
+  });
+
+  describe("nodeUnlinkWorker", () => {
+    const mockBatchUpdate = batchUpdateNodeRequests as jest.MockedFunction<typeof batchUpdateNodeRequests>;
+
+    beforeEach(() => {
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValue([]);
+      mockBatchUpdate.mockResolvedValue(undefined);
+    });
+
+    it("should process nodes unlinked via CLI successfully", async () => {
+      const mockRequests = [
+        {
+          id: "req1",
+          planId: "plan1",
+          nodeAddress: "node1",
+          requestFor: "Link",
+          status: "APPROVED",
+        },
+        {
+          id: "req2",
+          planId: "plan1",
+          nodeAddress: "node2",
+          requestFor: "Unlink",
+          status: "REJECTED",
+        },
+      ];
+
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce(mockRequests);
+
+      mockAxios.get.mockResolvedValueOnce({
+        data: { nodes: [{ address: "node1" }] },
+      });
+
+      await workerInstance.nodeUnlinkWorker();
+      const callback = (cron.schedule as any).lastCallback;
+      await callback();
+
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(mockAxios.get).toHaveBeenCalledWith("https://test-api.example.com//qubetics/node/v3/plans/plan1/nodes");
+      expect(mockBatchUpdate).toHaveBeenCalledWith(
+        ["req2"],
+        expect.objectContaining({
+          status: "APPROVED",
+          requestFor: "Unlink",
+        }),
+        "Nodes unlinked"
+      );
+    });
+
+    it("should handle empty node requests", async () => {
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await workerInstance.nodeUnlinkWorker();
+      const callback = (cron.schedule as any).lastCallback;
+      await callback();
+
+      expect(mockBatchUpdate).not.toHaveBeenCalled();
+    });
+
+    it("should handle errors when fetching plan nodes", async () => {
+      const mockRequests = [
+        {
+          id: "req1",
+          planId: "plan1",
+          nodeAddress: "node1",
+          requestFor: "Link",
+          status: "APPROVED",
+        },
+      ];
+
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce(mockRequests);
+      mockAxios.get.mockRejectedValueOnce(new Error("API error"));
+
+      await workerInstance.nodeUnlinkWorker();
+      const callback = (cron.schedule as any).lastCallback;
+      await callback();
+
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(mockAxios.get).toHaveBeenCalled();
+    });
+  });
+
+  describe("nodeTerminationWorker", () => {
+    const mockBatchUpdate = batchUpdateNodeRequests as jest.MockedFunction<typeof batchUpdateNodeRequests>;
+
+    beforeEach(() => {
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValue([]);
+      mockBatchUpdate.mockResolvedValue(undefined);
+    });
+
+    it("should process terminated nodes successfully", async () => {
+      const mockRequests = [
+        { id: "req1", nodeAddress: "node1" },
+        { id: "req2", nodeAddress: "node2" },
+        { id: "req3", nodeAddress: "node3" },
+      ];
+
+      const mockActiveNodes = [{ address: "node1" }, { address: "node2" }];
+
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce(mockRequests);
+      mockAxios.get.mockResolvedValueOnce({
+        data: { nodes: mockActiveNodes },
+      });
+
+      await workerInstance.nodeTerminationWorker();
+      const callback = (cron.schedule as any).lastCallback;
+      await callback();
+
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(mockAxios.get).toHaveBeenCalledWith("https://test-api.example.com//qubetics/node/v3/nodes");
+      expect(mockBatchUpdate).toHaveBeenCalledWith(
+        ["req3"],
+        expect.objectContaining({
+          status: "APPROVED",
+          requestFor: "Unlink",
+        }),
+        "Nodes terminated"
+      );
+    });
+
+    it("should handle empty node requests in database", async () => {
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      await workerInstance.nodeTerminationWorker();
+      const callback = (cron.schedule as any).lastCallback;
+      await callback();
+
+      expect(mockBatchUpdate).not.toHaveBeenCalled();
+    });
+
+    it("should handle all nodes being active", async () => {
+      const mockRequests = [
+        { id: "req1", nodeAddress: "node1" },
+        { id: "req2", nodeAddress: "node2" },
+      ];
+
+      const mockActiveNodes = [{ address: "node1" }, { address: "node2" }];
+
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce(mockRequests);
+      mockAxios.get.mockResolvedValueOnce({
+        data: { nodes: mockActiveNodes },
+      });
+
+      await workerInstance.nodeTerminationWorker();
+      const callback = (cron.schedule as any).lastCallback;
+      await callback();
+
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(mockBatchUpdate).toHaveBeenCalledWith([], expect.anything(), "Nodes terminated");
+    });
+
+    it("should handle errors when fetching active nodes", async () => {
+      const mockRequests = [{ id: "req1", nodeAddress: "node1" }];
+
+      (prisma.nodeRequest.findMany as jest.Mock).mockResolvedValueOnce(mockRequests);
+      mockAxios.get.mockRejectedValueOnce(new Error("API error"));
+
+      await workerInstance.nodeTerminationWorker();
+      const callback = (cron.schedule as any).lastCallback;
+      await callback();
+
+      expect(mockAxios.get).toHaveBeenCalled();
     });
   });
 });
