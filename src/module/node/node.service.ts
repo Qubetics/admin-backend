@@ -336,15 +336,6 @@ class NodeService {
 
       const isApproved: boolean = status === "APPROVED";
 
-      if (!updatedNode.email) {
-        return {
-          error: false,
-          message: RES_MSG.NODE_REQUEST_ACTION_DONE_NO_EMAIL,
-        };
-      }
-
-      const response = await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
-
       const responseFromUser: any = await AuthService.addUser({
         address: updatedNode?.address,
         provider: provAddress,
@@ -368,6 +359,15 @@ class NodeService {
           targetUid: responseFromUser?.data?.provider?.id ?? "",
         },
       });
+
+      if (!updatedNode.email) {
+        return {
+          error: false,
+          message: RES_MSG.NODE_REQUEST_ACTION_DONE_NO_EMAIL,
+        };
+      }
+
+      const response = await mailService.sendApprovalMail(updatedNode.email, updatedNode.nodeAddress, isApproved);
 
       if (response.error) {
         return {
