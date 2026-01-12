@@ -35,7 +35,7 @@ class Worker {
     });
   }
 
-  public async nodeRequestWorker(): Promise<void> {
+  public async nodeLinkWorker(): Promise<void> {
     cron.schedule("*/5 * * * *", async () => {
       try {
         logger.info(CRON_WORKER.NODE_REQUEST);
@@ -52,10 +52,13 @@ class Worker {
               const nodes = result?.data?.nodes || [];
 
               nodes.forEach((node: any) => {
-                allNodes.push({ ...node, plan: val });
+                allNodes.push({
+                  ...node,
+                  plan: val,
+                });
               });
             } catch (err) {
-              logger.error(`Error fetching nodes for plan ${val?.id}:`, err);
+              logger.error(`Error fetching nodes for plan ${val?.id}:`);
             }
           })
         );
@@ -76,11 +79,28 @@ class Worker {
 
               await authService.addUser({ address });
 
+              const existingRecord = await prisma.nodeRequest.findUnique({
+                where: { nodeAddress: val?.address },
+              });
+
+              const shouldUpdateToLinked =
+                existingRecord &&
+                ((existingRecord.requestFor === UNLINK && existingRecord.status === REQUEST_STATUS.APPROVED) ||
+                  (existingRecord.requestFor === LINK && [REQUEST_STATUS.REJECTED, REQUEST_STATUS.PENDING].includes(existingRecord.status)));
+
               await prisma.nodeRequest.upsert({
                 where: {
                   nodeAddress: val?.address,
                 },
-                update: { provAddress: val?.plan?.prov_address },
+                update: {
+                  provAddress: val?.plan?.prov_address,
+                  planId: val?.plan?.id,
+                  plan: val?.plan?.prices[0]?.quote_value,
+                  ...(shouldUpdateToLinked && {
+                    status: REQUEST_STATUS.APPROVED,
+                    requestFor: LINK,
+                  }),
+                },
                 create: {
                   nodeAddress: val?.address,
                   nodeStatus: val?.status,
@@ -98,12 +118,12 @@ class Worker {
                 },
               });
             } catch (err) {
-              logger.error(`Error processing node ${val?.address}:`, err);
+              logger.error(`Error processing node ${val?.address}:`);
             }
           })
         );
       } catch (error) {
-        logger.error("Error in node request worker cron job:", error);
+        logger.error("Error in node request worker cron job:");
       }
     });
   }

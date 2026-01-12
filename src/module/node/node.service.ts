@@ -47,11 +47,7 @@ class NodeService {
       const nodeUrl = `${environment?.evmHost}qubetics/node/v3/nodes/${nodeAddress}`;
       const nodeResponse = await fetchRequest(nodeUrl, FETCH_METHODS.GET);
 
-      if (
-        nodeResponse?.error === true ||
-        nodeResponse?.data?.code === 3 ||
-        nodeResponse?.data?.node?.status === "inactive"
-      ) {
+      if (nodeResponse?.error === true || nodeResponse?.data?.code === 3 || nodeResponse?.data?.node?.status === "inactive") {
         return {
           error: true,
           message: RES_MSG.NOT_PRESENT_ON_CHAIN,
@@ -247,13 +243,7 @@ class NodeService {
     }
   };
 
-  public getAllNodeForAddress = async (
-    providerAddress: string,
-    page: number,
-    limit: number,
-    status?: string,
-    reqStatus?: string
-  ) => {
+  public getAllNodeForAddress = async (providerAddress: string, page: number, limit: number, status?: string, reqStatus?: string) => {
     try {
       if (!providerAddress || providerAddress === UNDEFINED) {
         return {
