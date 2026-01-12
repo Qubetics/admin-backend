@@ -29,7 +29,7 @@ export const RESPONSES = {
 export const RATE_LIMITER_MESSAGE = {
   TOO_MANY_REQUEST: "You are doing too many request. Please try again after some time.",
   WINDOW_MS: 60 * 1000, // 1 minute in milliseconds
-  MAX: 40, // 40 request in 1 minutes
+  MAX: 50, // 40 request in 1 minutes
 };
 
 export const RES_MSG = {
