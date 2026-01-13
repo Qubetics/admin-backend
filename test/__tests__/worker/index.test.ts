@@ -136,7 +136,7 @@ describe("Worker", () => {
     });
   });
 
-  describe("nodeRequestWorker", () => {
+  describe("linkWorker", () => {
     const mockPlans = [
       {
         id: 1,
@@ -175,7 +175,7 @@ describe("Worker", () => {
           data: { nodes: [mockNode] },
         });
 
-      await workerInstance.nodeRequestWorker();
+      await workerInstance.nodeLinkWorker();
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
@@ -200,7 +200,7 @@ describe("Worker", () => {
           data: { nodes: [] },
         });
 
-      await workerInstance.nodeRequestWorker();
+      await workerInstance.nodeLinkWorker();
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
@@ -222,7 +222,7 @@ describe("Worker", () => {
           data: { nodes: [mockNode] },
         });
 
-      await workerInstance.nodeRequestWorker();
+      await workerInstance.nodeLinkWorker();
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
@@ -272,7 +272,7 @@ describe("Worker", () => {
           data: { nodes: [node2] },
         });
 
-      await workerInstance.nodeRequestWorker();
+      await workerInstance.nodeLinkWorker();
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
@@ -290,7 +290,7 @@ describe("Worker", () => {
         })
         .mockRejectedValueOnce(new Error("Node fetch failed for plan 1"));
 
-      await workerInstance.nodeRequestWorker();
+      await workerInstance.nodeLinkWorker();
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
@@ -303,7 +303,7 @@ describe("Worker", () => {
       const error = new Error("API error");
       mockAxios.get.mockRejectedValueOnce(error);
 
-      await workerInstance.nodeRequestWorker();
+      await workerInstance.nodeLinkWorker();
       const callback = (cron.schedule as any).lastCallback;
       await callback();
 
