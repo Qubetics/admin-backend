@@ -15,7 +15,7 @@ jest.mock("../../src/service", () => ({
 jest.mock("../../src/worker", () => ({
   startNodeWorker: jest.fn(),
   startProviderWorker: jest.fn(),
-  nodeRequestWorker: jest.fn(),
+  nodeLinkWorker: jest.fn(),
   nodeUnlinkWorker: jest.fn(),
   nodeTerminationWorker: jest.fn(),
 }));
@@ -39,7 +39,7 @@ describe("App Class", () => {
 
       expect(worker.startNodeWorker).toHaveBeenCalled();
       expect(worker.startProviderWorker).toHaveBeenCalled();
-      expect(worker.nodeRequestWorker).toHaveBeenCalled();
+      expect(worker.nodeLinkWorker).toHaveBeenCalled();
       expect(worker.nodeUnlinkWorker).toHaveBeenCalled();
       expect(worker.nodeTerminationWorker).toHaveBeenCalled();
     });
