@@ -1,10 +1,19 @@
 import { RES_MSG, approveTemplate, rejectedTemplate } from "../../constant";
 import sgMail from "@sendgrid/mail";
+import MailChecker from "mailchecker";
 
 sgMail.setApiKey(environment.sendgrid_key);
 class MailService {
   public sendApprovalMail = async (email: string, nodeName: string, isApproved: boolean) => {
     try {
+
+      if (!MailChecker.isValid(email)) {
+        return {
+          error: true,
+          message: RES_MSG.DISPOSBLE_EMAIL,
+        };
+      }
+
       const subject = isApproved
         ? ` Your Qubetics Node Operator Registration is Successful!`
         : `Qubetics Node Registration Update - Action Required`;

@@ -7,7 +7,7 @@ import redisHelper from "../../service/redis.helper";
 import { Response } from "express";
 import MailChecker from "mailchecker";
 import logger from "../../lib/logger";
-const checkCookieVariable = process.env.NODE_ENV == "production" ? false : true;
+const isProduction = process.env.NODE_ENV === "production";
 
 class AuthService {
   async addAdmin(value: any, response: Response): Promise<IESResponse> {
@@ -41,9 +41,9 @@ class AuthService {
       const encryptedData = encryptData(userDetail);
       const uuid = randomUUID();
       response.cookie(COOKIE_NAMES.SESSION_ID, uuid, {
-        httpOnly: checkCookieVariable,
-        secure: checkCookieVariable,
-        sameSite: checkCookieVariable ? "none" : "lax",
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "strict" : "lax",
         // maxAge: environment.redisExpiry,
       });
 
@@ -123,9 +123,9 @@ class AuthService {
       const encryptedData = encryptData(userDetail);
       const uuid = randomUUID();
       response.cookie(COOKIE_NAMES.SESSION_ID, uuid, {
-        httpOnly: checkCookieVariable,
-        secure: checkCookieVariable,
-        sameSite: checkCookieVariable ? "none" : "lax",
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "strict" : "lax",
       });
 
       await redisHelper.setString(uuid, encryptedData);
@@ -152,9 +152,9 @@ class AuthService {
 
       // Clear cookie
       res.clearCookie(COOKIE_NAMES.SESSION_ID, {
-        httpOnly: checkCookieVariable,
-        secure: checkCookieVariable,
-        sameSite: checkCookieVariable ? "none" : "lax",
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "strict" : "lax",
       });
 
       return {
