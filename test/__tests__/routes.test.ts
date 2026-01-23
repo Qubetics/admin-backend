@@ -35,10 +35,6 @@ jest.mock("../../src/module/node/node.controller", () => ({
   default: mockCreateController(),
 }));
 
-jest.mock("../../src/module/mail/mail.controller", () => ({
-  __esModule: true,
-  default: mockCreateController(),
-}));
 
 jest.mock("../../src/module/provider/provider.controller", () => ({
   __esModule: true,
@@ -76,7 +72,6 @@ describe("registerRoutes", () => {
     expect(mockRouter.use).toHaveBeenCalledWith("/plans", mockRouter);
     expect(mockRouter.use).toHaveBeenCalledWith("/activity", mockRouter);
     expect(mockRouter.use).toHaveBeenCalledWith("/node", mockRouter);
-    expect(mockRouter.use).toHaveBeenCalledWith("", mockRouter);
     expect(mockRouter.use).toHaveBeenCalledWith("/provider", mockRouter);
   });
 

@@ -51,18 +51,12 @@ export default class App {
       })
     );
     this.express.use(cookieParser());
-    // support application/json type post data
-    // support application/x-www-form-urlencoded post data
-    // Helmet can help protect your app from some well-known web vulnerabilities by setting HTTP headers appropriately.
-    this.express.use(
-      helmet({
-        contentSecurityPolicy: false,
-        crossOriginEmbedderPolicy: false,
-      })
-    );
 
-    this.express.use(express.json({ limit: "100mb" }));
-    this.express.use(express.urlencoded({ limit: "100mb", extended: true }));
+    this.express.use(helmet());
+
+
+    this.express.use(express.json({ limit: "10mb" }));
+    this.express.use(express.urlencoded({ limit: "5mb", extended: true }));
   }
 
   private StartWorker() {

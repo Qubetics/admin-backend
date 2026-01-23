@@ -12,7 +12,7 @@ import MailChecker from "mailchecker";
 import logger from "../../lib/logger";
 
 class NodeService {
-  constructor() {}
+  constructor() { }
 
   public nodeFormRequest = async (
     orgName: string,
@@ -228,7 +228,7 @@ class NodeService {
         },
       });
 
-      const total = await prisma.nodeRequest.count();
+      const total = await prisma.nodeRequest.count({ where });
 
       return {
         error: false,
@@ -273,14 +273,6 @@ class NodeService {
         requestFor: true,
         status: true,
       };
-
-      if (status === UNDEFINED) {
-        selectFields.nodeStatus = true;
-      }
-
-      if (reqStatus === UNDEFINED) {
-        selectFields.status = true;
-      }
 
       const [data, total] = await Promise.all([
         prisma.nodeRequest.findMany({

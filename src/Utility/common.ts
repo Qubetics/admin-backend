@@ -18,6 +18,8 @@ import { serializeSignDoc } from "@cosmjs/amino";
 import { signatureToPubkey } from "@hanchon/signature-to-pubkey";
 const { bech32 } = require("bech32");
 import CryptoJS from "crypto-js";
+const EC = require("elliptic").ec;
+const ec = new EC("secp256k1");
 import redisHelper from "../service/redis.helper";
 import BigNumber from "bignumber.js";
 import logger from "../lib/logger";
@@ -94,7 +96,25 @@ function messageToAminoTransaction(signer: any, data: any) {
   };
 }
 
-// signMessage=address hi hai
+/**
+ * Derives an EVM-compatible Cosmos bech32 address from a secp256k1 public key.
+ * @param pubKeyBase64
+ * @param prefix 
+ * @returns Bech32 encoded address
+ */
+const pubKeyToCosmosAddress = (pubKeyBase64: string, prefix: string): string => {
+  const pubKeyBytes = Buffer.from(pubKeyBase64, "base64");
+
+  const key = ec.keyFromPublic(pubKeyBytes, "hex");
+  const uncompressed = key.getPublic(false, "hex");
+  const uncompressedNoPrefix = uncompressed.slice(2);
+  const uncompressedBytes = Buffer.from(uncompressedNoPrefix, "hex");
+
+  const keccakHash = sha3.keccak_256(uncompressedBytes);
+  const addressBytes = Buffer.from(keccakHash, "hex").slice(-20);
+  const words = bech32.toWords(addressBytes);
+  return bech32.encode(prefix, words);
+};
 
 export const verifyKeplrSignature = (
   address: any,
@@ -103,6 +123,15 @@ export const verifyKeplrSignature = (
   signMessage: any
 ): { verify: boolean } => {
   try {
+    const decoded = bech32.decode(address);
+    const addressPrefix = decoded.prefix;
+    const derivedAddress = pubKeyToCosmosAddress(pubKey, addressPrefix);
+
+    if (derivedAddress !== address) {
+      logger.warn("Address-public key binding verification failed: derived address does not match claimed address");
+      return { verify: false };
+    }
+
     // Encode the message into amino format
     const aminoEncoded = messageToAminoTransaction(address, Buffer.from(signMessage).toString("base64"));
     const serialized = serializeSignDoc(aminoEncoded);
