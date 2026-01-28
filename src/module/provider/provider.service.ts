@@ -9,7 +9,6 @@ import {
 import { ACTIVE, FETCH_METHODS, RES_MSG, UNDEFINED, WALLET_PREFIX } from "../../constant";
 import geoip from "geoip-lite";
 import logger from "../../lib/logger";
-import { error } from "console";
 
 class ProviderService {
   async getAllProvider(data: any): Promise<any> {
