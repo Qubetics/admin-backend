@@ -134,10 +134,8 @@ class ProviderService {
       }
 
       const wallet_address=convertNodeToWallet(address,WALLET_PREFIX);
-      console.log("🚀 ~ ProviderService ~ isProviderAddressExists ~ wallet_address:", wallet_address)
 
       const provider = await prisma.user.findFirst({where:{address:wallet_address,role:1}});
-      console.log("🚀 ~ ProviderService ~ isProviderAddressExists ~ provider:", provider)
 
      if(!provider){
       return {
