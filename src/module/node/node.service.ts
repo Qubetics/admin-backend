@@ -26,7 +26,7 @@ class NodeService {
   ) => {
     try {
       // function is verify the address
-      const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
+      const isSignatureValid = verifyKeplrSignature(address, signature?.signature,signature?.pub_key?.value, pubKey, address);
 
       if (!isSignatureValid.verify) {
         return {

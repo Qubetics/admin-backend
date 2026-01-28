@@ -17,7 +17,7 @@ class AuthService {
       if (!isValid) throw new Error(RES_MSG.UNAUTHORIZED);
 
       //Validate address
-      const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
+      const isSignatureValid = verifyKeplrSignature(address, signature?.signature,signature?.pub_key?.value, pubKey, address);
       if (!isSignatureValid?.verify) throw new Error(RES_MSG.UNAUTHORIZED);
 
       const result = await prisma.user.upsert({
@@ -102,7 +102,7 @@ class AuthService {
   async loginUser(value: any, response: Response): Promise<IESResponse> {
     const { address, pubKey, signature } = value;
     try {
-      const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
+      const isSignatureValid = verifyKeplrSignature(address, signature?.signature, signature?.pub_key?.value, pubKey, address);
       if (!isSignatureValid?.verify) throw new Error(RES_MSG.ERROR);
 
       const user: any = await prisma.user.findUnique({

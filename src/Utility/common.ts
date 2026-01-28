@@ -119,13 +119,14 @@ const pubKeyToCosmosAddress = (pubKeyBase64: string, prefix: string): string => 
 export const verifyKeplrSignature = (
   address: any,
   signature: any,
+  pubKeyDeriveAddress:any,// vittim pubkey
   pubKey: any,
   signMessage: any
 ): { verify: boolean } => {
   try {
     const decoded = bech32.decode(address);
     const addressPrefix = decoded.prefix;
-    const derivedAddress = pubKeyToCosmosAddress(pubKey, addressPrefix);
+    const derivedAddress = pubKeyToCosmosAddress(pubKeyDeriveAddress, addressPrefix);
 
     if (derivedAddress !== address) {
       logger.warn("Address-public key binding verification failed: derived address does not match claimed address");
