@@ -9,6 +9,7 @@ import {
 import { ACTIVE, FETCH_METHODS, RES_MSG, UNDEFINED, WALLET_PREFIX } from "../../constant";
 import geoip from "geoip-lite";
 import logger from "../../lib/logger";
+import { error } from "console";
 
 class ProviderService {
   async getAllProvider(data: any): Promise<any> {
@@ -119,6 +120,38 @@ class ProviderService {
         data: {
           total: totalCount,
           nodes: enrichedNodes,
+        },
+      };
+    } catch (err) {
+      logger.error("getProviderDetails error:", err);
+      return { error: true, message: RES_MSG.ERROR };
+    }
+  }
+
+  async isProviderAddressExists(address: string): Promise<any> {
+    try {
+      if (!address || address === UNDEFINED) {
+        return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
+      }
+
+      const wallet_address=convertNodeToWallet(address,WALLET_PREFIX);
+      console.log("🚀 ~ ProviderService ~ isProviderAddressExists ~ wallet_address:", wallet_address)
+
+      const provider = await prisma.user.findFirst({where:{address:wallet_address,role:1}});
+      console.log("🚀 ~ ProviderService ~ isProviderAddressExists ~ provider:", provider)
+
+     if(!provider){
+      return {
+        error:true,
+        message:RES_MSG.PROVIDER_ADDRESS_IS_PRESENT
+      }
+     }
+
+      return {
+        error: false,
+        message: RES_MSG.FETCH_SUCCESS,
+        data: {
+          provider: address,
         },
       };
     } catch (err) {
