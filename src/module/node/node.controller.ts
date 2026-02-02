@@ -34,7 +34,6 @@ class NodeController implements Controller {
     const nodeAddress = String(req.body?.nodeAddress);
     const choosePlan = req.body?.choosePlan;
     const wallet_address = String(req.body?.address);
-    const pubKey = String(req.body?.pubKey);
     const request = String(req.body?.request);
     const signature = req.body?.signature;
 
@@ -44,7 +43,6 @@ class NodeController implements Controller {
       nodeAddress,
       choosePlan,
       wallet_address,
-      pubKey,
       signature,
       request
     );

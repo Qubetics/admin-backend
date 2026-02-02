@@ -73,7 +73,7 @@ describe("AuthService", () => {
 
     it("should register admin when tx & signature are valid", async () => {
       (isValidProviderStatusTx as jest.Mock).mockResolvedValue(true);
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (prisma.user.upsert as jest.Mock).mockResolvedValue({ id: 1 });
 
       const res = mockResponse();
@@ -103,7 +103,7 @@ describe("AuthService", () => {
 
     it("should fail when signature is invalid", async () => {
       (isValidProviderStatusTx as jest.Mock).mockResolvedValue(true);
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: false });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(false);
 
       const res = mockResponse();
       const result = await AuthService.addAdmin(value, res);
@@ -151,7 +151,7 @@ describe("AuthService", () => {
     };
 
     it("should login admin successfully", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (prisma.user.findUnique as jest.Mock).mockResolvedValue({
         address: "addr1",
         role: 1,
@@ -169,7 +169,7 @@ describe("AuthService", () => {
     });
 
     it("should fail for invalid signature", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: false });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(false);
 
       const res = mockResponse();
       const result = await AuthService.loginUser(value, res);
@@ -179,7 +179,7 @@ describe("AuthService", () => {
     });
 
     it("should reject non-admin user", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (prisma.user.findUnique as jest.Mock).mockResolvedValue({
         role: 0,
       });
