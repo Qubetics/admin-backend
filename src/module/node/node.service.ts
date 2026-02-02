@@ -20,15 +20,14 @@ class NodeService {
     nodeAddress: string,
     choosePlan: any,
     address: string,
-    pubKey: string,
     signature: any,
     request: string
   ) => {
     try {
       // function is verify the address
-      const isSignatureValid = verifyKeplrSignature(address, signature?.signature,signature?.pub_key?.value, pubKey, address);
+      const isSignatureValid = await verifyKeplrSignature(address, signature?.signature, signature?.pub_key?.value, address);
 
-      if (!isSignatureValid.verify) {
+      if (!isSignatureValid) {
         return {
           error: true,
           message: RES_MSG.NOT_VERIFY,

@@ -153,9 +153,9 @@ describe("Utils Test Suite", () => {
   });
 
   describe("verifyKeplrSignature", () => {
-    it("should return false on error or invalid signature structure", () => {
-      const result = verifyKeplrSignature("addr", "sig", "pubkey", "msg");
-      expect(result).toEqual({ verify: false });
+    it("should return false on error or invalid signature structure", async () => {
+      const result = await verifyKeplrSignature("addr", "sig", "pubkey", "msg");
+      expect(result).toBe(false);
     });
   });
 
@@ -194,7 +194,7 @@ describe("Utils Test Suite", () => {
       try {
         const res = extractIP(null as any);
         expect(res).toBe("");
-      } catch (e) {}
+      } catch (e) { }
     });
   });
 
