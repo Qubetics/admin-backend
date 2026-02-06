@@ -66,7 +66,7 @@ describe("NodeService", () => {
     };
 
     it("should return error when signature verification fails", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: false });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(false);
 
       const result = await NodeService.nodeFormRequest(
         mockParams.orgName,
@@ -74,7 +74,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         mockParams.choosePlan,
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         mockParams.request
       );
@@ -86,7 +85,7 @@ describe("NodeService", () => {
     });
 
     it("should return error when email is disposable", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
 
       const result = await NodeService.nodeFormRequest(
         mockParams.orgName,
@@ -94,7 +93,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         mockParams.choosePlan,
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         mockParams.request
       );
@@ -106,7 +104,7 @@ describe("NodeService", () => {
     });
 
     it("should return error when node is not present on chain", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (fetchRequest as jest.Mock).mockResolvedValue({
         error: true,
       });
@@ -117,7 +115,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         mockParams.choosePlan,
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         mockParams.request
       );
@@ -129,7 +126,7 @@ describe("NodeService", () => {
     });
 
     it("should return error when wallet address is not linked to node address", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (fetchRequest as jest.Mock).mockResolvedValue({
         error: false,
         data: {
@@ -148,7 +145,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         mockParams.choosePlan,
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         mockParams.request
       );
@@ -160,7 +156,7 @@ describe("NodeService", () => {
     });
 
     it("should return error when previous request cannot be overridden", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (fetchRequest as jest.Mock).mockResolvedValue({
         error: false,
         data: {
@@ -186,7 +182,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         mockParams.choosePlan,
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         mockParams.request
       );
@@ -198,7 +193,7 @@ describe("NodeService", () => {
     });
 
     it("should return error when unable to save user", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (fetchRequest as jest.Mock).mockResolvedValue({
         error: false,
         data: {
@@ -218,7 +213,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         mockParams.choosePlan,
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         mockParams.request
       );
@@ -230,7 +224,7 @@ describe("NodeService", () => {
     });
 
     it("should return error when location cannot be determined", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (fetchRequest as jest.Mock).mockResolvedValue({
         error: false,
         data: {
@@ -258,7 +252,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         mockParams.choosePlan,
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         mockParams.request
       );
@@ -270,7 +263,7 @@ describe("NodeService", () => {
     });
 
     it("should successfully create node request", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (fetchRequest as jest.Mock).mockResolvedValue({
         error: false,
         data: {
@@ -301,7 +294,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         mockParams.choosePlan,
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         mockParams.request
       );
@@ -315,7 +307,7 @@ describe("NodeService", () => {
     });
 
     it("should handle UNLINK request without choosePlan", async () => {
-      (verifyKeplrSignature as jest.Mock).mockReturnValue({ verify: true });
+      (verifyKeplrSignature as jest.Mock).mockResolvedValue(true);
       (fetchRequest as jest.Mock).mockResolvedValue({
         error: false,
         data: {
@@ -353,7 +345,6 @@ describe("NodeService", () => {
         mockParams.nodeAddress,
         {},
         mockParams.address,
-        mockParams.pubKey,
         mockParams.signature,
         UNLINK
       );
