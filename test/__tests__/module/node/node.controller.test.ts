@@ -99,7 +99,6 @@ describe("NodeController", () => {
         "0x123",
         "pro",
         "0xabc",
-        "pubkey123",
         "sig123",
         "request_data"
       );
@@ -130,7 +129,6 @@ describe("NodeController", () => {
         "undefined",
         "undefined",
         undefined,
-        "undefined",
         "undefined",
         undefined,
         "undefined"

@@ -27,7 +27,13 @@ export const saveProvider = async (providers: any[]) => {
     const tasks: any = providers.map((provider: any) =>
       prisma.user.upsert({
         where: { address: convertNodeToWallet(provider.address, WALLET_PREFIX) },
-        update: {},
+        update: {
+          role: 1,
+          name: provider.name,
+          email: provider.identity,
+          url: provider.website,
+          description: provider.description,
+        },
         create: {
           address: convertNodeToWallet(provider.address, WALLET_PREFIX),
           name: provider.name,

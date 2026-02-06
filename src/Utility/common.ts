@@ -13,15 +13,16 @@ import {
   CHAIN_METHOD,
 } from "../constant";
 import sha3 from "js-sha3";
-import { arrayify } from "@ethersproject/bytes";
 import { serializeSignDoc } from "@cosmjs/amino";
-import { signatureToPubkey } from "@hanchon/signature-to-pubkey";
-const { bech32 } = require("bech32");
+import { bech32 } from "bech32";
 import CryptoJS from "crypto-js";
+import { ec as EllipticEC } from "elliptic";
+const ec = new EllipticEC("secp256k1");
 import redisHelper from "../service/redis.helper";
 import BigNumber from "bignumber.js";
 import logger from "../lib/logger";
-
+import { Secp256k1, Secp256k1Signature } from "@cosmjs/crypto";
+import { fromBase64 } from "@cosmjs/encoding";
 /**
  * For making http requests
  * @param url
@@ -65,14 +66,21 @@ export const getOffset = (page = 1, limit = 10) => {
   return (page - 1) * limit;
 };
 
-export const getWalletAddressFromNodeAddress = (nodeAddress: String, walletPrefix: String = WALLET_PREFIX): String => {
+export const getWalletAddressFromNodeAddress = (nodeAddress: string, walletPrefix: string = WALLET_PREFIX): string => {
   const decoded = bech32.decode(nodeAddress);
   const words = decoded.words;
 
   // Re-encode with wallet prefix
   return bech32.encode(walletPrefix, words);
 };
-function messageToAminoTransaction(signer: any, data: any) {
+
+/**
+ * Create sign document for Keplr signature verification
+ * @param {string} address - Signer's bech32 address
+ * @param {string} message - Message to be signed
+ * @returns Sign document object
+ */
+export const createSignDoc = (address: string, message: string) => {
   return {
     chain_id: "",
     account_number: "0",
@@ -85,41 +93,71 @@ function messageToAminoTransaction(signer: any, data: any) {
       {
         type: "sign/MsgSignData",
         value: {
-          signer,
-          data,
+          signer: address,
+          data: Buffer.from(message).toString("base64"),
         },
       },
     ],
     memo: "",
   };
-}
-
-// signMessage=address hi hai
-
-export const verifyKeplrSignature = (
-  address: any,
-  signature: any,
-  pubKey: any,
-  signMessage: any
-): { verify: boolean } => {
-  try {
-    // Encode the message into amino format
-    const aminoEncoded = messageToAminoTransaction(address, Buffer.from(signMessage).toString("base64"));
-    const serialized = serializeSignDoc(aminoEncoded);
-
-    // Hash the amino message that was signed
-    const hashed = sha3.keccak_256(arrayify(serialized));
-
-    // Compare signature
-    const signatureToCompare = `0x${Buffer.from(signature, "base64").toString("hex")}`;
-
-    const pubkeyComputed = signatureToPubkey(signatureToCompare, Buffer.from(hashed, "hex"));
-    return { verify: pubKey === pubkeyComputed };
-  } catch (err) {
-    logger.error("err", err);
-    return { verify: false };
-  }
 };
+
+/**
+ * Verify Keplr signArbitrary signature
+ * @param {string} address - Signer's bech32 address (e.g., "qube1abc...")
+ * @param {string} signatureBase64 - Base64 encoded signature
+ * @param {string} pubKeyBase64 - Base64 encoded public key
+ * @param {string} message - Original message that was signed
+ * @returns {Promise<boolean>}
+ */
+export const verifyKeplrSignature = async (
+  address: string,
+  signatureBase64: string,
+  pubKeyBase64: string,
+  message: string
+) => {
+  try {
+    const decoded = bech32.decode(address);
+    const bech32Prefix = decoded.prefix;
+
+    const pubKeyBytes = fromBase64(pubKeyBase64);
+    const signatureBytes = fromBase64(signatureBase64);
+
+    const signDoc = createSignDoc(address, message);
+
+    const serialized = serializeSignDoc(signDoc);
+    const messageKeccakHash = sha3.keccak_256(serialized);
+    const messageHash = Buffer.from(messageKeccakHash, "hex");
+
+    const signatureObject = Secp256k1Signature.fromFixedLength(signatureBytes);
+    const isValidSignature = await Secp256k1.verifySignature(
+      signatureObject,
+      messageHash,
+      pubKeyBytes
+    );
+
+    if (!isValidSignature) {
+      logger.error("Signature verification failed");
+      return false;
+    }
+
+    const key = ec.keyFromPublic(pubKeyBytes);
+    const uncompressed = key.getPublic(false, "hex");
+    const uncompressedNoPrefix = uncompressed.slice(2);
+    const uncompressedBytes = Buffer.from(uncompressedNoPrefix, "hex");
+
+    const keccakHash = sha3.keccak_256(uncompressedBytes);
+    const addressBytes = Buffer.from(keccakHash, "hex").slice(-20);
+
+    const words = bech32.toWords(addressBytes);
+    const derivedAddress = bech32.encode(bech32Prefix, words);
+
+    return derivedAddress === address;
+  } catch (error) {
+    logger.error("Verification error:", error);
+    return false;
+  }
+}
 
 export const decryptData = (ciphertext: string) => {
   const bytes = CryptoJS.AES.decrypt(ciphertext, environment.secretKey);

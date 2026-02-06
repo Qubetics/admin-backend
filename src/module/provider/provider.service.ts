@@ -127,6 +127,36 @@ class ProviderService {
     }
   }
 
+  async isProviderAddressExists(address: string): Promise<any> {
+    try {
+      if (!address || address === UNDEFINED) {
+        return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
+      }
+
+      const wallet_address=convertNodeToWallet(address,WALLET_PREFIX);
+
+      const provider = await prisma.user.findFirst({where:{address:wallet_address,role:1}});
+
+     if(!provider){
+      return {
+        error:true,
+        message:RES_MSG.PROVIDER_ADDRESS_IS_PRESENT
+      }
+     }
+
+      return {
+        error: false,
+        message: RES_MSG.FETCH_SUCCESS,
+        data: {
+          provider: address,
+        },
+      };
+    } catch (err) {
+      logger.error("getProviderDetails error:", err);
+      return { error: true, message: RES_MSG.ERROR };
+    }
+  }
+
   async getActivePlanProviders(): Promise<any> {
     try {
       let url = `${environment.evmHost}/qubetics/plan/v3/plans`;

@@ -12,7 +12,7 @@ import MailChecker from "mailchecker";
 import logger from "../../lib/logger";
 
 class NodeService {
-  constructor() {}
+  constructor() { }
 
   public nodeFormRequest = async (
     orgName: string,
@@ -20,15 +20,14 @@ class NodeService {
     nodeAddress: string,
     choosePlan: any,
     address: string,
-    pubKey: string,
     signature: any,
     request: string
   ) => {
     try {
       // function is verify the address
-      const isSignatureValid = verifyKeplrSignature(address, signature?.signature, pubKey, address);
+      const isSignatureValid = await verifyKeplrSignature(address, signature?.signature, signature?.pub_key?.value, address);
 
-      if (!isSignatureValid.verify) {
+      if (!isSignatureValid) {
         return {
           error: true,
           message: RES_MSG.NOT_VERIFY,
@@ -228,7 +227,7 @@ class NodeService {
         },
       });
 
-      const total = await prisma.nodeRequest.count();
+      const total = await prisma.nodeRequest.count({ where });
 
       return {
         error: false,
@@ -273,14 +272,6 @@ class NodeService {
         requestFor: true,
         status: true,
       };
-
-      if (status === UNDEFINED) {
-        selectFields.nodeStatus = true;
-      }
-
-      if (reqStatus === UNDEFINED) {
-        selectFields.status = true;
-      }
 
       const [data, total] = await Promise.all([
         prisma.nodeRequest.findMany({

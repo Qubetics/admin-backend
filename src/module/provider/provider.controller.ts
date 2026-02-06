@@ -15,6 +15,7 @@ class ProviderController implements Controller {
 
   private initializeRoutes() {
     this.router.get("", this.getAllProvider);
+    this.router.get("/search",this.isProviderAddressExists);
     this.router.get("/active-plans", this.getActivePlanProviders);
     this.router.get("/detail/:address", this.getProviderDetails);
   }
@@ -25,6 +26,18 @@ class ProviderController implements Controller {
       return setResponse.error(response, user);
     }
     return setResponse.success(response, user);
+  };
+
+  private isProviderAddressExists = async (request: Request, response: Response) => {
+    const { provAddress } = request.query;
+
+    const provider = await providerService.isProviderAddressExists(
+      provAddress as string
+    );
+    if (provider.error) {
+      return setResponse.error(response, provider);
+    }
+    return setResponse.success(response, provider);
   };
 
   private getProviderDetails = async (request: Request, response: Response) => {
