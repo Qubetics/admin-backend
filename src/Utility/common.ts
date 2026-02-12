@@ -180,14 +180,25 @@ export const isTokenExpired = async (token: string) => {
   return value;
 };
 
-export const extractIP = (url: string): string => {
+export const extractBothIP = (remoteUrl: string): string | null => {
   try {
-    const withoutProtocol = url.replace(/^https?:\/\//, "");
-    const hostname = withoutProtocol.split(":")[0];
-    return hostname;
+    if (!remoteUrl) return null;
+    // Remove scheme if present
+    let url = remoteUrl.replace(/^https?:\/\//, '');
+    // Handle IPv6 with port
+    if (url.includes(']')) {
+      // [IPv6]:port
+      url = url.substring(0, url.indexOf(']') + 1);
+    } else if (url.includes(':')) {
+      // raw IPv6 or IPv4 with port
+      url = url.substring(0, url.lastIndexOf(':'));
+    }
+    // Remove surrounding brackets for IPv6
+    url = url.replace(/^\[|\]$/g, '');
+    return url;
   } catch (err) {
-    logger.info(`${Message.invalidurl}: ${url}`);
-    return "";
+    console.error("extractBothIP error:", err);
+    return null;
   }
 };
 

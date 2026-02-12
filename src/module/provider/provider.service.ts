@@ -1,7 +1,7 @@
 import prisma from "../../lib/db";
 import {
   convertNodeToWallet,
-  extractIP,
+  extractBothIP,
   fetchRequest,
   getOffset,
   getWalletAddressFromNodeAddress,
@@ -9,6 +9,7 @@ import {
 import { ACTIVE, FETCH_METHODS, RES_MSG, UNDEFINED, WALLET_PREFIX } from "../../constant";
 import geoip from "geoip-lite";
 import logger from "../../lib/logger";
+import maxmindHelper from "../../helper/maxmind.helper";
 
 class ProviderService {
   async getAllProvider(data: any): Promise<any> {
@@ -81,32 +82,37 @@ class ProviderService {
       const totalCount = Number(countResult?.[0]?.count || 0);
 
       const nodeList = await prisma.$queryRaw<
-        {
-          orgName: string | null;
-          location: string;
-          nodeStatus: string;
-          remoteUrl: string;
-        }[]
-      >`
-        SELECT 
-          "nodeAddress", 
-          "location", 
-          "nodeStatus",
-          "remoteUrl"
-        FROM "NodeRequest"
-        WHERE "provAddress" = ${address}
-        ORDER BY "createdAt" DESC
-        OFFSET ${offset}
-        LIMIT ${Number(limit)};
-      `;
+      {
+        orgName: string | null;
+        location: string;
+        nodeStatus: string;
+        remoteUrl: string;
+      }[]
+    >`
+      SELECT 
+        "nodeAddress", 
+        "location", 
+        "nodeStatus",
+        "remoteUrl"
+      FROM "NodeRequest"
+      WHERE "provAddress" = ${address}
+        AND (
+          ("status" = 'APPROVED' AND "requestFor" = 'Link') OR
+          ("status" = 'PENDING' AND "requestFor" = 'Unlink') OR
+          ("status" = 'REJECTED' AND "requestFor" = 'Unlink')
+        )
+      ORDER BY "createdAt" DESC
+      OFFSET ${offset}
+      LIMIT ${Number(limit)};
+    `;
 
-      const enrichedNodes = nodeList.map((node) => {
-        const ip = extractIP(node.remoteUrl);
+      const enrichedNodes = nodeList.map(async (node) => {
+        const ip = extractBothIP(node?.remoteUrl);
         if (!ip) {
           return { ...node, city: null };
         }
 
-        const geo = geoip.lookup(ip);
+      const geo = await maxmindHelper.getLocationData(String(ip));
         return {
           ...node,
           city: geo?.city || null,
