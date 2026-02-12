@@ -156,6 +156,10 @@ export const Message = {
   nodeFail: "Failed to fetch",
 };
 
+export const MAXMIND_CONFIG = {
+  DATABASE_PATH: process.env.MAXMIND_DATABASE_PATH || "./data/GeoLite2-City.mmdb",
+};
+
 export const COOKIE_NAMES = {
   SESSION_ID: "session_id", // Cookie for Redis-backed sessions
 };
