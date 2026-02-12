@@ -3,11 +3,12 @@ import { CRON_WORKER, LINK, UNLINK, Message, REQUEST_STATUS, WALLET_PREFIX } fro
 import axios from "axios";
 import { saveNodes, saveProvider, batchUpdateNodeRequests } from "../helper/node.helper";
 import prisma from "../lib/db";
-import { convertNodeToWallet, extractIP } from "../Utility/common";
+import { convertNodeToWallet, extractBothIP } from "../Utility/common";
 import geoip from "geoip-lite";
 import countries from "i18n-iso-countries";
 import authService from "../module/auth/auth.service";
 import logger from "../lib/logger";
+import maxmindHelper from "../helper/maxmind.helper";
 
 class Worker {
   public async startNodeWorker(): Promise<void> {
@@ -66,15 +67,15 @@ class Worker {
         await Promise.allSettled(
           allNodes.map(async (val: any) => {
             try {
-              const ip = extractIP(val?.remote_url);
-              const geo: any = geoip.lookup(ip);
+              const ip = extractBothIP(val?.remote_url);
+              const geo = await maxmindHelper.getLocationData(String(ip));
 
               if (!geo) {
                 console.warn(`No geo data for IP: ${ip}`);
                 return;
               }
 
-              const countryName = countries.getName(geo.country, "en");
+              const countryName = geo?.country || 'Unknown';
               const address = convertNodeToWallet(val?.address, WALLET_PREFIX);
 
               await authService.addUser({ address });
@@ -109,7 +110,7 @@ class Worker {
                   hours: val?.plan?.hours,
                   provAddress: val?.plan?.prov_address,
                   bandwidth: val?.plan?.gigabytes,
-                  location: countryName || geo.country || "",
+                  location: countryName || geo?.country || "",
                   plan: val?.plan?.prices[0]?.quote_value,
                   status: REQUEST_STATUS.APPROVED,
                   action: false,

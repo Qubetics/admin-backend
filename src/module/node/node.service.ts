@@ -1,5 +1,5 @@
 import { ACTIVE, APPROVED, INACTIVE, LINK, PENDING, REJECTED, RES_MSG, UNDEFINED, UNLINK } from "../../constant";
-import { extractIP, fetchRequest, getWalletAddressFromNodeAddress, canSubmitNodeRequest } from "../../Utility/common";
+import { fetchRequest, getWalletAddressFromNodeAddress, canSubmitNodeRequest, extractBothIP } from "../../Utility/common";
 import { FETCH_METHODS } from "../../constant";
 import AuthService from "../auth/auth.service";
 import prisma from "../../lib/db";
@@ -10,6 +10,7 @@ import { Status } from "../../interfaces";
 import mailService from "../mail/mail.service";
 import MailChecker from "mailchecker";
 import logger from "../../lib/logger";
+import maxmindHelper from "../../helper/maxmind.helper";
 
 class NodeService {
   constructor() { }
@@ -123,15 +124,16 @@ class NodeService {
         };
       }
 
-      const ip = extractIP(node?.remote_url);
-      const geo = geoip.lookup(ip);
+      const ip = extractBothIP(node?.remote_url);
+      const geo = await maxmindHelper.getLocationData(String(ip));
+
       if (!geo) {
         return {
           error: true,
           message: RES_MSG.UNABLE_TO_FIND_LOC,
         };
       }
-      const countryName = countries.getName(geo.country, "en");
+      const countryName = geo?.country || 'Unknown';
 
       await prisma.activity.create({
         data: {
@@ -161,7 +163,7 @@ class NodeService {
           remoteUrl: node?.remote_url,
           requestFor: request,
           hours: choosePlan?.hours,
-          location: countryName || geo.country,
+          location: countryName || geo?.country,
           action: false,
         },
         create: {
@@ -178,7 +180,7 @@ class NodeService {
           remoteUrl: node?.remote_url,
           requestFor: request,
           hours: choosePlan?.hours,
-          location: countryName || geo.country,
+          location: countryName || geo?.country,
           action: false,
         },
       });
