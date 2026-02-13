@@ -7,7 +7,7 @@ on:
 
 jobs:
   solver-onboarding-backend:
-    uses: Qubetics/argocd-qubetics/.github/workflows/deployment.yaml@dev
+    uses: ./.github/workflows/dvpn-admin-backend-service.yaml
     with:
       SWR_ORGANIZATION: dev-qubetics
       ARGOCD_BRANCH: dev
