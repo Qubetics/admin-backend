@@ -1,5 +1,4 @@
-      
-name: '[prod] Deploy Dvpn Admin-Backend'
+name: '[dev] Deploy Admin-Backend '
 
 on: 
   push:
@@ -7,8 +6,8 @@ on:
       - mainnet
 
 jobs:
-  dvpn-admin-backend:
-    uses: Qubetics/argocd-qubetics/.github/workflows/deployment.yaml@prod
+  solver-onboarding-backend:
+    uses: ./.github/workflows/dvpn-admin-backend-service.yaml
     with:
       SWR_ORGANIZATION: prod-qubetics
       ARGOCD_BRANCH: prod

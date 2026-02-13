@@ -74,10 +74,15 @@ class ProviderService {
       const offset = getOffset(Number(page), Number(limit));
 
       const countResult = await prisma.$queryRaw<{ count: bigint }[]>`
-        SELECT COUNT(*)::bigint AS count
-        FROM "NodeRequest"
-        WHERE "provAddress" = ${address};
-      `;
+      SELECT COUNT(*)::bigint AS count
+      FROM "NodeRequest"
+      WHERE "provAddress" = ${address}
+        AND (
+          ("status" = 'APPROVED' AND "requestFor" = 'Link') OR
+          ("status" = 'PENDING' AND "requestFor" = 'Unlink') OR
+          ("status" = 'REJECTED' AND "requestFor" = 'Unlink')
+        );
+    `;
 
       const totalCount = Number(countResult?.[0]?.count || 0);
 
