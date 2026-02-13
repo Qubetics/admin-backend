@@ -66,6 +66,9 @@ jobs:
         run: |
           docker login -u ${{ inputs.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} swr.${{ inputs.HUAWEI_REGION }}.myhuaweicloud.com
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
       #############
       # Build Image
       #############
@@ -78,9 +81,9 @@ jobs:
         run: |
           echo "${{ inputs.ENV }}" >> .env
           cat .env
-          docker build --no-cache --format=docker -t $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }} .
-          docker push $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }}
-
+          docker buildx build --no-cache --platform linux/amd64 --format=docker -t $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }} \
+          --push .
+  
       ################
       # Update argocd
       ################
