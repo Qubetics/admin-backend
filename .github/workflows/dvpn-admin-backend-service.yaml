@@ -78,7 +78,7 @@ jobs:
         run: |
           echo "${{ inputs.ENV }}" >> .env
           cat .env
-          docker build --no-cache -t $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }} .
+          docker build --no-cache --format=docker -t $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }} .
           docker push $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }}
 
       ################
