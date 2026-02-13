@@ -81,7 +81,7 @@ jobs:
         run: |
           echo "${{ inputs.ENV }}" >> .env
           cat .env
-          docker buildx build --no-cache --platform linux/amd64 --format=docker -t $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }} \
+          docker buildx build --no-cache --platform linux/amd64 -t $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }} \
           --push .
   
       ################
