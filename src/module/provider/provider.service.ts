@@ -7,7 +7,6 @@ import {
   getWalletAddressFromNodeAddress,
 } from "../../Utility/common";
 import { ACTIVE, FETCH_METHODS, RES_MSG, UNDEFINED, WALLET_PREFIX } from "../../constant";
-import geoip from "geoip-lite";
 import logger from "../../lib/logger";
 import maxmindHelper from "../../helper/maxmind.helper";
 
@@ -34,12 +33,19 @@ class ProviderService {
       let updatedProviders = allProviders;
 
       if (page && limit) {
-        const nodeCounts = await prisma.$queryRaw<{ provAddress: string; count: bigint }[]>`
-          SELECT "provAddress", COUNT(*)::bigint as count
-          FROM "NodeRequest"
-          WHERE "nodeStatus" = 'active'
-          GROUP BY "provAddress";
-        `;
+        const nodeCounts = await prisma.$queryRaw<
+        { provAddress: string; count: bigint }[]
+      >`
+        SELECT "provAddress", COUNT(*)::bigint AS count
+        FROM "NodeRequest"
+        WHERE "nodeStatus" = 'active'
+          AND (
+            ("status" = 'APPROVED' AND "requestFor" = 'Link') OR
+            ("status" = 'PENDING'  AND "requestFor" = 'Unlink') OR
+            ("status" = 'REJECTED' AND "requestFor" = 'Unlink')
+          )
+        GROUP BY "provAddress";
+      `;
 
         const countMap: Record<string, number> = {};
         nodeCounts.forEach((row) => {
@@ -87,13 +93,13 @@ class ProviderService {
       const totalCount = Number(countResult?.[0]?.count || 0);
 
       const nodeList = await prisma.$queryRaw<
-      {
-        orgName: string | null;
-        location: string;
-        nodeStatus: string;
-        remoteUrl: string;
-      }[]
-    >`
+        {
+          orgName: string | null;
+          location: string;
+          nodeStatus: string;
+          remoteUrl: string;
+        }[]
+      >`
       SELECT 
         "nodeAddress", 
         "location", 
@@ -116,25 +122,21 @@ class ProviderService {
         if (!ip) {
           return { ...node, city: null };
         }
+  
 
-        const geo = await maxmindHelper.getLocationData(String(ip));
+      const geo = await maxmindHelper.getLocationData(String(ip));
         return {
           ...node,
           city: geo?.city || null,
         };
       }));
 
-      // Extract values from fulfilled promises
-      const enrichedNodes = enrichedNodesResults
-        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
-        .map((result) => result.value);
-
       return {
         error: false,
         message: RES_MSG.FETCH_SUCCESS,
         data: {
           total: totalCount,
-          nodes: enrichedNodes,
+          nodes: enrichedNodesResults,
         },
       };
     } catch (err) {
@@ -149,16 +151,16 @@ class ProviderService {
         return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
       }
 
-      const wallet_address=convertNodeToWallet(address,WALLET_PREFIX);
+      const wallet_address = convertNodeToWallet(address, WALLET_PREFIX);
 
-      const provider = await prisma.user.findFirst({where:{address:wallet_address,role:1}});
+      const provider = await prisma.user.findFirst({ where: { address: wallet_address, role: 1 } });
 
-     if(!provider){
-      return {
-        error:true,
-        message:RES_MSG.PROVIDER_ADDRESS_IS_PRESENT
+      if (!provider) {
+        return {
+          error: true,
+          message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT
+        }
       }
-     }
 
       return {
         error: false,
