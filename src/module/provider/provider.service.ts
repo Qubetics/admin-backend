@@ -111,7 +111,7 @@ class ProviderService {
       LIMIT ${Number(limit)};
     `;
 
-      const enrichedNodes = await Promise.allSettled(nodeList.map(async (node) => {
+      const enrichedNodesResults = await Promise.allSettled(nodeList.map(async (node) => {
         const ip = extractBothIP(node?.remoteUrl);
         if (!ip) {
           return { ...node, city: null };
@@ -123,6 +123,11 @@ class ProviderService {
           city: geo?.city || null,
         };
       }));
+
+      // Extract values from fulfilled promises
+      const enrichedNodes = enrichedNodesResults
+        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
+        .map((result) => result.value);
 
       return {
         error: false,
