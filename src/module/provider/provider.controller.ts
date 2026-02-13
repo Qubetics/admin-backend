@@ -72,8 +72,12 @@ class ProviderController implements Controller {
     response: Response
   ) => {
     const { address } = request.params;
+    const { nodeAddress } = request.query;
 
-    const result = await providerService.getProviderLeaseId(address as string);
+    const result = await providerService.getProviderLeaseId(
+      address as string,
+      nodeAddress as string
+    );
     if (result.error) {
       return setResponse.error(response, result);
     }

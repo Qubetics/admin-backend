@@ -7,11 +7,12 @@ import {
   fetchRequest,
   getWalletAddressFromNodeAddress,
   canSubmitNodeRequest,
-  extractIP,
+  extractBothIP,
 } from "../../../../src/Utility/common";
 import { ACTIVE, APPROVED, LINK, PENDING, REJECTED, RES_MSG, UNDEFINED, UNLINK } from "../../../../src/constant";
 import geoip from "geoip-lite";
 import countries from "i18n-iso-countries";
+import maxmindHelper from "../../../../src/helper/maxmind.helper";
 
 // Mock dependencies
 jest.mock("../../../../src/lib/db", () => ({
@@ -36,6 +37,14 @@ jest.mock("../../../../src/module/mail/mail.service", () => ({
 jest.mock("../../../../src/Utility/common");
 jest.mock("geoip-lite");
 jest.mock("i18n-iso-countries");
+jest.mock("../../../../src/helper/maxmind.helper", () => ({
+  getLocationData: jest.fn().mockResolvedValue({
+    city: "New York",
+    country: "United States",
+    latitude: 40.7128,
+    longitude: -74.0060,
+  }),
+}));
 
 describe("NodeService", () => {
   beforeEach(() => {
@@ -243,8 +252,8 @@ describe("NodeService", () => {
           provider: { id: "prov1" },
         },
       });
-      (extractIP as jest.Mock).mockReturnValue("1.2.3.4");
-      (geoip.lookup as jest.Mock).mockReturnValue(null);
+      (extractBothIP as jest.Mock).mockReturnValue("1.2.3.4");
+      (maxmindHelper.getLocationData as jest.Mock).mockResolvedValueOnce(null);
 
       const result = await NodeService.nodeFormRequest(
         mockParams.orgName,
@@ -282,8 +291,8 @@ describe("NodeService", () => {
           provider: { id: "prov1" },
         },
       });
-      (extractIP as jest.Mock).mockReturnValue("1.2.3.4");
-      (geoip.lookup as jest.Mock).mockReturnValue({ country: "US" });
+      (extractBothIP as jest.Mock).mockReturnValue("1.2.3.4");
+      (maxmindHelper.getLocationData as jest.Mock).mockResolvedValueOnce({ country: "US" });
       (countries.getName as jest.Mock).mockReturnValue("United States");
       (prisma.activity.create as jest.Mock).mockResolvedValue({});
       (prisma.nodeRequest.upsert as jest.Mock).mockResolvedValue({});
@@ -333,8 +342,8 @@ describe("NodeService", () => {
           provider: { id: "prov1" },
         },
       });
-      (extractIP as jest.Mock).mockReturnValue("1.2.3.4");
-      (geoip.lookup as jest.Mock).mockReturnValue({ country: "US" });
+      (extractBothIP as jest.Mock).mockReturnValue("1.2.3.4");
+      (maxmindHelper.getLocationData as jest.Mock).mockResolvedValueOnce({ country: "US" });
       (countries.getName as jest.Mock).mockReturnValue("United States");
       (prisma.activity.create as jest.Mock).mockResolvedValue({});
       (prisma.nodeRequest.upsert as jest.Mock).mockResolvedValue({});

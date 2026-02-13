@@ -111,18 +111,18 @@ class ProviderService {
       LIMIT ${Number(limit)};
     `;
 
-      const enrichedNodes = nodeList.map(async (node) => {
+      const enrichedNodes = await Promise.allSettled(nodeList.map(async (node) => {
         const ip = extractBothIP(node?.remoteUrl);
         if (!ip) {
           return { ...node, city: null };
         }
 
-      const geo = await maxmindHelper.getLocationData(String(ip));
+        const geo = await maxmindHelper.getLocationData(String(ip));
         return {
           ...node,
           city: geo?.city || null,
         };
-      });
+      }));
 
       return {
         error: false,
@@ -220,7 +220,7 @@ class ProviderService {
     }
   }
 
-  async getProviderLeaseId(address: string): Promise<any> {
+  async getProviderLeaseId(address: string, nodeAddress: string): Promise<any> {
     try {
       if (!address || address === UNDEFINED) {
         return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
@@ -233,7 +233,7 @@ class ProviderService {
         return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
       }
 
-      const leases = response?.data?.leases || [];
+      let leases = response?.data?.leases || [];
 
       if (leases.length === 0) {
         return {
@@ -241,6 +241,20 @@ class ProviderService {
           message: RES_MSG.NO_LEASE_FOUND,
         
         };
+      }
+
+      // Filter by node_address if provided
+      if (nodeAddress && nodeAddress !== UNDEFINED) {
+        leases = leases.filter((lease: any) => lease.node_address === nodeAddress);
+
+        if (leases.length === 0) {
+          return {
+            error: true,
+            message: RES_MSG.NO_LEASE_FOUND,
+          };
+        }
+      }else{
+         return { error: true, message: RES_MSG.NODE_ADRES_IS_NOT_PRESENT };
       }
 
       leases.sort((a: any, b: any) => {
