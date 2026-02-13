@@ -87,13 +87,13 @@ class ProviderService {
       const totalCount = Number(countResult?.[0]?.count || 0);
 
       const nodeList = await prisma.$queryRaw<
-      {
-        orgName: string | null;
-        location: string;
-        nodeStatus: string;
-        remoteUrl: string;
-      }[]
-    >`
+        {
+          orgName: string | null;
+          location: string;
+          nodeStatus: string;
+          remoteUrl: string;
+        }[]
+      >`
       SELECT 
         "nodeAddress", 
         "location", 
@@ -111,18 +111,22 @@ class ProviderService {
       LIMIT ${Number(limit)};
     `;
 
-      const enrichedNodes = nodeList.map(async (node) => {
-        const ip = extractBothIP(node?.remoteUrl);
-        if (!ip) {
-          return { ...node, city: null };
-        }
+      const enrichedNodes = await Promise.all(
+        nodeList.map(async (node) => {
+          const ip = extractBothIP(node?.remoteUrl);
 
-      const geo = await maxmindHelper.getLocationData(String(ip));
-        return {
-          ...node,
-          city: geo?.city || null,
-        };
-      });
+          if (!ip) {
+            return { ...node, city: null };
+          }
+
+          const geo = await maxmindHelper.getLocationData(String(ip));
+
+          return {
+            ...node,
+            city: geo?.city || null,
+          };
+        })
+      );
 
       return {
         error: false,
@@ -144,16 +148,16 @@ class ProviderService {
         return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
       }
 
-      const wallet_address=convertNodeToWallet(address,WALLET_PREFIX);
+      const wallet_address = convertNodeToWallet(address, WALLET_PREFIX);
 
-      const provider = await prisma.user.findFirst({where:{address:wallet_address,role:1}});
+      const provider = await prisma.user.findFirst({ where: { address: wallet_address, role: 1 } });
 
-     if(!provider){
-      return {
-        error:true,
-        message:RES_MSG.PROVIDER_ADDRESS_IS_PRESENT
+      if (!provider) {
+        return {
+          error: true,
+          message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT
+        }
       }
-     }
 
       return {
         error: false,
