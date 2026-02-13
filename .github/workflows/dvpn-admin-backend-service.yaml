@@ -81,9 +81,13 @@ jobs:
         run: |
           echo "${{ inputs.ENV }}" >> .env
           cat .env
-          docker build --no-cache -t $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }} .
-          docker push $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }}
-
+          docker buildx build \
+          --platform linux/amd64 \
+          --output type=docker \
+          --no-cache \
+          -t $REGISTRY/$SWR_ORGANIZATION/$HUAWEI_IMAGE:${{ github.run_number }} \
+          .
+  
       ################
       # Update argocd
       ################
