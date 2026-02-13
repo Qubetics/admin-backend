@@ -13,10 +13,10 @@
 
 */
 -- DropForeignKey
-ALTER TABLE "public"."Activity" DROP CONSTRAINT "Activity_id_fkey";
+ALTER TABLE "analytics"."Activity" DROP CONSTRAINT "Activity_id_fkey";
 
 -- AlterTable
-ALTER TABLE "public"."Activity" DROP COLUMN "address",
+ALTER TABLE "analytics"."Activity" DROP COLUMN "address",
 DROP COLUMN "country",
 DROP COLUMN "countryCode",
 DROP COLUMN "data",
@@ -28,4 +28,4 @@ ADD COLUMN     "metaData" JSONB,
 ADD COLUMN     "userId" TEXT NOT NULL;
 
 -- AddForeignKey
-ALTER TABLE "public"."Activity" ADD CONSTRAINT "Activity_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "analytics"."Activity" ADD CONSTRAINT "Activity_userId_fkey" FOREIGN KEY ("userId") REFERENCES "analytics"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
