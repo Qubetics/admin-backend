@@ -34,12 +34,19 @@ class ProviderService {
       let updatedProviders = allProviders;
 
       if (page && limit) {
-        const nodeCounts = await prisma.$queryRaw<{ provAddress: string; count: bigint }[]>`
-          SELECT "provAddress", COUNT(*)::bigint as count
-          FROM "NodeRequest"
-          WHERE "nodeStatus" = 'active'
-          GROUP BY "provAddress";
-        `;
+        const nodeCounts = await prisma.$queryRaw<
+        { provAddress: string; count: bigint }[]
+      >`
+        SELECT "provAddress", COUNT(*)::bigint AS count
+        FROM "NodeRequest"
+        WHERE "nodeStatus" = 'active'
+          AND (
+            ("status" = 'APPROVED' AND "requestFor" = 'Link') OR
+            ("status" = 'PENDING'  AND "requestFor" = 'Unlink') OR
+            ("status" = 'REJECTED' AND "requestFor" = 'Unlink')
+          )
+        GROUP BY "provAddress";
+      `;
 
         const countMap: Record<string, number> = {};
         nodeCounts.forEach((row) => {
