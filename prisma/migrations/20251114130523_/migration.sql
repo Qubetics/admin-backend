@@ -5,5 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE "analytics"."Activity" DROP COLUMN "role",
+ALTER TABLE "public"."Activity" DROP COLUMN "role",
 ADD COLUMN     "role" INTEGER NOT NULL;

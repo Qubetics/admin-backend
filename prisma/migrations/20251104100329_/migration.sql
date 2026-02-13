@@ -1,2 +1,2 @@
 -- AlterEnum
-ALTER TYPE "analytics"."Status" ADD VALUE 'UNSPECIFIED';
+ALTER TYPE "public"."Status" ADD VALUE 'UNSPECIFIED';

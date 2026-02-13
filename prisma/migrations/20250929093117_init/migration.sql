@@ -1,11 +1,11 @@
 -- CreateEnum
-CREATE TYPE "analytics"."Status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+CREATE TYPE "public"."Status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 
 -- CreateEnum
-CREATE TYPE "analytics"."NodeStatus" AS ENUM ('active', 'inactive');
+CREATE TYPE "public"."NodeStatus" AS ENUM ('active', 'inactive');
 
 -- CreateTable
-CREATE TABLE "analytics"."User" (
+CREATE TABLE "public"."User" (
     "id" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "role" INTEGER NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE "analytics"."User" (
 );
 
 -- CreateTable
-CREATE TABLE "analytics"."NodeRequest" (
+CREATE TABLE "public"."NodeRequest" (
     "id" TEXT NOT NULL,
     "orgName" TEXT,
     "email" TEXT,
@@ -24,8 +24,8 @@ CREATE TABLE "analytics"."NodeRequest" (
     "nodeAddress" TEXT NOT NULL,
     "plan" TEXT NOT NULL,
     "planId" TEXT NOT NULL,
-    "status" "analytics"."Status" NOT NULL,
-    "nodeStatus" "analytics"."NodeStatus" NOT NULL,
+    "status" "public"."Status" NOT NULL,
+    "nodeStatus" "public"."NodeStatus" NOT NULL,
     "bandwidth" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "remoteUrl" TEXT NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE "analytics"."NodeRequest" (
 );
 
 -- CreateTable
-CREATE TABLE "analytics"."Activity" (
+CREATE TABLE "public"."Activity" (
     "id" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "type" TEXT NOT NULL,
@@ -60,16 +60,16 @@ CREATE TABLE "analytics"."Activity" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_address_key" ON "analytics"."User"("address");
+CREATE UNIQUE INDEX "User_address_key" ON "public"."User"("address");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "NodeRequest_nodeAddress_key" ON "analytics"."NodeRequest"("nodeAddress");
+CREATE UNIQUE INDEX "NodeRequest_nodeAddress_key" ON "public"."NodeRequest"("nodeAddress");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "NodeRequest_address_key" ON "analytics"."NodeRequest"("address");
+CREATE UNIQUE INDEX "NodeRequest_address_key" ON "public"."NodeRequest"("address");
 
 -- AddForeignKey
-ALTER TABLE "analytics"."NodeRequest" ADD CONSTRAINT "NodeRequest_address_fkey" FOREIGN KEY ("address") REFERENCES "analytics"."User"("address") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."NodeRequest" ADD CONSTRAINT "NodeRequest_address_fkey" FOREIGN KEY ("address") REFERENCES "public"."User"("address") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "analytics"."Activity" ADD CONSTRAINT "Activity_id_fkey" FOREIGN KEY ("id") REFERENCES "analytics"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Activity" ADD CONSTRAINT "Activity_id_fkey" FOREIGN KEY ("id") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
