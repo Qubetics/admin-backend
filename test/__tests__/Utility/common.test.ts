@@ -8,7 +8,7 @@ import {
   decryptData,
   encryptData,
   isTokenExpired,
-  extractIP,
+  extractBothIP,
   canSubmitNodeRequest,
   convertNodeToWallet,
   isValidProviderStatusTx,
@@ -181,18 +181,18 @@ describe("Utils Test Suite", () => {
     });
   });
 
-  describe("extractIP", () => {
+  describe("extractBothIP", () => {
     it("should extract hostname from http url", () => {
-      expect(extractIP("http://192.168.1.1:8080")).toBe("192.168.1.1");
+      expect(extractBothIP("http://192.168.1.1:8080")).toBe("192.168.1.1");
     });
 
     it("should extract hostname from https url", () => {
-      expect(extractIP("https://google.com")).toBe("google.com");
+      expect(extractBothIP("https://google.com")).toBe("google.com");
     });
 
     it("should return empty string and log on invalid input", () => {
       try {
-        const res = extractIP(null as any);
+        const res = extractBothIP(null as any);
         expect(res).toBe("");
       } catch (e) { }
     });

@@ -6,6 +6,7 @@ import Worker from "../../../src/worker";
 import { saveNodes, saveProvider, batchUpdateNodeRequests } from "../../../src/helper/node.helper";
 import prisma from "../../../src/lib/db";
 import authService from "../../../src/module/auth/auth.service";
+import maxmindHelper from "../../../src/helper/maxmind.helper";
 
 jest.mock("node-cron");
 jest.mock("axios");
@@ -13,10 +14,18 @@ jest.mock("geoip-lite");
 jest.mock("i18n-iso-countries");
 jest.mock("../../../src/helper/node.helper");
 jest.mock("../../../src/module/auth/auth.service");
+jest.mock("../../../src/helper/maxmind.helper", () => ({
+  getLocationData: jest.fn().mockResolvedValue({
+    city: "New York",
+    country: "United States",
+    latitude: 40.7128,
+    longitude: -74.0060,
+  }),
+}));
 
 jest.mock("../../../src/Utility/common", () => ({
   convertNodeToWallet: jest.fn().mockImplementation((nodeAddress: string) => `qubetics:${nodeAddress}`),
-  extractIP: jest.fn().mockImplementation((url: string) => "1.2.3.4"),
+  extractBothIP: jest.fn().mockImplementation((url: string) => "1.2.3.4"),
 }));
 
 jest.mock("../../../src/lib/db", () => ({
@@ -159,6 +168,13 @@ describe("Worker", () => {
       });
       (countries.getName as jest.Mock).mockReturnValue("United States");
 
+      (maxmindHelper.getLocationData as jest.Mock).mockResolvedValue({
+        city: "New York",
+        country: "United States",
+        latitude: 40.7128,
+        longitude: -74.0060,
+      });
+
       (authService.addUser as jest.Mock).mockResolvedValue({});
 
       (prisma.nodeRequest.upsert as jest.Mock).mockResolvedValue({});
@@ -213,6 +229,12 @@ describe("Worker", () => {
     it("should use geo.country when countries.getName returns undefined", async () => {
       (geoip.lookup as jest.Mock).mockReturnValueOnce({ country: "XX" });
       (countries.getName as jest.Mock).mockReturnValueOnce(undefined);
+      (maxmindHelper.getLocationData as jest.Mock).mockResolvedValueOnce({
+        city: "Unknown",
+        country: "XX",
+        latitude: 0,
+        longitude: 0,
+      });
 
       mockAxios.get
         .mockResolvedValueOnce({

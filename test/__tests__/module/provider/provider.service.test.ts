@@ -10,7 +10,7 @@ jest.mock("../../../../src/lib/db", () => ({
 
 jest.mock("../../../../src/Utility/common", () => ({
   convertNodeToWallet: jest.fn(),
-  extractIP: jest.fn(),
+  extractBothIP: jest.fn(),
   fetchRequest: jest.fn(),
   getOffset: jest.fn(),
   getWalletAddressFromNodeAddress: jest.fn(),
@@ -20,17 +20,27 @@ jest.mock("geoip-lite", () => ({
   lookup: jest.fn(),
 }));
 
+jest.mock("../../../../src/helper/maxmind.helper", () => ({
+  getLocationData: jest.fn().mockResolvedValue({
+    city: "New York",
+    country: "United States",
+    latitude: 40.7128,
+    longitude: -74.0060,
+  }),
+}));
+
 import ProviderService from "../../../../src/module/provider/provider.service";
 import prisma from "../../../../src/lib/db";
 import {
   convertNodeToWallet,
-  extractIP,
+  extractBothIP,
   fetchRequest,
   getOffset,
   getWalletAddressFromNodeAddress,
 } from "../../../../src/Utility/common";
 import { FETCH_METHODS, RES_MSG, WALLET_PREFIX } from "../../../../src/constant";
 import geoip from "geoip-lite";
+import maxmindHelper from "../../../../src/helper/maxmind.helper";
 
 describe("ProviderService", () => {
   beforeEach(() => {
@@ -201,8 +211,8 @@ describe("ProviderService", () => {
 
       (getOffset as jest.Mock).mockReturnValue(0);
       (prisma.$queryRaw as jest.Mock).mockResolvedValueOnce(mockCountResult).mockResolvedValueOnce(mockNodeList);
-      (extractIP as jest.Mock).mockReturnValueOnce("192.168.1.1").mockReturnValueOnce("192.168.1.2");
-      (geoip.lookup as jest.Mock).mockReturnValueOnce({ city: "New York" }).mockReturnValueOnce({ city: "London" });
+      (extractBothIP as jest.Mock).mockReturnValueOnce("192.168.1.1").mockReturnValueOnce("192.168.1.2");
+      (maxmindHelper.getLocationData as jest.Mock).mockResolvedValueOnce({ city: "New York" }).mockResolvedValueOnce({ city: "London" });
 
       const result = await ProviderService.getProviderDetails("provider1", "1", "10");
 
@@ -235,7 +245,7 @@ describe("ProviderService", () => {
 
       (getOffset as jest.Mock).mockReturnValue(0);
       (prisma.$queryRaw as jest.Mock).mockResolvedValueOnce(mockCountResult).mockResolvedValueOnce(mockNodeList);
-      (extractIP as jest.Mock).mockReturnValueOnce(null);
+      (extractBothIP as jest.Mock).mockReturnValueOnce(null);
 
       const result = await ProviderService.getProviderDetails("provider1", "1", "10");
 
@@ -256,8 +266,8 @@ describe("ProviderService", () => {
 
       (getOffset as jest.Mock).mockReturnValue(0);
       (prisma.$queryRaw as jest.Mock).mockResolvedValueOnce(mockCountResult).mockResolvedValueOnce(mockNodeList);
-      (extractIP as jest.Mock).mockReturnValueOnce("192.168.1.1");
-      (geoip.lookup as jest.Mock).mockReturnValueOnce(null);
+      (extractBothIP as jest.Mock).mockReturnValueOnce("192.168.1.1");
+      (maxmindHelper.getLocationData as jest.Mock).mockResolvedValueOnce(null);
 
       const result = await ProviderService.getProviderDetails("provider1", "1", "10");
 
@@ -309,8 +319,8 @@ describe("ProviderService", () => {
 
       (getOffset as jest.Mock).mockReturnValue(0);
       (prisma.$queryRaw as jest.Mock).mockResolvedValueOnce(mockCountResult).mockResolvedValueOnce(mockNodeList);
-      (extractIP as jest.Mock).mockReturnValueOnce("192.168.1.1");
-      (geoip.lookup as jest.Mock).mockReturnValueOnce({ city: "New York" });
+      (extractBothIP as jest.Mock).mockReturnValueOnce("192.168.1.1");
+      (maxmindHelper.getLocationData as jest.Mock).mockResolvedValueOnce({ city: "New York" });
 
       const result = await ProviderService.getProviderDetails("provider1");
 
