@@ -219,6 +219,48 @@ class ProviderService {
       return { error: true, message: RES_MSG.ERROR };
     }
   }
+
+  async getProviderLeaseId(address: string): Promise<any> {
+    try {
+      if (!address || address === UNDEFINED) {
+        return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
+      }
+
+      const url = `${environment.evmHost}qubetics/lease/v1/providers/${address}/leases`;
+      const response = await fetchRequest(url, FETCH_METHODS.GET);
+
+      if (!response || response.error) {
+        return { error: true, message: RES_MSG.PROVIDER_ADDRESS_IS_PRESENT };
+      }
+
+      const leases = response?.data?.leases || [];
+
+      if (leases.length === 0) {
+        return {
+          error: true,
+          message: RES_MSG.NO_LEASE_FOUND,
+        
+        };
+      }
+
+      leases.sort((a: any, b: any) => {
+        const dateA = new Date(a.start_at).getTime();
+        const dateB = new Date(b.start_at).getTime();
+        return dateB - dateA;
+      });
+
+      const latestLeaseId = leases[0].id;
+
+      return {
+        error: false,
+        message: RES_MSG.FETCH_SUCCESS,
+        data: { leaseId: latestLeaseId },
+      };
+    } catch (err) {
+      logger.error("getProviderLeaseId error:", err);
+      return { error: true, message: RES_MSG.ERROR };
+    }
+  }
 }
 
 export default new ProviderService();
