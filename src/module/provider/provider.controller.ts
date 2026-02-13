@@ -18,6 +18,7 @@ class ProviderController implements Controller {
     this.router.get("/search",this.isProviderAddressExists);
     this.router.get("/active-plans", this.getActivePlanProviders);
     this.router.get("/detail/:address", this.getProviderDetails);
+    this.router.get("/lease/:address", this.getProviderLeaseId);
   }
 
   private getAllProvider = async (request: Request, response: Response) => {
@@ -64,6 +65,19 @@ class ProviderController implements Controller {
       return setResponse.error(response, user);
     }
     return setResponse.success(response, user);
+  };
+
+  private getProviderLeaseId = async (
+    request: Request,
+    response: Response
+  ) => {
+    const { address } = request.params;
+
+    const result = await providerService.getProviderLeaseId(address as string);
+    if (result.error) {
+      return setResponse.error(response, result);
+    }
+    return setResponse.success(response, result);
   };
 }
 

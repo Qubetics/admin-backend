@@ -73,6 +73,7 @@ export const RES_MSG = {
   NO_RECORDS: "No records found for the given address",
   ADDRESS_REQUIRED: "address parameter is required",
   INVALID_STATUS: "Invalid status value. Allowed: PENDING, APPROVED, REJECTED",
+  NO_LEASE_FOUND: "No lease found for the given provider address",
 };
 
 export const CONST_NAME = {
