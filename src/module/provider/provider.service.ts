@@ -34,8 +34,8 @@ class ProviderService {
 
       if (page && limit) {
         const nodeCounts = await prisma.$queryRaw<
-        { provAddress: string; count: bigint }[]
-      >`
+          { provAddress: string; count: bigint }[]
+        >`
         SELECT "provAddress", COUNT(*)::bigint AS count
         FROM "NodeRequest"
         WHERE "nodeStatus" = 'active'
@@ -122,21 +122,25 @@ class ProviderService {
         if (!ip) {
           return { ...node, city: null };
         }
-  
 
-      const geo = await maxmindHelper.getLocationData(String(ip));
+
+        const geo = await maxmindHelper.getLocationData(String(ip));
         return {
           ...node,
           city: geo?.city || null,
         };
       }));
 
+      const enrichedNodes = enrichedNodesResults
+        .filter(result => result.status === "fulfilled")
+        .map(result => result.value);
+
       return {
         error: false,
         message: RES_MSG.FETCH_SUCCESS,
         data: {
           total: totalCount,
-          nodes: enrichedNodesResults,
+          nodes: enrichedNodes,
         },
       };
     } catch (err) {
@@ -246,7 +250,6 @@ class ProviderService {
         return {
           error: true,
           message: RES_MSG.NO_LEASE_FOUND,
-        
         };
       }
 
@@ -260,8 +263,8 @@ class ProviderService {
             message: RES_MSG.NO_LEASE_FOUND,
           };
         }
-      }else{
-         return { error: true, message: RES_MSG.NODE_ADRES_IS_NOT_PRESENT };
+      } else {
+        return { error: true, message: RES_MSG.NODE_ADRES_IS_NOT_PRESENT };
       }
 
       leases.sort((a: any, b: any) => {
