@@ -7,9 +7,9 @@
   "scripts": {
     "dev": "nodemon ./src/server.ts",
     "start": "ts-node ./src/server.ts",
-    "build": "tsc -p .",
+    "build": "tsc",
     "build:prod": "tsc -p .",
-    "start:prod": "node dist/server.js",
+    "start:prod": "node build/server.js",
     "test": "jest --detectOpenHandles  ",
     "test:coverage": "jest --coverage --detectOpenHandles  ",
     "generate": "npm -s run generate:prisma && npm -s run generate:nexus",
