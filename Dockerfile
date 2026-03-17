@@ -14,4 +14,4 @@ RUN apk del .build-deps
 RUN npm run build
 # USER node
 EXPOSE 7400 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:prod"]
