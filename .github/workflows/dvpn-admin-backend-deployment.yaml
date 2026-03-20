@@ -14,8 +14,8 @@ jobs:
       HUAWEI_REGION: 'ap-southeast-1'
       ARGOCD_REPOSITORY: Qubetics/argocd-qubetics
       DEPLOYMENT_PATH: Dvpn-admin-backend/deployment.yaml
-      HUAWEI_IMAGE: dev-dvpn-admin-backend
-      DOCKER_USERNAME: ap-southeast-3@${{vars.DOCKER_USERNAME_V2}}
+      HUAWEI_IMAGE: prod-dvpn-admin-backend
+      DOCKER_USERNAME: ap-southeast-1@${{vars.DOCKER_USERNAME_V2}}
       ENV: ${{ vars.DEV_BACKEND }}
     secrets:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD_V2 }}
