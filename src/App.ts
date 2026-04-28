@@ -26,7 +26,7 @@ export default class App {
     this.middleware();
 
     // It is going to trust to the proxy
-    //  this.express.set('trust proxy', 2);
+    this.express.set('trust proxy', 2);
 
     // register the all routes
     this.routes();
