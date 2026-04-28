@@ -18,16 +18,14 @@ export default function registerRoutes(): Router {
   const providerControlller = new ProviderController();
   const activityController = new ActivityController();
 
-  router.use("/status", (req, res) => {
-    const xForwardedFor = req.headers['x-forwarded-for'];
-    const clientIp = req.ip;        // parsed by Express (trust proxy aware)
-    const allIps = req.ips;         // full chain if multiple proxies
+  router.get("/status", (req, res) => {
+    const clientIp =
+      req.headers['cf-connecting-ip'] || 
+      req.ip;                            
   
     res.json({
       message: "Up and Running",
-      xForwardedFor,
-      clientIp,
-      allIps
+      clientIp
     });
   });
   router.use("/auth", authController.router);
