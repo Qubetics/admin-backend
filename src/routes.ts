@@ -18,8 +18,15 @@ export default function registerRoutes(): Router {
   const providerControlller = new ProviderController();
   const activityController = new ActivityController();
 
-  router.use("/status", (req, res) => {
-    res.json({ message: "Up and Running" });
+  router.get("/status", (req, res) => {
+    const clientIp =
+      req.headers['cf-connecting-ip'] || 
+      req.ip;                            
+  
+    res.json({
+      message: "Up and Running",
+      clientIp
+    });
   });
   router.use("/auth", authController.router);
   router.use("/plans", planController.router);
