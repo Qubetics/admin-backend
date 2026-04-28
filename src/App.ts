@@ -25,6 +25,9 @@ export default class App {
     // add all global middleware like cors
     this.middleware();
 
+    // It is going to trust to the proxy
+    // this.express.set('trust proxy', 2);
+
     // register the all routes
     this.routes();
 
