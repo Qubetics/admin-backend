@@ -32,6 +32,8 @@ class Environment implements IEnvironment {
 
   public cors_origins: string;
 
+  public planToggler: string;
+
   // public allowed_origins: string;
 
   /**
@@ -54,6 +56,7 @@ class Environment implements IEnvironment {
     this.service_email = <string>process.env.MAILING_SERVICE_EMAIL;
     this.gitbook_url = <string>process.env.GITBOOK_URL;
     this.cors_origins = <string>process.env.CORS_ORIGINS;
+    this.planToggler = <string>process.env.PLAN_TOGGLER;
     // this.allowed_origins = <string>process.env.ALLOWED_ORIGINS;
   }
 
