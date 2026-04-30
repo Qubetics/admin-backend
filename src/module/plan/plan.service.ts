@@ -1,4 +1,4 @@
-import { RES_MSG, provWalletPrefix } from "../../constant";
+import { CONST_NAME, RES_MSG, provWalletPrefix } from "../../constant";
 import { convertNodeToWallet, fetchRequest, getOffset } from "../../Utility/common";
 import { FETCH_METHODS } from "../../constant";
 import logger from "../../lib/logger";
@@ -26,8 +26,10 @@ class PlanService {
         return { error: true, message: RES_MSG.ERROR };
       }
 
-      const plans = planResponse.data.plans;
-
+      const plans = planResponse.data.plans?.filter(
+        (plan: any) => !(environment.planToggler==CONST_NAME.TRUE && plan.id === CONST_NAME.SIX)
+      );
+      
       return {
         error: false,
         message: RES_MSG.FETCH_SUCCESS,

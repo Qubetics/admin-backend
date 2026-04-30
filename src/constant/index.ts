@@ -95,10 +95,12 @@ export const CONST_NAME = {
   NA: "N/A",
   YEAR_MILI_SEC: 31536000000,
   BLOCK_PER_YEAR: 365 * 24 * 60 * 60,
+  SIX: '6',
   ETH_EXP: 10 ** 18,
   NOT_FOUND: "not found",
   MARKET_CAP_PRICE: "MARKET_CAP_PRICE",
   BOND_STATUS: "BOND_STATUS_BONDED",
+  TRUE: "true",
 };
 
 export const ASC = "asc";
