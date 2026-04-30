@@ -4,7 +4,7 @@ import { FETCH_METHODS } from "../../constant";
 import logger from "../../lib/logger";
 
 class PlanService {
-  constructor() {}
+  constructor() { }
 
   async getAllPlans(data: any): Promise<any> {
     try {
@@ -27,9 +27,14 @@ class PlanService {
       }
 
       const plans = planResponse.data.plans?.filter(
-        (plan: any) => !(environment.planToggler==CONST_NAME.TRUE && plan.id === CONST_NAME.SIX)
+        (plan: any) => !(environment.planToggler == CONST_NAME.TRUE && plan.id === CONST_NAME.SIX)
       );
-      
+      // Fix total count based on filtered plans
+      const total = plans?.length || 0;
+
+      // // If you need to mutate original response:
+      planResponse.data.pagination.total = String(total);
+
       return {
         error: false,
         message: RES_MSG.FETCH_SUCCESS,

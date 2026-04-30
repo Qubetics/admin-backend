@@ -30,7 +30,7 @@ import { fromBase64 } from "@cosmjs/encoding";
  * @param data
  * @returns
  */
-export async function fetchRequest(url: string, method: string, data: any = null) {
+export async function fetchRequest(url: string, method: string, data: any = null):Promise<any> {
   try {
     const result = await axios({
       method,
