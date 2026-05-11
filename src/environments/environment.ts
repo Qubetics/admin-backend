@@ -34,6 +34,8 @@ class Environment implements IEnvironment {
 
   public planToggler: string;
 
+  public redisPassword : string;
+
   // public allowed_origins: string;
 
   /**
@@ -57,6 +59,7 @@ class Environment implements IEnvironment {
     this.gitbook_url = <string>process.env.GITBOOK_URL;
     this.cors_origins = <string>process.env.CORS_ORIGINS;
     this.planToggler = <string>process.env.PLAN_TOGGLER;
+    this.redisPassword=<string>process.env.REDIS_PASS;
     // this.allowed_origins = <string>process.env.ALLOWED_ORIGINS;
   }
 

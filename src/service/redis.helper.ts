@@ -18,7 +18,7 @@ class RedisService {
   public async startRedis() {
     try {
       this.client = createClient({
-        url: `redis://${environment.redisHost}:${environment.redisPort}/0`,
+        url: `redis://:${environment.redisPassword}@${environment.redisHost}:${environment.redisPort}/0`,
       });
 
       await this.client.connect();
