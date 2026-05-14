@@ -20,4 +20,3 @@ jobs:
     secrets:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD_V2 }}
       GIT_SSH_KEY: ${{ secrets.ARGOCD_SSH_KEY_NEW }} 
-      
