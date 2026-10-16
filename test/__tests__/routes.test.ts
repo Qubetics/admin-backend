@@ -62,7 +62,7 @@ describe("registerRoutes", () => {
 
     expect(router).toBeDefined();
     expect(router).toBe(mockRouter);
-    expect(router.use).toHaveBeenCalledWith("/status", expect.any(Function));
+    expect(router.get).toHaveBeenCalledWith("/status", expect.any(Function));
   });
 
   it("should register controller routes", () => {

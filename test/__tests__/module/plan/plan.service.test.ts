@@ -15,6 +15,7 @@ jest.mock("../../../../src/constant", () => ({
   },
   provWalletPrefix: "prov-",
   FETCH_METHODS: { GET: "GET" },
+  CONST_NAME: { TRUE: "true", SIX: "6" },
 }));
 
 import { convertNodeToWallet, fetchRequest, getOffset } from "../../../../src/Utility/common";
